@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #1e40af;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+}
+
+/* Staggered Floating Animations for 4 Phones */
+@keyframes float1 {
+  0%, 100% {
+    transform: translateY(0px) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-6deg);
+  }
+}
+
+@keyframes float2 {
+  0%, 100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-2deg);
+  }
+}
+
+@keyframes float3 {
+  0%, 100% {
+    transform: translateY(0px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(2deg);
+  }
+}
+
+@keyframes float4 {
+  0%, 100% {
+    transform: translateY(0px) rotate(6deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(6deg);
+  }
+}
+
+.animate-phone-1 {
+  animation: float1 6s ease-in-out infinite;
+}
+
+.animate-phone-2 {
+  animation: float2 5.5s ease-in-out 0.5s infinite;
+}
+
+.animate-phone-3 {
+  animation: float3 6.2s ease-in-out 1s infinite;
+}
+
+.animate-phone-4 {
+  animation: float4 5.8s ease-in-out 1.5s infinite;
+}
+
+/* Timer Cards & Controls */
+.timer-card {
+  background-color: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 0.875rem;
+}
+
+.phone-mockup {
+  background-color: #0f172a;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 1.75rem;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease, z-index 0.3s ease;
+}
+
+.phone-mockup:hover {
+  z-index: 50 !important;
+  transform: translateY(-16px) scale(1.04) !important;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
