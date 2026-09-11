@@ -59,6 +59,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       mode: process.env.NUXT_PUBLIC_MODE || 'coming_soon',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://api.bekasku.id',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=bkk.app.bekasku.bekasku',
       appStoreUrl: 'https://apps.apple.com/id/app/bekasku/id1609048207',
       launchDate: '2026-11-25T00:00:00+07:00',

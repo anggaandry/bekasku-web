@@ -171,8 +171,12 @@
     </main>
 
     <!-- Footer with matching balanced margins -->
-    <footer class="w-full px-8 sm:px-14 lg:px-20 xl:px-24 pb-5 pt-3 text-center text-xs text-blue-100 z-10">
+    <footer class="w-full px-8 sm:px-14 lg:px-20 xl:px-24 pb-5 pt-3 text-center text-xs text-blue-100 z-10 flex flex-wrap items-center justify-center gap-3">
       <p>&copy; {{ new Date().getFullYear() }} Bekasku. Seluruh Hak Cipta Dilindungi.</p>
+      <span class="hidden sm:inline-block text-blue-300">&bull;</span>
+      <NuxtLink to="/terms" class="text-white hover:text-blue-200 underline underline-offset-4 font-medium transition-colors">
+        Syarat &amp; Ketentuan
+      </NuxtLink>
     </footer>
   </div>
 
@@ -302,6 +306,7 @@ onMounted(() => {
     // 2. Draw & update interactive particles
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i]
+      if (!p) continue
 
       // Natural gentle float movement
       p.x += p.vx
@@ -337,6 +342,8 @@ onMounted(() => {
       // Connect nearby particles with delicate faint constellation lines
       for (let j = i + 1; j < particles.length; j++) {
         const p2 = particles[j]
+        if (!p2) continue
+
         const djx = p.x - p2.x
         const djy = p.y - p2.y
         const distance = Math.sqrt(djx * djx + djy * djy)

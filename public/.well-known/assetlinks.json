@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "bkk.app.bekasku.bekasku",
+      "sha256_cert_fingerprints": [
+        "30:4A:F9:33:CA:91:6E:A7:AB:89:96:37:65:5C:2E:22:F2:13:12:A5:58:7F:60:49:61:0B:2D:67:82:FB:F6:58",
+        "84:B0:C0:97:8A:51:B4:50:75:95:28:53:2A:59:72:B6:F8:58:45:16:F0:19:5D:FC:7F:1D:2B:8B:B6:6A:85:1B"
+      ]
+    }
+  }
+]

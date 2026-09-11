@@ -1,0 +1,21 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "MB4465Z6SU.bkk.app.bekasku.bekasku",
+        "paths": [
+          "/product/*",
+          "/seller/*",
+          "/go/*",
+          "/p/*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "MB4465Z6SU.bkk.app.bekasku.bekasku"
+    ]
+  }
+}
