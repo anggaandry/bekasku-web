@@ -228,7 +228,7 @@ const fallbackProduct = {
 
 // Fetch data dari API Backend Bekasku
 const apiBase = config.public.apiBase || 'https://api.bekasku.id';
-const { data: apiData, pending } = await useFetch(`${apiBase}/product/public/detail/${productId}`, {
+const { data: apiData, pending } = await useFetch(`${apiBase}/v3/api/product/public/detail/${productId}`, {
   key: `product-${productId}`,
   lazy: true,
   server: true,
