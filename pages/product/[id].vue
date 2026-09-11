@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-100 text-slate-900 font-['Poppins'] flex flex-col selection:bg-[#2563eb] selection:text-white">
+  <div class="min-h-screen bg-slate-100 text-slate-900 font-['Poppins'] flex flex-col selection:bg-[#E31B23] selection:text-white">
     <!-- Top Bar -->
     <header class="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -9,14 +9,14 @@
             alt="Bekasku Icon"
             class="h-8 w-auto object-contain"
           />
-          <span class="text-xl sm:text-2xl font-bold tracking-tight text-[#2563eb]">Bekasku</span>
+          <span class="text-xl sm:text-2xl font-bold tracking-tight text-[#E31B23]">Bekasku</span>
         </NuxtLink>
 
         <!-- CTA Buka Aplikasi -->
         <div class="flex items-center gap-2.5">
           <button
             @click="openNativeApp"
-            class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95"
+            class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#E31B23] hover:bg-[#B91219] text-white font-semibold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95"
           >
             <Smartphone class="w-4 h-4" />
             <span>Buka di Aplikasi</span>
@@ -26,7 +26,7 @@
     </header>
 
     <!-- Notification Banner (Auto Launch Status) -->
-    <div v-if="launchingApp" class="bg-blue-600 text-white text-xs sm:text-sm py-2.5 px-4 text-center flex items-center justify-center gap-2 animate-pulse">
+    <div v-if="launchingApp" class="bg-[#E31B23] text-white text-xs sm:text-sm py-2.5 px-4 text-center flex items-center justify-center gap-2 animate-pulse">
       <Smartphone class="w-4 h-4" />
       <span>Membuka aplikasi BekasKu... Jika aplikasi belum terbuka, klik tombol di bawah.</span>
     </div>
@@ -36,7 +36,7 @@
       
       <!-- Back Navigation -->
       <div class="mb-4">
-        <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-500 hover:text-[#2563eb] transition-colors">
+        <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-500 hover:text-[#E31B23] transition-colors">
           <ArrowLeft class="w-4 h-4" />
           <span>Kembali ke Beranda Bekasku</span>
         </NuxtLink>
@@ -44,14 +44,14 @@
 
       <!-- Loading State -->
       <div v-if="pending" class="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 text-center space-y-4 shadow-xs">
-        <div class="inline-block w-8 h-8 border-4 border-[#2563eb] border-t-transparent rounded-full animate-spin"></div>
+        <div class="inline-block w-8 h-8 border-4 border-[#E31B23] border-t-transparent rounded-full animate-spin"></div>
         <p class="text-sm text-slate-600">Memuat rincian produk...</p>
       </div>
 
       <!-- Product Card Container -->
       <div v-else class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start">
         
-        <!-- Left: Image Gallery (5 cols on desktop) -->
+        <!-- Left: Image Gallery (6 cols on desktop) -->
         <div class="md:col-span-6 space-y-3">
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs relative aspect-square flex items-center justify-center bg-slate-50">
             <img
@@ -72,51 +72,55 @@
               :key="idx"
               @click="selectedImageIdx = idx"
               class="w-16 h-16 rounded-xl border-2 overflow-hidden shrink-0 transition-all"
-              :class="selectedImageIdx === idx ? 'border-[#2563eb] shadow-sm scale-95' : 'border-slate-200 opacity-70 hover:opacity-100'"
+              :class="selectedImageIdx === idx ? 'border-[#E31B23] shadow-sm scale-95' : 'border-slate-200 opacity-70 hover:opacity-100'"
             >
               <img :src="img" :alt="product.title" class="w-full h-full object-cover" />
             </button>
           </div>
         </div>
 
-        <!-- Right: Product Information & CTAs (7 cols on desktop) -->
+        <!-- Right: Product Information & CTAs (6 cols on desktop) -->
         <div class="md:col-span-6 space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-5 shadow-xs">
             
             <!-- Title & Price -->
             <div class="space-y-2 border-b border-slate-100 pb-5">
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-50 text-[#2563eb] inline-block mb-1">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-red-50 text-[#E31B23] inline-block mb-1">
                 Produk Bekasku
               </span>
               <h1 class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
                 {{ product.title }}
               </h1>
               <div class="pt-1">
-                <span class="text-2xl sm:text-3xl font-bold text-[#2563eb]">
+                <span class="text-2xl sm:text-3xl font-bold text-[#E31B23]">
                   {{ formatRupiah(product.price) }}
                 </span>
               </div>
             </div>
 
-            <!-- Seller Info & Location -->
-            <div class="flex items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-full bg-blue-100 text-[#2563eb] flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden">
+            <!-- Seller Info & Location (Structured & Clean Layout) -->
+            <div class="flex items-center justify-between gap-3 py-3 border-b border-slate-100">
+              <!-- Seller -->
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div class="w-11 h-11 rounded-full bg-red-50 border border-red-100 text-[#E31B23] flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden shadow-xs">
                   <img v-if="product.seller_avatar" :src="product.seller_avatar" :alt="product.seller_name" class="w-full h-full object-cover" />
                   <Store v-else class="w-5 h-5" />
                 </div>
-                <div class="min-w-0">
-                  <p class="text-xs text-slate-400">Penjual</p>
-                  <p class="text-sm font-semibold text-slate-800 truncate">{{ product.seller_name }}</p>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Penjual</p>
+                  <p class="text-sm font-bold text-slate-900 truncate">{{ product.seller_name || 'Penjual BekasKu' }}</p>
                 </div>
               </div>
 
-              <div class="text-right shrink-0">
-                <p class="text-xs text-slate-400 flex items-center justify-end gap-1">
+              <!-- Location -->
+              <div class="text-right shrink-0 max-w-[45%]">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-end gap-1">
                   <MapPin class="w-3.5 h-3.5 text-slate-400" />
-                  Lokasi
+                  <span>Lokasi</span>
                 </p>
-                <p class="text-xs sm:text-sm font-medium text-slate-700">{{ product.location || 'Indonesia' }}</p>
+                <p class="text-xs sm:text-sm font-medium text-slate-700 truncate" :title="formatLocation(product.location)">
+                  {{ formatLocation(product.location) }}
+                </p>
               </div>
             </div>
 
@@ -132,7 +136,7 @@
             <div class="pt-2 space-y-3">
               <button
                 @click="openNativeApp"
-                class="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all active:scale-98"
+                class="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl bg-[#E31B23] hover:bg-[#B91219] text-white font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all active:scale-98"
               >
                 <ShoppingBag class="w-5 h-5" />
                 <span>Beli / Buka di Aplikasi BekasKu</span>
@@ -146,10 +150,10 @@
           </div>
 
           <!-- App Download Section (If user doesn't have app) -->
-          <div class="bg-gradient-to-br from-slate-900 to-blue-950 rounded-2xl p-5 sm:p-6 text-white space-y-4 shadow-md">
+          <div class="bg-gradient-to-br from-slate-900 to-red-950 rounded-2xl p-5 sm:p-6 text-white space-y-4 shadow-md">
             <div class="space-y-1">
               <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                <Download class="w-4 h-4 text-blue-400" />
+                <Download class="w-4 h-4 text-red-400" />
                 Belum Memiliki Aplikasi BekasKu?
               </h3>
               <p class="text-xs text-slate-300 leading-relaxed">
@@ -176,7 +180,7 @@
                 rel="noopener noreferrer"
                 class="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold transition-colors"
               >
-                <Smartphone class="w-4 h-4 text-blue-400" />
+                <Smartphone class="w-4 h-4 text-red-400" />
                 <span>App Store</span>
               </a>
             </div>
@@ -226,6 +230,25 @@ const fallbackProduct = {
   condition: 'Bekas Terawat'
 };
 
+// Safe helper format location (mencegah pencetakan raw GeoJSON object)
+function formatLocation(loc) {
+  if (!loc) return 'Indonesia';
+  if (typeof loc === 'string') {
+    const trimmed = loc.trim();
+    if (trimmed.startsWith('{') && trimmed.includes('coordinates')) {
+      return 'Indonesia';
+    }
+    return trimmed;
+  }
+  if (typeof loc === 'object') {
+    if (loc.city || loc.province) {
+      return [loc.subdistrict, loc.city, loc.province].filter(Boolean).join(', ');
+    }
+    return 'Indonesia';
+  }
+  return String(loc);
+}
+
 // Fetch data dari API Backend Bekasku
 const apiBase = config.public.apiBase || 'https://api.bekasku.id';
 const { data: apiData, pending } = await useFetch(`${apiBase}/v3/api/product/public/detail/${productId}`, {
@@ -244,7 +267,7 @@ const product = computed(() => {
       price: res.price || 0,
       description: res.description || fallbackProduct.description,
       images: Array.isArray(res.images) && res.images.length > 0 ? res.images : (res.image ? [res.image] : fallbackProduct.images),
-      location: res.location || fallbackProduct.location,
+      location: formatLocation(res.location),
       seller_name: res.seller_name || fallbackProduct.seller_name,
       seller_avatar: res.seller_avatar || '',
       condition: res.condition || fallbackProduct.condition
@@ -286,15 +309,13 @@ function formatRupiah(val) {
 
 function openNativeApp() {
   const appUri = `bekasku://product/${productId}`;
-  const playStore = config.public.playStoreUrl;
-  const appStore = config.public.appStoreUrl;
   
   launchingApp.value = true;
   
   // 1. Coba buka Native URI Scheme
   window.location.href = appUri;
 
-  // 2. Fallback timeout: Jika dalam 1.8 detik browser masih aktif (aplikasi belum terinstall)
+  // 2. Fallback timeout: Jika dalam 2 detik browser masih aktif (aplikasi belum terinstall)
   setTimeout(() => {
     launchingApp.value = false;
   }, 2000);

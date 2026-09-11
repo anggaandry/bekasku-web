@@ -2,7 +2,7 @@
   <!-- 1. COMING SOON MODE (Default) -->
   <div
     v-if="isComingSoon"
-    class="min-h-screen lg:h-screen lg:max-h-screen w-full bg-[#2563eb] text-white flex flex-col justify-between selection:bg-white selection:text-[#2563eb] font-['Poppins'] relative overflow-hidden"
+    class="min-h-screen lg:h-screen lg:max-h-screen w-full bg-[#E31B23] text-white flex flex-col justify-between selection:bg-white selection:text-[#E31B23] font-['Poppins'] relative overflow-hidden"
   >
     <!-- Interactive Particle & Light Canvas -->
     <canvas
@@ -35,7 +35,7 @@
               Bekasku Web <br />
               Segera Hadir!
             </h1>
-            <p class="text-sm sm:text-base text-blue-100 max-w-lg mx-auto lg:mx-0 font-normal leading-relaxed">
+            <p class="text-sm sm:text-base text-red-100 max-w-lg mx-auto lg:mx-0 font-normal leading-relaxed">
               Marketplace jual beli barang bekas dan preloved terpercaya #1 di Indonesia. Nikmati transaksi aman dan mudah langsung dari browser Anda.
             </p>
           </div>
@@ -45,26 +45,26 @@
             <div class="grid grid-cols-4 gap-2.5 sm:gap-3 text-center">
               <div class="timer-card p-2.5 sm:p-3 flex flex-col items-center">
                 <span class="text-2xl sm:text-3xl font-bold text-white tracking-tight">{{ padZero(timeLeft.days) }}</span>
-                <span class="text-[10px] sm:text-[11px] font-normal text-blue-100 uppercase tracking-wider mt-0.5">Hari</span>
+                <span class="text-[10px] sm:text-[11px] font-normal text-red-100 uppercase tracking-wider mt-0.5">Hari</span>
               </div>
               <div class="timer-card p-2.5 sm:p-3 flex flex-col items-center">
                 <span class="text-2xl sm:text-3xl font-bold text-white tracking-tight">{{ padZero(timeLeft.hours) }}</span>
-                <span class="text-[10px] sm:text-[11px] font-normal text-blue-100 uppercase tracking-wider mt-0.5">Jam</span>
+                <span class="text-[10px] sm:text-[11px] font-normal text-red-100 uppercase tracking-wider mt-0.5">Jam</span>
               </div>
               <div class="timer-card p-2.5 sm:p-3 flex flex-col items-center">
                 <span class="text-2xl sm:text-3xl font-bold text-white tracking-tight">{{ padZero(timeLeft.minutes) }}</span>
-                <span class="text-[10px] sm:text-[11px] font-normal text-blue-100 uppercase tracking-wider mt-0.5">Menit</span>
+                <span class="text-[10px] sm:text-[11px] font-normal text-red-100 uppercase tracking-wider mt-0.5">Menit</span>
               </div>
               <div class="timer-card p-2.5 sm:p-3 flex flex-col items-center">
                 <span class="text-2xl sm:text-3xl font-bold text-white tracking-tight">{{ padZero(timeLeft.seconds) }}</span>
-                <span class="text-[10px] sm:text-[11px] font-normal text-blue-100 uppercase tracking-wider mt-0.5">Detik</span>
+                <span class="text-[10px] sm:text-[11px] font-normal text-red-100 uppercase tracking-wider mt-0.5">Detik</span>
               </div>
             </div>
           </div>
 
           <!-- Download Mobile App (Large Buttons) -->
           <div class="space-y-2.5 pt-1">
-            <p class="text-xs sm:text-sm font-medium text-blue-100">
+            <p class="text-xs sm:text-sm font-medium text-red-100">
               Download aplikasi mobile Bekasku sekarang:
             </p>
             <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3.5">
@@ -115,11 +115,11 @@
           
           <div class="relative w-full flex items-center justify-center -space-x-12 sm:-space-x-16 lg:-space-x-20">
             
-            <!-- Phone 1: Search & Filter (search_product.png) -->
+            <!-- Phone 1: Search & Filter (search_red.png) -->
             <div class="phone-mockup w-[150px] sm:w-[190px] lg:w-[220px] xl:w-[240px] p-1.5 sm:p-2 animate-phone-1 z-10">
               <div class="relative w-full rounded-[1.4rem] overflow-hidden bg-slate-950 max-h-[320px] sm:max-h-[420px] lg:max-h-[480px] overflow-y-auto scrollbar-none shadow-2xl">
                 <img
-                  src="/images/search_product.png"
+                  src="/search_red.png"
                   alt="Bekasku Search Screen"
                   class="w-full h-auto object-cover"
                   loading="eager"
@@ -127,11 +127,11 @@
               </div>
             </div>
 
-            <!-- Phone 2: Home Screen (app_preview.png) -->
+            <!-- Phone 2: Home Screen (home_red.png) -->
             <div class="phone-mockup w-[155px] sm:w-[195px] lg:w-[225px] xl:w-[245px] p-1.5 sm:p-2 animate-phone-2 z-20">
               <div class="relative w-full rounded-[1.4rem] overflow-hidden bg-slate-950 max-h-[330px] sm:max-h-[430px] lg:max-h-[490px] overflow-y-auto scrollbar-none shadow-2xl">
                 <img
-                  src="/images/app_preview.png"
+                  src="/home_red.png"
                   alt="Bekasku Home Screen"
                   class="w-full h-auto object-cover"
                   loading="eager"
@@ -139,24 +139,24 @@
               </div>
             </div>
 
-            <!-- Phone 3: Product Detail (product_detail.png) -->
+            <!-- Phone 3: Promo & Deals (promo_red.png) -->
             <div class="phone-mockup w-[160px] sm:w-[200px] lg:w-[230px] xl:w-[250px] p-1.5 sm:p-2 animate-phone-3 z-30 shadow-[0_25px_50px_-10px_rgba(0,0,0,0.7)]">
               <div class="relative w-full rounded-[1.4rem] overflow-hidden bg-slate-950 max-h-[340px] sm:max-h-[440px] lg:max-h-[500px] overflow-y-auto scrollbar-none shadow-2xl">
                 <img
-                  src="/images/product_detail.png"
-                  alt="Bekasku Product Detail Screen"
+                  src="/promo_red.png"
+                  alt="Bekasku Promo Screen"
                   class="w-full h-auto object-cover"
                   loading="eager"
                 />
               </div>
             </div>
 
-            <!-- Phone 4: Chat & Negosiasi Inbox (inbox_chat.png) -->
+            <!-- Phone 4: Profile & Akun (profile_red.png) -->
             <div class="phone-mockup w-[150px] sm:w-[190px] lg:w-[220px] xl:w-[240px] p-1.5 sm:p-2 animate-phone-4 z-20">
               <div class="relative w-full rounded-[1.4rem] overflow-hidden bg-slate-950 max-h-[320px] sm:max-h-[420px] lg:max-h-[480px] overflow-y-auto scrollbar-none shadow-2xl">
                 <img
-                  src="/images/inbox_chat.png"
-                  alt="Bekasku Chat Inbox Screen"
+                  src="/profile_red.png"
+                  alt="Bekasku Profile Screen"
                   class="w-full h-auto object-cover"
                   loading="eager"
                 />
@@ -171,10 +171,10 @@
     </main>
 
     <!-- Footer with matching balanced margins -->
-    <footer class="w-full px-8 sm:px-14 lg:px-20 xl:px-24 pb-5 pt-3 text-center text-xs text-blue-100 z-10 flex flex-wrap items-center justify-center gap-3">
+    <footer class="w-full px-8 sm:px-14 lg:px-20 xl:px-24 pb-5 pt-3 text-center text-xs text-red-100 z-10 flex flex-wrap items-center justify-center gap-3">
       <p>&copy; {{ new Date().getFullYear() }} Bekasku. Seluruh Hak Cipta Dilindungi.</p>
-      <span class="hidden sm:inline-block text-blue-300">&bull;</span>
-      <NuxtLink to="/terms" class="text-white hover:text-blue-200 underline underline-offset-4 font-medium transition-colors">
+      <span class="hidden sm:inline-block text-red-300">&bull;</span>
+      <NuxtLink to="/terms" class="text-white hover:text-red-200 underline underline-offset-4 font-medium transition-colors">
         Syarat &amp; Ketentuan
       </NuxtLink>
     </footer>
@@ -182,7 +182,7 @@
 
   <!-- 2. FULL WEB MODE (Saat rilis penuh) -->
   <div v-else class="min-h-screen bg-slate-50 text-slate-900 font-['Poppins']">
-    <header class="w-full bg-[#2563eb] text-white px-6 py-4">
+    <header class="w-full bg-[#E31B23] text-white px-6 py-4">
       <div class="max-w-6xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-2">
           <img src="/images/icon_only.png" alt="Bekasku" class="h-8 w-auto brightness-0 invert" />
@@ -294,8 +294,8 @@ onMounted(() => {
       mouse.y,
       mouse.radius
     )
-    auraGradient.addColorStop(0, 'rgba(255, 255, 255, 0.18)')
-    auraGradient.addColorStop(0.5, 'rgba(147, 197, 253, 0.08)')
+    auraGradient.addColorStop(0, 'rgba(255, 255, 255, 0.20)')
+    auraGradient.addColorStop(0.5, 'rgba(254, 202, 202, 0.12)')
     auraGradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
 
     ctx.fillStyle = auraGradient

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900 font-['Poppins'] flex flex-col selection:bg-[#2563eb] selection:text-white">
+  <div class="min-h-screen bg-slate-50 text-slate-900 font-['Poppins'] flex flex-col selection:bg-[#E31B23] selection:text-white">
     <!-- Sticky Top Navigation -->
     <header class="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -10,7 +10,7 @@
               alt="Bekasku Icon"
               class="h-8 w-auto object-contain"
             />
-            <span class="text-xl sm:text-2xl font-bold tracking-tight text-[#2563eb]">Bekasku</span>
+            <span class="text-xl sm:text-2xl font-bold tracking-tight text-[#E31B23]">Bekasku</span>
           </NuxtLink>
           <span class="hidden sm:inline-block text-slate-300">/</span>
           <span class="hidden sm:inline-block text-xs font-semibold text-slate-500 uppercase tracking-wider">Syarat &amp; Ketentuan</span>
@@ -22,7 +22,7 @@
           </span>
           <NuxtLink
             to="/"
-            class="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-[#2563eb] transition-colors py-1.5 px-3 rounded-lg hover:bg-slate-100"
+            class="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-[#E31B23] transition-colors py-1.5 px-3 rounded-lg hover:bg-slate-100"
           >
             <ArrowLeft class="w-4 h-4" />
             <span>Kembali</span>
@@ -32,9 +32,9 @@
     </header>
 
     <!-- Hero Header -->
-    <div class="bg-gradient-to-b from-blue-50/70 to-slate-50 border-b border-slate-200 py-10 sm:py-12">
+    <div class="bg-gradient-to-b from-red-50/70 to-slate-50 border-b border-slate-200 py-10 sm:py-12">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-3">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-[#2563eb] text-xs font-semibold uppercase tracking-wider">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-[#E31B23] text-xs font-semibold uppercase tracking-wider">
           <Shield class="w-3.5 h-3.5" />
           Dokumen Legal Resmi
         </div>
@@ -61,7 +61,7 @@
         <aside class="hidden lg:block lg:col-span-4 sticky top-24 space-y-4">
           <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-              <FileText class="w-4 h-4 text-[#2563eb]" />
+              <FileText class="w-4 h-4 text-[#E31B23]" />
               Daftar Isi Bab
             </h3>
             <nav class="space-y-1 text-xs max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
@@ -69,20 +69,20 @@
                 v-for="(item, idx) in tableOfContents"
                 :key="idx"
                 :href="`#${item.id}`"
-                class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:text-[#2563eb] hover:bg-blue-50/70 transition-colors font-medium truncate"
+                class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors font-medium truncate"
               >
                 {{ item.title }}
               </a>
             </nav>
           </div>
 
-          <div class="bg-blue-50/60 rounded-2xl border border-blue-100 p-4 text-xs text-slate-600 space-y-2">
+          <div class="bg-red-50/60 rounded-2xl border border-red-100 p-4 text-xs text-slate-600 space-y-2">
             <p class="font-semibold text-slate-800 flex items-center gap-1.5">
-              <Info class="w-4 h-4 text-[#2563eb]" />
+              <Info class="w-4 h-4 text-[#E31B23]" />
               Butuh Bantuan?
             </p>
             <p class="text-[11px] leading-relaxed">
-              Hubungi tim layanan pelanggan kami di <a href="mailto:support@bekasku.id" class="text-[#2563eb] font-semibold hover:underline">support@bekasku.id</a> atau melalui live chat di aplikasi.
+              Hubungi tim layanan pelanggan kami di <a href="mailto:support@bekasku.id" class="text-[#E31B23] font-semibold hover:underline">support@bekasku.id</a> atau melalui live chat di aplikasi.
             </p>
           </div>
         </aside>
@@ -111,7 +111,7 @@
             <h2 class="text-lg sm:text-xl font-bold text-slate-900 border-b border-slate-200 pb-2">
               BAB I: DEFINISI DAN INTERPRETASI
             </h2>
-            <h3 class="font-semibold text-base text-[#2563eb]">Pasal 1 – Definisi</h3>
+            <h3 class="font-semibold text-base text-[#E31B23]">Pasal 1 – Definisi</h3>
             <p>Dalam Syarat dan Ketentuan ini, istilah-istilah berikut memiliki makna sebagai berikut:</p>
             <ol class="list-decimal pl-5 space-y-2">
               <li><strong>"Platform"</strong> merujuk pada aplikasi mobile, situs web, dan seluruh layanan digital yang dioperasikan oleh Pengelola Platform.</li>
@@ -135,7 +135,7 @@
             </h2>
             
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 2 – Pendaftaran Akun</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 2 – Pendaftaran Akun</h3>
               <p>Untuk dapat menggunakan layanan Platform secara penuh, Pengguna wajib membuat akun dengan ketentuan sebagai berikut:</p>
               <ol start="12" class="list-decimal pl-5 space-y-2">
                 <li>Pengguna harus berusia minimal 17 (tujuh belas) tahun atau telah memiliki kapasitas hukum penuh untuk membuat perjanjian yang mengikat.</li>
@@ -148,7 +148,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 3 – Verifikasi Identitas</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 3 – Verifikasi Identitas</h3>
               <p>Guna meningkatkan keamanan dan kepercayaan di Platform, berlaku ketentuan verifikasi sebagai berikut:</p>
               <ol start="18" class="list-decimal pl-5 space-y-2">
                 <li>Pengelola dapat meminta Pengguna untuk melakukan verifikasi identitas melalui dokumen resmi (KTP, SIM, atau Paspor) sebelum dapat mengakses fitur-fitur tertentu.</li>
@@ -159,7 +159,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 4 – Tanggung Jawab Akun</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 4 – Tanggung Jawab Akun</h3>
               <ol start="22" class="list-decimal pl-5 space-y-2">
                 <li>Pengguna bertanggung jawab penuh atas semua aktivitas yang terjadi melalui akun mereka.</li>
                 <li>Pengguna wajib segera memberitahukan Pengelola apabila mendeteksi adanya akses tidak sah atau penggunaan akun yang mencurigakan.</li>
@@ -175,7 +175,7 @@
             </h2>
             
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 5 – Hak dan Kewajiban Penjual</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 5 – Hak dan Kewajiban Penjual</h3>
               <p>Penjual yang menggunakan Platform untuk memasarkan produk tunduk pada ketentuan-ketentuan berikut:</p>
               <ol start="25" class="list-decimal pl-5 space-y-2">
                 <li>Penjual wajib memastikan bahwa seluruh produk yang dijual adalah produk yang dimiliki secara sah dan tidak dalam sengketa hukum apapun.</li>
@@ -190,7 +190,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 6 – Pengelolaan Iklan</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 6 – Pengelolaan Iklan</h3>
               <ol start="33" class="list-decimal pl-5 space-y-2">
                 <li>Iklan yang dipasang harus relevan dengan kategori yang dipilih dan tidak menyesatkan calon Pembeli.</li>
                 <li>Foto produk yang diunggah harus merupakan foto asli produk yang dijual, bukan foto dari internet atau produk milik pihak lain.</li>
@@ -201,7 +201,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 7 – Ketentuan Toko dan Reputasi Penjual</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 7 – Ketentuan Toko dan Reputasi Penjual</h3>
               <ol start="38" class="list-decimal pl-5 space-y-2">
                 <li>Penjual akan mendapatkan penilaian (rating bintang 1–5) dan ulasan dari Pembeli setelah transaksi selesai.</li>
                 <li>Penjual dapat memperoleh status badge khusus (Verified, Trusted dan Plus) berdasarkan kriteria yang ditetapkan Pengelola.</li>
@@ -218,7 +218,7 @@
             </h2>
             
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 8 – Hak dan Kewajiban Pembeli</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 8 – Hak dan Kewajiban Pembeli</h3>
               <ol start="42" class="list-decimal pl-5 space-y-2">
                 <li>Pembeli berhak mendapatkan informasi yang jelas, akurat, dan tidak menyesatkan mengenai produk sebelum melakukan pembelian.</li>
                 <li>Pembeli wajib membaca deskripsi produk secara teliti, termasuk kondisi barang, sebelum memutuskan untuk membeli.</li>
@@ -231,7 +231,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 9 – Perlindungan Pembeli</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 9 – Perlindungan Pembeli</h3>
               <p>Platform berkomitmen memberikan perlindungan kepada Pembeli melalui mekanisme sebagai berikut:</p>
               <ol start="49" class="list-decimal pl-5 space-y-2">
                 <li>Sistem Rekening Bersama (Rekber) memastikan dana pembayaran ditahan hingga Pembeli mengkonfirmasi penerimaan barang dalam kondisi sesuai pesanan.</li>
@@ -249,7 +249,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 10 – Mekanisme Transaksi</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 10 – Mekanisme Transaksi</h3>
               <p>Transaksi di Platform dapat dilakukan melalui mekanisme berikut:</p>
               <ol start="53" class="list-decimal pl-5 space-y-2">
                 <li><strong>Pembelian Langsung (Buy Now):</strong> Pembeli melakukan pembelian pada harga yang telah ditetapkan Penjual.</li>
@@ -259,7 +259,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 11 – Pembayaran</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 11 – Pembayaran</h3>
               <ol start="56" class="list-decimal pl-5 space-y-2">
                 <li>Platform menyediakan berbagai metode pembayaran yang aman, antara lain: transfer bank, kartu kredit/debit, dompet digital (e-wallet), dan metode lain yang tersedia.</li>
                 <li>Seluruh pembayaran wajib dilakukan melalui sistem Platform. Pembayaran di luar Platform tidak mendapatkan perlindungan dari Pengelola.</li>
@@ -270,7 +270,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 12 – Pengiriman</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 12 – Pengiriman</h3>
               <ol start="61" class="list-decimal pl-5 space-y-2">
                 <li>Penjual wajib mengirimkan barang menggunakan jasa pengiriman yang terdaftar dan tersedia di Platform dalam waktu yang disepakati.</li>
                 <li>Penjual wajib menggunakan kemasan yang sesuai untuk menjaga keamanan produk selama pengiriman, terutama untuk barang elektronik, pecah belah, atau barang sensitif lainnya.</li>
@@ -283,7 +283,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 13 – Pembatalan dan Pengembalian</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 13 – Pembatalan dan Pengembalian</h3>
               <p class="font-semibold text-slate-800">13.1 Pembatalan Transaksi</p>
               <ol start="68" class="list-decimal pl-5 space-y-2">
                 <li>Pembeli dapat membatalkan pesanan sebelum Penjual memproses atau mengirimkan barang, dengan alasan yang valid.</li>
@@ -308,7 +308,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 14 – Produk yang Dilarang</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 14 – Produk yang Dilarang</h3>
               <p>Pengguna dilarang keras untuk menjual, menawarkan, atau mempromosikan produk-produk berikut di Platform:</p>
               <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
                 <li>Narkotika, psikotropika, dan zat adiktif ilegal beserta paraphernalia-nya.</li>
@@ -330,7 +330,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 15 – Produk dengan Pembatasan Khusus</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 15 – Produk dengan Pembatasan Khusus</h3>
               <p>Produk-produk berikut dapat diperjualbelikan namun tunduk pada persyaratan dan pembatasan tambahan:</p>
               <ol start="75" class="list-decimal pl-5 space-y-2">
                 <li>Makanan dan minuman: wajib mencantumkan tanggal kadaluarsa, nomor izin edar (BPOM/P-IRT), dan memenuhi standar kemasan pangan.</li>
@@ -350,7 +350,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 16 – Konten Pengguna</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 16 – Konten Pengguna</h3>
               <ol start="81" class="list-decimal pl-5 space-y-2">
                 <li>Pengguna bertanggung jawab penuh atas seluruh konten yang diunggah, termasuk foto, deskripsi produk, ulasan, dan komentar.</li>
                 <li>Dengan mengunggah konten ke Platform, Pengguna memberikan lisensi non-eksklusif, bebas royalti, dapat dipindahtangankan kepada Pengelola untuk menggunakan, mereproduksi, memodifikasi, dan mendistribusikan konten tersebut dalam rangka pengoperasian Platform.</li>
@@ -360,7 +360,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 17 – Hak Kekayaan Intelektual Platform</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 17 – Hak Kekayaan Intelektual Platform</h3>
               <ol start="85" class="list-decimal pl-5 space-y-2">
                 <li>Seluruh elemen Platform, termasuk namun tidak terbatas pada logo, desain, antarmuka pengguna, kode sumber, dan nama merek, adalah milik eksklusif Pengelola dan dilindungi oleh hukum hak kekayaan intelektual yang berlaku.</li>
                 <li>Pengguna dilarang untuk menyalin, memodifikasi, mendistribusikan, atau menggunakan elemen Platform untuk kepentingan komersial tanpa izin tertulis dari Pengelola.</li>
@@ -375,7 +375,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 18 – Pengumpulan dan Penggunaan Data</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 18 – Pengumpulan dan Penggunaan Data</h3>
               <p>Platform mengumpulkan dan memproses data pribadi Pengguna sesuai dengan Undang-Undang Perlindungan Data Pribadi (UU PDP) No. 27 Tahun 2022 dan peraturan turunannya:</p>
               <ol start="87" class="list-decimal pl-5 space-y-2">
                 <li>Data yang dikumpulkan meliputi: data identitas, data kontak, data transaksi, data perangkat, data lokasi, dan data perilaku penggunaan Platform.</li>
@@ -386,7 +386,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 19 – Hak Pengguna atas Data Pribadi</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 19 – Hak Pengguna atas Data Pribadi</h3>
               <ol start="91" class="list-decimal pl-5 space-y-2">
                 <li>Pengguna berhak mengakses, memperbarui, memperbaiki, dan menghapus data pribadi mereka melalui pengaturan akun atau dengan menghubungi layanan pelanggan Platform.</li>
                 <li>Pengguna berhak menarik persetujuan penggunaan data yang sebelumnya telah diberikan, dengan memahami bahwa hal ini dapat mempengaruhi ketersediaan layanan tertentu.</li>
@@ -395,7 +395,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 20 – Keamanan Platform</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 20 – Keamanan Platform</h3>
               <ol start="94" class="list-decimal pl-5 space-y-2">
                 <li>Pengelola menerapkan langkah-langkah keamanan teknis dan organisasi yang wajar untuk melindungi data dan transaksi Pengguna dari akses tidak sah.</li>
                 <li>Meskipun demikian, Pengelola tidak dapat menjamin keamanan mutlak mengingat sifat internet yang inheren memiliki risiko keamanan.</li>
@@ -411,7 +411,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 21 – Mekanisme Penyelesaian Sengketa</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 21 – Mekanisme Penyelesaian Sengketa</h3>
               <ol start="97" class="list-decimal pl-5 space-y-2">
                 <li>Sengketa antara Pembeli dan Penjual sebaiknya diselesaikan terlebih dahulu melalui komunikasi langsung antara para pihak dalam Platform.</li>
                 <li>Apabila tidak tercapai kesepakatan dalam 3 (tiga) hari kerja, salah satu pihak dapat mengajukan permohonan mediasi kepada Tim Resolusi Sengketa Platform.</li>
@@ -422,7 +422,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 22 – Hukum yang Berlaku</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 22 – Hukum yang Berlaku</h3>
               <ol start="102" class="list-decimal pl-5 space-y-2">
                 <li>Syarat dan Ketentuan ini tunduk dan ditafsirkan berdasarkan hukum Negara Kesatuan Republik Indonesia.</li>
                 <li>Segala sengketa yang tidak dapat diselesaikan melalui mediasi akan diselesaikan melalui Pengadilan Negeri Jakarta Selatan atau pengadilan lain yang disepakati.</li>
@@ -437,7 +437,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 23 – Tindakan yang Dilarang</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 23 – Tindakan yang Dilarang</h3>
               <p>Pengguna dilarang melakukan tindakan-tindakan berikut yang dapat merugikan Platform, Pengguna lain, atau pihak ketiga:</p>
               <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
                 <li>Membuat akun palsu atau menggunakan identitas orang lain tanpa izin.</li>
@@ -454,7 +454,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 24 – Sanksi dan Penegakan</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 24 – Sanksi dan Penegakan</h3>
               <p>Terhadap pelanggaran Syarat dan Ketentuan, Pengelola berhak mengambil tindakan sebagai berikut:</p>
               <ol start="104" class="list-decimal pl-5 space-y-2">
                 <li>Peringatan tertulis melalui email atau notifikasi dalam Platform.</li>
@@ -475,7 +475,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 25 – Program Promosi dan Voucher</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 25 – Program Promosi dan Voucher</h3>
               <ol start="111" class="list-decimal pl-5 space-y-2">
                 <li>Platform dapat menyelenggarakan program promosi, diskon, cashback, voucher, dan berbagai penawaran khusus lainnya yang tunduk pada syarat dan ketentuan masing-masing program.</li>
                 <li>Voucher dan kode promo memiliki masa berlaku, batasan penggunaan, dan persyaratan minimum transaksi yang harus dipenuhi.</li>
@@ -485,7 +485,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 26 – Program Loyalitas dan Koin</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 26 – Program Loyalitas dan Koin</h3>
               <ol start="115" class="list-decimal pl-5 space-y-2">
                 <li>Platform dapat menyediakan program loyalitas berupa poin, koin, atau reward lainnya yang dapat dikumpulkan dari setiap transaksi.</li>
                 <li>Poin/koin yang terkumpul dapat ditukarkan dengan diskon, voucher, atau keuntungan lain sesuai ketentuan program.</li>
@@ -495,7 +495,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 27 – Best Deal dan Kampanye</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 27 – Best Deal dan Kampanye</h3>
               <ol start="119" class="list-decimal pl-5 space-y-2">
                 <li>Platform dapat menyelenggarakan Best Deal dengan stok dan waktu yang terbatas, dengan harga yang telah ditentukan oleh Platform atau Penjual.</li>
                 <li>Partisipasi Penjual dalam Best Deal tunduk pada persetujuan dan ketentuan tambahan dari Pengelola.</li>
@@ -504,7 +504,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 28 – Layanan Pengiriman Terintegrasi</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 28 – Layanan Pengiriman Terintegrasi</h3>
               <ol start="122" class="list-decimal pl-5 space-y-2">
                 <li>Platform menyediakan integrasi dengan berbagai mitra jasa pengiriman resmi untuk kemudahan transaksi.</li>
                 <li>Pemilihan jasa pengiriman dapat dilakukan oleh Pembeli maupun Penjual sesuai kesepakatan dan ketersediaan layanan.</li>
@@ -521,7 +521,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 29 – Standar Deskripsi Barang Bekas</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 29 – Standar Deskripsi Barang Bekas</h3>
               <p>Mengingat karakteristik khusus transaksi barang bekas (second-hand), berlaku ketentuan tambahan berikut:</p>
               <ol start="126" class="list-decimal pl-5 space-y-2">
                 <li>Penjual wajib mendeskripsikan kondisi barang secara akurat dan mendetail, termasuk cacat, keausan, atau kerusakan yang ada, meskipun bersifat minor.</li>
@@ -543,7 +543,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 30 – Garansi dan Sertifikasi Barang Bekas</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 30 – Garansi dan Sertifikasi Barang Bekas</h3>
               <ol start="131" class="list-decimal pl-5 space-y-2">
                 <li>Penjual yang menawarkan garansi produk bekas wajib mencantumkan syarat dan ketentuan garansi secara jelas.</li>
                 <li>Untuk produk elektronik bekas bernilai tinggi, Penjual disarankan untuk menyediakan sertifikasi kondisi dari lembaga resmi apabila tersedia.</li>
@@ -552,7 +552,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 37 – Saldo Bekasku</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 37 – Saldo Bekasku</h3>
               <ol start="134" class="list-decimal pl-5 space-y-2">
                 <li>Saldo Bekasku adalah fasilitas penampungan sementara atas hak tagih dana hasil penjualan barang yang sah dan/atau dana pengembalian transaksi (refund) yang belum dicairkan oleh Pengguna ke rekening bank terdaftar.</li>
                 <li>Saldo Bekasku bukan merupakan instrumen penyimpanan dana (simpanan) sebagaimana diatur dalam Undang-Undang No. 7 Tahun 1992 juncto Undang-Undang No. 10 Tahun 1998 tentang Perbankan.</li>
@@ -573,7 +573,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 31 – Batasan Tanggung Jawab Pengelola</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 31 – Batasan Tanggung Jawab Pengelola</h3>
               <ol start="142" class="list-decimal pl-5 space-y-2">
                 <li>Platform berperan sebagai marketplace atau wadah pertemuan antara Penjual dan Pembeli. Pengelola bukan merupakan pihak dalam transaksi jual beli yang terjadi antara Penjual dan Pembeli.</li>
                 <li>Pengelola tidak bertanggung jawab atas: kualitas, keamanan, legalitas, dan kesesuaian produk yang dijual; kemampuan Penjual untuk menyelesaikan transaksi; atau kemampuan Pembeli untuk melakukan pembayaran.</li>
@@ -583,7 +583,7 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 32 – Indemnifikasi</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 32 – Indemnifikasi</h3>
               <ol start="146" class="list-decimal pl-5 space-y-2">
                 <li>Pengguna setuju untuk membebaskan, membela, dan memberikan ganti rugi kepada Pengelola, direktur, karyawan, dan agennya dari setiap klaim, kerugian, kerusakan, dan biaya (termasuk biaya hukum) yang timbul dari penggunaan Platform oleh Pengguna atau pelanggaran terhadap Syarat dan Ketentuan ini.</li>
               </ol>
@@ -597,7 +597,7 @@
             </h2>
 
             <div class="space-y-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 33 – Perubahan Syarat dan Ketentuan</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 33 – Perubahan Syarat dan Ketentuan</h3>
               <ol start="147" class="list-decimal pl-5 space-y-2">
                 <li>Pengelola berhak mengubah, merevisi, atau memperbarui Syarat dan Ketentuan ini kapan saja sesuai dengan perkembangan bisnis, teknologi, dan regulasi yang berlaku.</li>
                 <li>Perubahan material akan diberitahukan kepada Pengguna melalui email terdaftar, notifikasi dalam aplikasi, atau pengumuman di halaman utama Platform paling lambat 30 (tiga puluh) hari sebelum perubahan berlaku.</li>
@@ -606,14 +606,14 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 34 – Pemisahan Ketentuan</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 34 – Pemisahan Ketentuan</h3>
               <ol start="150" class="list-decimal pl-5 space-y-2">
                 <li>Apabila salah satu ketentuan dalam dokumen ini dinyatakan tidak sah atau tidak dapat dilaksanakan oleh pengadilan yang berwenang, ketentuan tersebut akan dianggap terpisah dari ketentuan lainnya dan tidak mempengaruhi keabsahan ketentuan-ketentuan yang tersisa.</li>
               </ol>
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 35 – Perjanjian Keseluruhan</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 35 – Perjanjian Keseluruhan</h3>
               <ol start="151" class="list-decimal pl-5 space-y-2">
                 <li>Syarat dan Ketentuan ini, bersama dengan Kebijakan Privasi, Kebijakan Pengiriman, dan dokumen kebijakan lainnya yang diterbitkan oleh Pengelola, merupakan keseluruhan perjanjian antara Pengguna dan Pengelola terkait penggunaan Platform.</li>
                 <li>Syarat dan Ketentuan ini menggantikan seluruh perjanjian, negosiasi, atau komunikasi sebelumnya antara para pihak mengenai hal yang sama.</li>
@@ -621,10 +621,10 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#2563eb]">Pasal 36 – Hubungi Kami</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 36 – Hubungi Kami</h3>
               <p>Untuk pertanyaan, keluhan, atau informasi lebih lanjut mengenai Syarat dan Ketentuan ini, Pengguna dapat menghubungi Tim Layanan Pelanggan Platform melalui:</p>
               <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
-                <li><strong>Email Resmi:</strong> <a href="mailto:support@bekasku.id" class="text-[#2563eb] hover:underline font-medium">support@bekasku.id</a></li>
+                <li><strong>Email Resmi:</strong> <a href="mailto:support@bekasku.id" class="text-[#E31B23] hover:underline font-medium">support@bekasku.id</a></li>
                 <li><strong>Live Chat:</strong> Tersedia di aplikasi mobile Bekasku (24 jam)</li>
                 <li><strong>Nomor Telepon:</strong> 0821 238 2388 (Senin–Jumat 09.00 - 17.00 WIB)</li>
               </ul>
@@ -638,7 +638,7 @@
               <div class="pt-2 font-medium text-slate-900">
                 <p>Ditetapkan di: Jakarta</p>
                 <p>Tanggal Berlaku: 1 Januari 2025</p>
-                <p class="text-[#2563eb] font-bold mt-1">Tim Hukum dan Kepatuhan Bekasku</p>
+                <p class="text-[#E31B23] font-bold mt-1">Tim Hukum dan Kepatuhan Bekasku</p>
                 <p class="text-slate-500 font-normal">PT. Jantaka Ladang Unggul</p>
               </div>
             </div>

@@ -45,7 +45,7 @@ export default defineNuxtConfig({
           name: 'description',
           content: 'Bekasku — Marketplace jual beli barang bekas dan preloved terpercaya #1 di Indonesia.'
         },
-        { name: 'theme-color', content: '#2563eb' }
+        { name: 'theme-color', content: '#E31B23' }
       ],
       link: [
         { rel: 'icon', type: 'image/png', href: '/images/icon_only.png' },
