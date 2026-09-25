@@ -16,6 +16,13 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
   ],
 
+  components: [
+    { path: '~/components/layout', pathPrefix: false },
+    { path: '~/components/shared', pathPrefix: false },
+    { path: '~/components/home', pathPrefix: false },
+    '~/components',
+  ],
+
   vite: {
     plugins: [
       tailwindcss(),
@@ -29,6 +36,7 @@ export default defineNuxtConfig({
   googleFonts: {
     families: {
       'Poppins': [400, 500, 600, 700],
+      'Outfit': [400, 500, 600, 700, 800],
     },
     display: 'swap',
     download: true,
@@ -59,7 +67,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       mode: process.env.NUXT_PUBLIC_MODE || 'coming_soon',
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://api.bekasku.id',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://sandbox.bekasku.id/v3/api',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=bkk.app.bekasku.bekasku',
       appStoreUrl: 'https://apps.apple.com/id/app/bekasku/id1609048207',
       launchDate: '2026-11-25T00:00:00+07:00',

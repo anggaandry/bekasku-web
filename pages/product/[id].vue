@@ -250,7 +250,8 @@ function formatLocation(loc) {
 }
 
 // Fetch data dari API Backend Bekasku
-const apiBase = config.public.apiBase || 'https://api.bekasku.id';
+const rawApiBase = config.public.apiBase || 'https://sandbox.bekasku.id/v3/api'
+const apiBase = rawApiBase.replace(/\/v3\/api\/?$/, '')
 const { data: apiData, pending } = await useFetch(`${apiBase}/v3/api/product/public/detail/${productId}`, {
   key: `product-${productId}`,
   lazy: true,

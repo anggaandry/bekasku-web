@@ -18,7 +18,7 @@
 
         <div class="flex items-center gap-3">
           <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
-            Versi 2.0.0
+            Versi 2.1.0
           </span>
           <NuxtLink
             to="/"
@@ -148,13 +148,14 @@
             </div>
 
             <div class="space-y-2 pt-2">
-              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 3 – Verifikasi Identitas</h3>
+              <h3 class="font-semibold text-base text-[#E31B23]">Pasal 3 – Verifikasi Identitas &amp; Akun Media Sosial</h3>
               <p>Guna meningkatkan keamanan dan kepercayaan di Platform, berlaku ketentuan verifikasi sebagai berikut:</p>
               <ol start="18" class="list-decimal pl-5 space-y-2">
                 <li>Pengelola dapat meminta Pengguna untuk melakukan verifikasi identitas melalui dokumen resmi (KTP, SIM, atau Paspor) sebelum dapat mengakses fitur-fitur tertentu.</li>
                 <li>Penjual yang ingin membuka toko resmi (Official Store) wajib melengkapi verifikasi bisnis dengan menyerahkan dokumen legalitas usaha yang berlaku.</li>
                 <li>Data identitas yang diberikan akan diproses sesuai dengan Kebijakan Privasi Platform dan peraturan perundang-undangan yang berlaku.</li>
                 <li>Verifikasi identitas tidak menjamin keabsahan seluruh konten atau produk yang diunggah oleh Pengguna yang bersangkutan.</li>
+                <li><strong>Verifikasi Akun Media Sosial (Instagram):</strong> Penautan dan verifikasi akun media sosial pihak ketiga (seperti Instagram) pada profil Pengguna semata-mata bertujuan untuk memverifikasi dan membuktikan kepemilikan akun tersebut (bahwa pemilik akun Bekasku adalah benar pemilik sah dari akun Instagram yang ditautkan). Verifikasi media sosial ini <strong>BUKAN</strong> merupakan jaminan atau sertifikasi dari Platform bahwa akun tersebut bebas dari potensi penipuan, akun palsu, atau jaminan integritas pihak tersebut di luar pengawasan Platform. Seluruh Pengguna diharapkan senantiasa jeli, cermat, dan berhati-hati saat bertransaksi, <strong>kecuali</strong> untuk akun resmi bertanda <strong>Bekasku+</strong> yang telah melalui proses kurasi dan verifikasi kepatuhan resmi secara menyeluruh langsung oleh pihak internal Bekasku.</li>
               </ol>
             </div>
 
@@ -294,7 +295,8 @@
               <p class="font-semibold text-slate-800 pt-2">13.2 Pengembalian Barang (Return) dan Refund</p>
               <ol start="71" class="list-decimal pl-5 space-y-2">
                 <li>Pembeli dapat mengajukan pengembalian barang apabila: barang tidak sesuai deskripsi, barang rusak/cacat (yang tidak dijelaskan / dideskripsikan oleh penjual) saat diterima, barang yang diterima berbeda dari yang dipesan, atau barang tidak diterima sama sekali.</li>
-                <li>Pengajuan pengembalian harus dilakukan dalam batas waktu yang ditentukan pengelola dengan disertai bukti foto dan video.</li>
+                <li><strong>Kewajiban Video Unboxing Pembeli &amp; Video Packing Penjual:</strong> Pengajuan komplain atau klaim pengembalian barang oleh Pembeli wajib diajukan dalam batas waktu maksimal yang ditentukan Platform (maksimal 2x24 jam sejak paket berstatus diterima menurut sistem logistik) dengan <strong>SYARAT MUTLAK menyertakan bukti rekaman Video Unboxing</strong> yang utuh, jelas, dan <strong>tanpa terputus (uncut / tanpa jeda/tanpa editan)</strong> sejak paket masih dalam kondisi tersegel rapat dari kurir, label dan nomor resi pengiriman terbaca jelas, hingga pembukaan kemasan serta pengecekan fisik kondisi barang yang diterima.</li>
+                <li><strong>Syarat Penerimaan Komplain:</strong> Agar komplain dapat diterima, diproses, dan dipertimbangkan secara adil oleh Platform, <strong>wajib tersedia bukti dokumentasi video yang valid dari kedua belah pihak</strong>, yaitu rekaman <strong>Video Pengemasan (Packing) dari Penjual</strong> (sebagaimana diatur pada Pasal 12 ayat 64) dan <strong>Video Unboxing dari Pembeli</strong>. Pengajuan komplain tanpa disertai video unboxing yang memenuhi kriteria di atas berhak ditolak oleh Platform demi melindungi hak Penjual dari klaim palsu.</li>
                 <li>Apabila klaim pengembalian disetujui, refund akan diproses ke dalam saldo pembeli dalam jangka waktu yang telah ditentukan pengelola.</li>
                 <li>Pengembalian barang atas alasan berubah pikiran (change of mind) tanpa cacat produk tidak wajib diterima oleh Penjual, kecuali Penjual secara sukarela menyediakan kebijakan tersebut.</li>
               </ol>
@@ -415,8 +417,8 @@
               <ol start="97" class="list-decimal pl-5 space-y-2">
                 <li>Sengketa antara Pembeli dan Penjual sebaiknya diselesaikan terlebih dahulu melalui komunikasi langsung antara para pihak dalam Platform.</li>
                 <li>Apabila tidak tercapai kesepakatan dalam 3 (tiga) hari kerja, salah satu pihak dapat mengajukan permohonan mediasi kepada Tim Resolusi Sengketa Platform.</li>
-                <li>Tim Resolusi Sengketa Platform akan memeriksa bukti-bukti yang diajukan oleh kedua belah pihak dan memberikan rekomendasi penyelesaian dalam waktu 3–7 hari kerja.</li>
-                <li>Keputusan mediasi Platform bersifat rekomendatif. Apabila salah satu pihak tidak puas, dapat menempuh jalur hukum sesuai ketentuan yang berlaku tanpa melibatkan pengelola.</li>
+                <li>Tim Resolusi Sengketa Platform akan memeriksa bukti-bukti yang diajukan oleh kedua belah pihak. Dalam sengketa transaksi pengiriman produk fisik, <strong>Video Packing dari Penjual</strong> dan <strong>Video Unboxing dari Pembeli</strong> merupakan alat bukti primer yang wajib dilampirkan agar komplain dapat dipertimbangkan dan diterima. Ketiadaan bukti video uncut dari salah satu pihak akan menjadi pertimbangan mutlak bagi Tim Resolusi untuk menolak klaim atau memenangkan pihak yang memiliki dokumentasi sah. Tim Resolusi akan memberikan rekomendasi dan keputusan penyelesaian dalam waktu 3–7 hari kerja.</li>
+                <li>Keputusan mediasi Platform bersifat rekomendatif dan mengikat dalam lingkup ekosistem Platform. Apabila salah satu pihak tidak puas, dapat menempuh jalur hukum sesuai ketentuan yang berlaku tanpa melibatkan pengelola.</li>
                 <li>Untuk sengketa yang melibatkan nilai di atas Rp 5.000.000 (lima juta rupiah), para pihak dapat mengajukan permohonan arbitrase melalui Badan Arbitrase Nasional Indonesia (BANI) atau lembaga arbitrase terpilih lainnya.</li>
               </ol>
             </div>
