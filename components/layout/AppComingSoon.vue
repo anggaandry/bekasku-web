@@ -170,7 +170,7 @@
 
     <!-- Footer with matching balanced margins -->
     <footer class="w-full px-8 sm:px-14 lg:px-20 xl:px-24 pb-5 pt-3 text-center text-xs text-red-100 z-10 flex flex-wrap items-center justify-center gap-3">
-      <p>&copy; {{ currentYear }} Bekasku. Seluruh Hak Cipta Dilindungi.</p>
+      <p>&copy; {{ currentYear }} PT Jantaka Ladang Unggul. Seluruh Hak Cipta Dilindungi.</p>
       <span class="hidden sm:inline-block text-red-300">&bull;</span>
       <NuxtLink to="/terms" class="text-white hover:text-red-200 underline underline-offset-4 font-medium transition-colors">
         Syarat &amp; Ketentuan
