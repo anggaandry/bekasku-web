@@ -248,14 +248,14 @@
             />
           </button>
 
-          <!-- Public Link: Video Feed (Accessible with or without login) -->
+          <!-- Public Link: Live & Video (Accessible with or without login) -->
           <NuxtLink
             to="/showcase/video"
             class="px-2 py-1 rounded-lg transition-all whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             :class="getNavButtonClass(isRoutePrefixActive(['/showcase/video', '/live']), false)"
-            title="Video Feed & Live Shopping"
+            title="Live & Video"
           >
-            {{ t('Video Feed') }}
+            {{ t('Live & Video') }}
           </NuxtLink>
 
           <div class="h-3.5 w-px bg-gray-200 mx-0.5 shrink-0" aria-hidden="true" />
@@ -427,30 +427,6 @@ const protectedNavItems: HeaderNavItem[] = [
     loggedInTitle: 'Saldo & Dompet BekasKu',
     guestTitle: 'Masuk untuk membuka Saldo & Dompet',
     matchPrefixes: ['/balance'],
-  },
-  {
-    label: 'Transaksi',
-    path: '/transaction',
-    featureTitle: 'Pesanan & Transaksi',
-    loggedInTitle: 'Riwayat Pesanan & Transaksi',
-    guestTitle: 'Masuk untuk melihat Pesanan & Transaksi',
-    matchPrefixes: ['/transaction'],
-  },
-  {
-    label: 'Sundul',
-    path: '/sundul',
-    featureTitle: 'Sundul Produk',
-    loggedInTitle: 'Sundul Produk ke Posisi Teratas',
-    guestTitle: 'Masuk untuk menggunakan Sundul Produk',
-    matchPrefixes: ['/sundul', '/seller/promotion'],
-  },
-  {
-    label: 'Iklan Saya',
-    path: '/catalog',
-    featureTitle: 'Iklan Saya',
-    loggedInTitle: 'Katalog Iklan Aktif Saya',
-    guestTitle: 'Masuk untuk mengelola Iklan Saya',
-    matchPrefixes: ['/catalog', '/seller/catalog'],
   },
   {
     label: 'Subscribe',
