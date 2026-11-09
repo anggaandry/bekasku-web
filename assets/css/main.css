@@ -4,24 +4,49 @@
   --color-primary: #E31B23;
   --color-primary-dark: #B91219;
   --color-primary-light: #EA3A41;
+  --color-primary-foreground: #FFFFFF;
   --color-secondary: #EBAD25;
   --color-secondary-star: #FBBF24;
+  --color-secondary-foreground: #FFFFFF;
 
   --color-badge-bg: #FFD600;
   --color-badge-text: #111827;
 
+  --color-chip-soft-bg: #FBECEF;
+  --color-chip-soft-border: #F3D8DC;
+  --color-chip-soft-text: #5C282E;
+  --color-chip-outline-border: #E5E7EB;
+  --color-chip-outline-text: #1F2937;
+
   --color-success: #16BF54;
   --color-warning: #F59F07;
   --color-danger: #DC3545;
+  --color-destructive: #DC3545;
+  --color-destructive-foreground: #FFFFFF;
   --color-info: #0CAFF0;
 
+  --color-success-soft: #F0FDF4;
+  --color-success-soft-strong: #DCFCE7;
+  --color-success-border: #86EFAC;
+  --color-success-text: #15803D;
+  --color-success-title: #166534;
+  --color-info-soft: #EFF6FF;
+  --color-info-border: #BFDBFE;
+  --color-info-text: #1E3A8A;
+
   --color-bg: #F6F8FD;
+  --color-background: #F6F8FD;
   --color-surface: #FFFFFF;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0A0A0A;
   --color-surface-2: #F9FAFB;
+  --color-muted: #F3F4F6;
+  --color-muted-foreground: #6D7280;
   --color-border: #E8ECF4;
   --color-border-light: #E0E0E0;
 
   --color-text: #0A0A0A;
+  --color-foreground: #0A0A0A;
   --color-text-muted: #6D7280;
   --color-text-subtle: #9CA3AF;
   --color-dark: #1E232C;
@@ -79,7 +104,7 @@
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 }
 
@@ -163,4 +188,30 @@
   );
   animation: shimmer 2s infinite;
   content: '';
+}
+
+/* ── Global Smooth Page & Layout Transitions ── */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.layout-enter-active,
+.layout-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.layout-enter-from,
+.layout-leave-to {
+  opacity: 0;
 }

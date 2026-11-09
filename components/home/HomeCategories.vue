@@ -59,7 +59,7 @@
                 'text-[#E31B23] font-bold': activeCategory === cat.name
               }"
             >
-              {{ cat.name }}
+              {{ t(cat.name) }}
             </span>
           </div>
         </template>
@@ -86,7 +86,7 @@
           :key="`cat-dot-${idx}`"
           type="button"
           class="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
-          :class="activeDot === (idx - 1) ? 'w-5 sm:w-6 bg-gray-900' : 'w-1.5 bg-gray-300 hover:bg-gray-400'"
+          :class="activeDot === (idx - 1) ? 'w-5 sm:w-6 bg-[#E31B23]' : 'w-1.5 bg-gray-300 hover:bg-gray-400'"
           :aria-label="`Halaman kategori ${idx}`"
           @click="scrollToDot(idx - 1)"
         />
@@ -123,6 +123,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const route = useRoute()
 const { categories: fetchedCategories, fetchCategories } = useCategories()
+const { t } = useLocale()
 
 // Active category query from URL
 const activeCategory = computed(() => (route.query.category as string) || '')
@@ -259,11 +260,12 @@ function scrollToDot(dotIndex: number) {
 }
 
 function handleCategoryClick(cat: Category) {
-  if (activeCategory.value === cat.name) {
-    navigateTo({ path: '/', query: {} })
+  const catId = cat.id || cat._id
+  if (catId) {
+    navigateTo(`/kategori/${catId}`)
   } else {
     navigateTo({
-      path: '/',
+      path: '/search/result',
       query: { category: cat.name },
     })
   }

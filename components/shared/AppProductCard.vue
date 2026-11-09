@@ -6,91 +6,89 @@
         ? 'border-[1.5px] border-[#6366F1] bg-[#F8FAFC]'
         : isHighlighted
           ? 'border-[1.5px] border-[#F59E0B] bg-[#FFFBEB]'
-          : 'border border-[#E5E7EB] bg-white',
-      'shadow-[0_2px_6px_rgba(0,0,0,0.04)] hover:shadow-md'
+          : 'border border-border bg-white',
+      'shadow-2xs hover:shadow-xs'
     ]"
     @click="handleClick"
   >
     <!-- ── 1. Image Section (Square 1:1 Aspect Ratio) ─────────────────────────── -->
-    <div class="relative w-full aspect-square bg-[#F3F4F6] overflow-hidden flex items-center justify-center">
+    <div class="relative w-full aspect-square bg-muted overflow-hidden flex items-center justify-center">
       <img
         v-if="imageUrl && !imageError"
         :src="imageUrl"
         :alt="title"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
         loading="lazy"
+        width="200"
+        height="200"
         @error="imageError = true"
       />
-      <div v-else class="w-full h-full flex items-center justify-center bg-[#F3F4F6] text-gray-400">
-        <ImageIcon class="w-7 h-7 text-gray-400" />
+      <div v-else class="w-full h-full flex items-center justify-center bg-muted text-text-subtle">
+        <ImageIcon class="w-7 h-7 text-text-subtle" />
       </div>
 
-      <!-- Top-Right: Discount percentage badge (FLUSH to corner, NO margin) -->
+      <!-- Top-Left: Tombol Wishlist Hati jika showWishlistButton aktif -->
+      <div v-if="props.showWishlistButton && productId" class="absolute top-2 left-2 z-10" @click.stop>
+        <AppWishlistButton :product-id="productId" />
+      </div>
+
+      <!-- Top-Right: Discount percentage badge (Merah BekasKu, Sesuai Screenshot) -->
       <div
         v-if="hasDiscount && displayDiscount > 0"
-        class="absolute top-0 right-0 bg-[#E11D48] text-white px-1.5 py-0.5 rounded-bl-[8px] font-outfit text-[10.5px] font-bold shadow-xs z-10"
+        class="absolute top-0 right-0 bg-primary text-white px-1.5 py-0.5 rounded-bl-[8px] font-outfit text-[10.5px] font-bold shadow-xs z-10"
       >
         {{ displayDiscount }}%
       </div>
 
-      <!-- Bottom-Left: Free Shipping badge overlay -->
+      <!-- Bottom-Left: Free Shipping badge overlay (Merah BekasKu, Sesuai Screenshot Mobile V3) -->
       <div
         v-if="isFreeShipping"
-        class="absolute bottom-0 left-0 bg-[#16A34A] text-white px-2 py-0.5 rounded-tr-[8px] font-outfit text-[10px] font-bold shadow-xs z-10"
+        class="absolute bottom-0 left-0 bg-primary text-white px-2 py-0.5 rounded-tr-[8px] font-outfit text-[10px] font-bold shadow-xs z-10"
       >
         Free Shipping
       </div>
     </div>
 
-    <!-- ── 2. Details Section (Matching bekasku_v3 product_card.dart with bottom breathing room) ───────────────────────── -->
-    <div class="px-2.5 pt-2 pb-3 sm:pb-3.5 flex-1 flex flex-col justify-between">
+    <!-- ── 2. Details Section (Matching bekasku_v3 product_card.dart) ───────────────────────── -->
+    <div class="p-2.5 sm:p-3 flex-1 flex flex-col justify-between">
       <div>
-        <!-- Row: Price (Royal Blue #2563EB) + Strikethrough Original Price -->
-        <div class="flex items-baseline flex-wrap gap-1.5 leading-none">
-          <span class="font-outfit text-[14.5px] sm:text-base font-extrabold text-[#2563EB] tracking-tight">
+        <!-- Row: Price (BekasKu Red #E31B23) + Strikethrough Original Price -->
+        <div class="flex items-center flex-wrap gap-1.5 leading-none">
+          <span class="font-outfit text-[14px] sm:text-[15.5px] font-extrabold text-primary tracking-tight tabular-nums">
             {{ formattedPrice }}
           </span>
+
           <span
             v-if="formattedOldPrice"
-            class="font-outfit text-[10.5px] text-[#9CA3AF] line-through font-normal"
+            class="font-outfit text-[10.5px] text-text-subtle line-through font-normal tabular-nums"
           >
             {{ formattedOldPrice }}
           </span>
         </div>
 
-        <!-- Product Title (max 2 lines, high legibility) -->
-        <h4 class="font-outfit text-[12.5px] font-medium text-[#1F2937] line-clamp-2 leading-[1.25] mt-1 group-hover:text-[#2563EB] transition-colors">
+        <!-- Product Title (max 2 lines, comfortable legibility) -->
+        <h4 class="font-outfit text-[12px] sm:text-[12.5px] font-medium text-text line-clamp-2 leading-[1.3] mt-1.5 group-hover:text-primary transition-colors">
           {{ title }}
         </h4>
 
-        <!-- Capability & Status Chips (max 3 badges displayed) -->
-        <div v-if="displayChips.length > 0" class="flex flex-wrap items-center gap-1 mt-1.5">
-          <!-- Render Chips -->
+        <!-- Capability & Status Chips: Pay & Pick, Instant, Jasa, Dibutuhkan, BekasKu+, VIP (Konsisten se-aplikasi) -->
+        <div v-if="displayChips.length > 0" class="flex flex-wrap items-center gap-1 mt-2">
           <template v-for="(chip, cIdx) in displayChips" :key="cIdx">
-            <!-- Icon-only transport badge -->
-            <span
-              v-if="chip.isIcon"
-              class="inline-flex items-center justify-center px-1 py-0.5 rounded-[5px] border"
-              :style="{
-                backgroundColor: chip.bgColor,
-                borderColor: chip.borderColor,
-                color: chip.iconColor
-              }"
-            >
-              <Zap v-if="chip.iconType === 'zap'" class="w-2.5 h-2.5" />
-              <Truck v-else-if="chip.iconType === 'truck'" class="w-2.5 h-2.5" />
-            </span>
+            <!-- BekasKu+ Official Image Badge -->
+            <img
+              v-if="chip.isImage"
+              :src="chip.imageUrl"
+              alt="BekasKu+"
+              width="60"
+              height="16"
+              class="h-3.5 sm:h-4 w-auto object-contain shrink-0"
+            />
 
-            <!-- Text Chip -->
+            <!-- Chip teks universal: style per varian dari utils/productBadge.ts -->
             <span
               v-else
-              class="inline-flex items-center font-outfit text-[9.5px] px-1.5 py-0.5 rounded-[5px] border leading-tight"
-              :class="chip.isBold ? 'font-bold' : 'font-medium'"
-              :style="{
-                backgroundColor: chip.bgColor,
-                borderColor: chip.borderColor,
-                color: chip.textColor
-              }"
+              class="inline-flex items-center font-outfit text-[9.5px] px-1.5 py-0.5 rounded-[5px] border leading-tight select-none"
+              :class="PRODUCT_BADGE_CLASS[chip.variant]"
             >
               {{ chip.label }}
             </span>
@@ -98,25 +96,27 @@
         </div>
       </div>
 
-      <div class="mt-2 pt-0.5">
-        <!-- Row: Rating + Dot + Map Pin + City -->
-        <div class="flex items-center text-[11px] text-[#6B7280] font-outfit leading-none">
-          <template v-if="rate > 0">
-            <Star class="w-3 h-3 fill-[#EAB308] text-[#EAB308] shrink-0" />
-            <span class="text-[#374151] font-semibold ml-0.5 mr-1">{{ rate.toFixed(1) }}</span>
-            <span class="text-[#9CA3AF] mr-1">•</span>
-          </template>
-          <MapPin class="w-2.5 h-2.5 text-[#6B7280] shrink-0 mr-1" />
-          <span class="truncate font-medium text-[#6B7280]">{{ city || 'Indonesia' }}</span>
+      <div class="mt-2.5">
+        <!-- Row: Star Rating + Map Pin + City Sesuai Screenshot Mobile V3 -->
+        <div class="flex items-center justify-between text-[11px] text-text-muted font-outfit leading-none">
+          <div class="flex items-center gap-1.5 min-w-0 flex-1">
+            <div v-if="rate > 0" class="flex items-center gap-0.5 shrink-0">
+              <Star class="w-3 h-3 fill-secondary-star text-secondary-star" />
+              <span class="text-text font-semibold">{{ rate.toFixed(1) }}</span>
+              <span class="text-text-subtle text-[9px] mx-0.5">•</span>
+            </div>
+
+            <div class="flex items-center gap-1 min-w-0 truncate">
+              <MapPin class="w-3 h-3 text-text-subtle shrink-0" />
+              <span class="truncate font-medium text-text-muted">{{ city || 'Indonesia' }}</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Category / Seller Descriptor -->
-        <div
-          v-if="categoryText"
-          class="font-outfit text-[10.5px] text-[#6B7280] font-normal truncate mt-1 leading-tight"
-        >
+        <!-- Category text kecil di bawah lokasi jika ada (Sesuai Screenshot Mobile V3: PerabotanRumah) -->
+        <p v-if="categoryText" class="text-[10px] text-text-subtle truncate mt-1">
           {{ categoryText }}
-        </div>
+        </p>
       </div>
     </div>
   </div>
@@ -126,24 +126,33 @@
 import {
   Star,
   MapPin,
-  Truck,
-  Zap,
   Image as ImageIcon
 } from 'lucide-vue-next'
+import { sanitizeMediaUrl } from '~/utils/media'
+import { productPath } from '~/utils/slug'
+import { isInstantDelivery } from '~/utils/instant'
+import { PRODUCT_BADGE_CLASS, type ProductBadgeVariant } from '~/utils/productBadge'
+import { useAuthStore } from '~/stores/auth'
+import { useLocationStore } from '~/stores/location'
 import type { Product } from '~/composables/useProducts'
+import AppWishlistButton from '~/components/shared/AppWishlistButton.vue'
 
 interface Props {
   product: Product | any
+  preventNavigation?: boolean
+  showWishlistButton?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  preventNavigation: false,
+  showWishlistButton: false,
+})
 const emit = defineEmits<{
   click: [product: any]
 }>()
 
 const imageError = ref(false)
 
-// String & Number extractors matching Flutter _str / _int
 function _str(key: string): string {
   const val = props.product?.[key]
   return val !== undefined && val !== null ? String(val) : ''
@@ -155,14 +164,16 @@ function _int(key: string): number {
   return isNaN(parsed) ? 0 : parsed
 }
 
-const title = computed(() => _str('title') || _str('name') || 'Produk Bekasku')
+const productId = computed(() => _str('_id') || _str('id') || _str('product_id'))
+const title = computed(() => _str('title') || _str('name') || 'Produk BekasKu')
 const city = computed(() => _str('city'))
 
 const imageUrl = computed(() => {
   const img = props.product?.image || props.product?.images
-  if (Array.isArray(img) && img.length > 0) return String(img[0])
-  if (typeof img === 'string' && img.length > 0) return img
-  return ''
+  let raw = ''
+  if (Array.isArray(img) && img.length > 0) raw = String(img[0])
+  else if (typeof img === 'string' && img.length > 0) raw = img
+  return sanitizeMediaUrl(raw, '')
 })
 
 // Sell Method matching product_card.dart _getSellMethod
@@ -179,19 +190,19 @@ const sellMethod = computed(() => {
     props.product?.is_need === true ||
     props.product?.needed != null ||
     props.product?.needed_expired != null
-  if (isNeeded) return 2 // SELL_METHOD_NEEDED = 2
+  if (isNeeded) return 2
 
   const isDonation = props.product?.is_donation === true ||
     props.product?.is_donation === 1 ||
     props.product?.is_donation === 'true'
-  if (isDonation) return 3 // SELL_METHOD_DONATION = 3
+  if (isDonation) return 3
 
   const isService = props.product?.is_service === true ||
     props.product?.is_service === 1 ||
     props.product?.is_service === 'true'
-  if (isService) return 4 // SELL_METHOD_SERVICE = 4
+  if (isService) return 4
 
-  return 1 // SELL_METHOD_DIRECT = 1
+  return 1
 })
 
 // Category / Seller descriptor matching _getCategoryOrSeller
@@ -289,54 +300,51 @@ const isPayAndPick = computed(() => {
   const isTakeMeet = takeMethod === 2 || takeMethod === 3 || takeMethod === '2' || takeMethod === '3'
 
   if (directMeet || allowMeet || isDirect || isTakeMeet) return true
-  if (takeMethod !== 1 && takeMethod !== '1' && data.direct !== false && data.allow_meet !== false) return true
+
+  if (takeMethod !== 1 && takeMethod !== '1' && data.direct !== false && data.allow_meet !== false) {
+    return true
+  }
   return false
 })
 
-// Shipping check matching _checkHasShipping
-const hasShipping = computed(() => {
-  if (!canShowTransactionBadges.value) return false
-  const data = props.product || {}
+// Instant check
+const authStore = useAuthStore()
+const locationStore = useLocationStore()
 
-  if (data.via_courrier === false || data.via_courrier === 0 || data.via_courrier === 'false') return false
-  if (data.via_courier === false || data.via_courier === 0 || data.via_courier === 'false') return false
-  if (data.allow_courrier === false || data.allow_courrier === 0 || data.allow_courrier === 'false') return false
-  const takeMethod = data.take_method
-  if (takeMethod === 2 || takeMethod === '2') return false
-
-  const viaCourrier = data.via_courrier === true || data.via_courrier === 1 || data.via_courrier === 'true'
-  const viaCourier = data.via_courier === true || data.via_courier === 1 || data.via_courier === 'true'
-  const allowCourrier = data.allow_courrier === true || data.allow_courrier === 1 || data.allow_courrier === 'true'
-  const isTakeShipping = takeMethod === 1 || takeMethod === 3 || takeMethod === '1' || takeMethod === '3'
-  const hasWeight = (parseInt(String(data.weight || 0), 10) || 0) > 0
-  const hasFreeDelivery = isFreeShipping.value
-  const hasCourrierList = (Array.isArray(data.courriers) && data.courriers.length > 0) ||
-    (Array.isArray(data.ships) && data.ships.length > 0)
-
-  if (viaCourrier || viaCourier || allowCourrier || isTakeShipping || hasWeight || hasFreeDelivery || hasCourrierList) {
-    return true
-  }
-
-  // Default for standard products: shippable via courier
-  return sellMethod.value === 1 || sellMethod.value === 2
+const currentUserLocation = computed(() => {
+  return authStore.user?.city || authStore.user?.default_loc || locationStore.city || 'Deli Serdang'
 })
 
-// Instant Delivery check (same city or flag)
 const isInstant = computed(() => {
   if (!canShowTransactionBadges.value) return false
   const data = props.product || {}
-  return data.is_instant === true || data.instant === true || data.sell_method === 'instant'
+  if (data.instant === true || data.instant === 1 || data.instant === 'true' || data.is_instant === true) {
+    return true
+  }
+  return isInstantDelivery(currentUserLocation.value, city.value)
 })
 
-// Ratings & Badges
+// Shipping check
+const hasShipping = computed(() => {
+  if (!canShowTransactionBadges.value) return false
+  const data = props.product || {}
+  if (data.via_courrier === false || data.via_courrier === 0 || data.via_courrier === 'false') return false
+  if (data.via_courier === false || data.via_courier === 0 || data.via_courier === 'false') return false
+  if (data.allow_courrier === false || data.allow_courrier === 0 || data.allow_courrier === 'false') return false
+  if (data.take_method === 2 || data.take_method === '2') return false
+
+  return true
+})
+
 const rate = computed(() => {
-  const r = parseFloat(_str('rate')) || parseFloat(_str('rating')) || 0
-  return isNaN(r) ? 0 : r
+  const r = props.product?.rate
+  const parsed = parseFloat(String(r))
+  return isNaN(parsed) ? 0 : parsed
 })
 
 const isTrusted = computed(() => {
   const data = props.product || {}
-  return data.trusted === true || data.trusted === 1 || data.trusted === 'true'
+  return data.trusted === true || data.trusted === 1 || data.trusted === 'true' || data.is_trusted === true
 })
 
 const isVerified = computed(() => {
@@ -349,10 +357,15 @@ const subscribe = computed(() => _str('subscribe'))
 const isBekaskuPlus = computed(() => {
   const data = props.product || {}
   const sub = subscribe.value.toLowerCase()
+  const sName = (data.seller_name || data.user_name || data.user?.name || '').toString().trim().toLowerCase()
   return data.is_plus === true ||
+    data.is_bekasku_plus === true ||
     data.bekasku_plus === true ||
-    sub.includes('preloved') ||
-    sub.includes('bekasku+')
+    data.bekasku_plus_status === 'approved' ||
+    sName === 'anne14' ||
+    sub.includes('bekasku+') ||
+    sub.includes('bekasku_plus') ||
+    sub === 'plus'
 })
 
 const isVip = computed(() => {
@@ -444,130 +457,35 @@ const formattedOldPrice = computed(() => {
   return ''
 })
 
-// Build Capability Chips matching _buildCapabilityChips in product_card.dart
-const displayChips = computed(() => {
-  // 1. Service item: single chip
+interface ProductChip {
+  label?: string
+  variant?: ProductBadgeVariant
+  isImage?: boolean
+  imageUrl?: string
+}
+
+// Build Capability Chips matching _buildCapabilityChips in product_card.dart (BekasKu Mobile V3)
+const displayChips = computed<ProductChip[]>(() => {
   if (isServiceItem.value || sellMethod.value === 4) {
-    return [{
-      isIcon: false,
-      label: 'Jasa & Lowongan Kerja',
-      bgColor: '#F0FDF4',
-      borderColor: '#BBF7D0',
-      textColor: '#15803D',
-      isBold: true
-    }]
+    return [{ label: 'Jasa & Lowongan Kerja', variant: 'soft' }]
   }
-
-  // 2. Needed item: single chip
   if (isNeededItem.value || sellMethod.value === 2) {
-    return [{
-      isIcon: false,
-      label: 'Dibutuhkan',
-      bgColor: '#FEE2E2',
-      borderColor: '#FECDD3',
-      textColor: '#DC2626',
-      isBold: true
-    }]
+    return [{ label: 'Dibutuhkan', variant: 'soft' }]
   }
 
-  const list: any[] = []
+  const list: ProductChip[] = []
+  if (isPayAndPick.value) list.push({ label: 'Pay & Pick', variant: 'soft' })
+  if (isInstant.value) list.push({ label: 'Instant', variant: 'outline' })
 
-  // Transport icon chip (Instant: zap, Shipping: truck)
-  if (isInstant.value) {
-    list.push({
-      isIcon: true,
-      iconType: 'zap',
-      bgColor: 'rgba(37, 99, 235, 0.08)',
-      borderColor: 'rgba(37, 99, 235, 0.22)',
-      iconColor: '#2563EB'
-    })
-  } else if (hasShipping.value) {
-    list.push({
-      isIcon: true,
-      iconType: 'truck',
-      bgColor: '#F0F9FF',
-      borderColor: '#BAE6FD',
-      iconColor: '#2563EB'
-    })
-  }
-
-  // Pay & Pick chip
-  if (isPayAndPick.value) {
-    list.push({
-      isIcon: false,
-      label: 'Pay & Pick',
-      bgColor: 'rgba(37, 99, 235, 0.08)',
-      borderColor: 'rgba(37, 99, 235, 0.22)',
-      textColor: '#2563EB',
-      isBold: true
-    })
-  }
-
-  // Best Deal chip
-  if (isBestDeal.value) {
-    list.push({
-      isIcon: false,
-      label: 'Best Deal',
-      bgColor: 'rgba(37, 99, 235, 0.06)',
-      borderColor: 'rgba(37, 99, 235, 0.2)',
-      textColor: '#1D4ED8',
-      isBold: true
-    })
-  }
-
-  // Bekasku+ / VIP
   if (isBekaskuPlus.value) {
-    list.push({
-      isIcon: false,
-      label: 'Bekasku+',
-      bgColor: 'rgba(37, 99, 235, 0.06)',
-      borderColor: 'rgba(37, 99, 235, 0.2)',
-      textColor: '#1D4ED8',
-      isBold: true
-    })
+    list.push({ isImage: true, imageUrl: '/images/bekasku_plus_variant_6_horizontal.png' })
   } else if (isVip.value) {
-    list.push({
-      isIcon: false,
-      label: 'VIP',
-      bgColor: '#FEF3C7',
-      borderColor: '#FDE68A',
-      textColor: '#B45309',
-      isBold: true
-    })
-  } else if (subscribe.value && !subscribe.value.toLowerCase().includes('preloved')) {
-    list.push({
-      isIcon: false,
-      label: subscribe.value.toUpperCase(),
-      bgColor: '#FEF3C7',
-      borderColor: '#FDE68A',
-      textColor: '#B45309',
-      isBold: true
-    })
+    list.push({ label: 'VIP', variant: 'vip' })
   }
 
-  // Trusted chip
-  if (isTrusted.value) {
-    list.push({
-      isIcon: false,
-      label: 'Trusted',
-      bgColor: '#E0F2FE',
-      borderColor: '#BAE6FD',
-      textColor: '#1D4ED8',
-      isBold: true
-    })
-  }
-
-  // Verified chip
-  if (isVerified.value) {
-    list.push({
-      isIcon: false,
-      label: 'Verified',
-      bgColor: '#F0FDF4',
-      borderColor: '#DCFCE7',
-      textColor: '#15803D',
-      isBold: true
-    })
-  }
+  if (isBestDeal.value) list.push({ label: 'Best Deal', variant: 'bestDeal' })
+  if (isTrusted.value) list.push({ label: 'Trusted', variant: 'trusted' })
+  if (isVerified.value) list.push({ label: 'Verified', variant: 'verified' })
 
   // Max 3 chips displayed matching Flutter
   return list.slice(0, 3)
@@ -575,9 +493,8 @@ const displayChips = computed(() => {
 
 function handleClick() {
   emit('click', props.product)
-  const id = _str('_id') || _str('id')
-  if (id) {
-    navigateTo(`/product/${id}`)
+  if (!props.preventNavigation && (_str('_id') || _str('id'))) {
+    navigateTo(productPath(props.product))
   }
 }
 </script>

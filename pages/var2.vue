@@ -1,8 +1,5 @@
 <template>
   <div class="min-h-screen flex flex-col bg-[#F9F9F9] text-[#1a1a1a]">
-    <!-- Header Desktop (md+) - STRICTLY UNCHANGED -->
-    <AppHeader class="hidden md:block" />
-
     <!-- Header Mobile (<md) - STRICTLY UNCHANGED -->
     <AppHeaderMobile class="md:hidden" />
 

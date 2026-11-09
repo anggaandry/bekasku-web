@@ -1,60 +1,34 @@
 <template>
-  <div class="space-y-3 flex flex-col h-full">
-    <!-- Header with Title & Navigation Arrows -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <h3 class="text-base sm:text-lg font-black text-gray-900 tracking-tight font-outfit">
-          Sedang Tayang
-        </h3>
-      </div>
-
-      <!-- Carousel Navigation Arrows -->
-      <div class="flex items-center gap-1.5">
-        <button
-          type="button"
-          class="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          :disabled="currentIndex === 0"
-          title="Video sebelumnya"
-          @click="scrollPrev"
-        >
-          <ChevronLeft class="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          class="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          :disabled="currentIndex >= feedVideos.length - 4"
-          title="Video selanjutnya"
-          @click="scrollNext"
-        >
-          <ChevronRight class="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-
+  <div class="flex flex-col h-full justify-between">
     <!-- Video & Live Cards Container (4 Visible Cards side by side) -->
     <div
-      ref="feedContainerRef"
-      class="grid grid-cols-4 gap-1.5 sm:gap-2 flex-1 overflow-x-auto no-scrollbar scroll-smooth"
+      v-if="feedVideos.length > 0 || loading"
+      class="flex flex-col flex-1 justify-between"
     >
-      <!-- Shimmer Loading Skeletons matching Mobile V3 -->
-      <template v-if="loading">
-        <div
-          v-for="n in 4"
-          :key="`live-skel-${n}`"
-          class="aspect-[9/13.5] sm:aspect-[9/13] rounded-2xl bg-gray-200 animate-shimmer border border-gray-100 shadow-2xs"
-        />
-      </template>
+      <div
+        ref="feedContainerRef"
+        class="grid grid-cols-4 gap-1.5 sm:gap-2 flex-1 overflow-x-auto no-scrollbar scroll-smooth"
+      >
+        <!-- Shimmer Loading Skeletons matching Mobile V3 -->
+        <template v-if="loading">
+          <div
+            v-for="n in 4"
+            :key="`live-skel-${n}`"
+            class="aspect-[9/13.5] sm:aspect-[9/13] rounded-2xl bg-gray-200 animate-shimmer border border-gray-100 shadow-2xs"
+          />
+        </template>
 
-      <template v-else v-for="(item, idx) in visibleCards" :key="item.id">
+        <template v-else v-for="(item, idx) in visibleCards" :key="item.id">
         <!-- LIVE CARD: Gradient ring border + Full Avatar Background + Host Avatar Profile -->
         <div
           v-if="item.is_live"
           class="relative rounded-2xl overflow-hidden aspect-[9/13.5] sm:aspect-[9/13] shadow-md group cursor-pointer transition-all duration-300 hover:shadow-xl p-[2px] bg-gradient-to-tr from-[#FF2D20] via-[#FF7332] to-[#FF2D20]"
-          @click="openVideoModal(item)"
+          @click="onCardClick(item)"
         >
-          <div class="relative w-full h-full rounded-[14px] overflow-hidden bg-black flex flex-col justify-between">
+          <div class="relative w-full h-full rounded-[14px] overflow-hidden bg-gradient-to-br from-[#2B0A0D] via-black to-[#1E232C] flex flex-col justify-between">
             <!-- Background Image Fill -->
             <img
+              v-if="item.user_avatar || item.thumbnail"
               :src="item.user_avatar || item.thumbnail"
               :alt="item.user_name"
               class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -66,14 +40,14 @@
 
             <!-- Top Row: LIVE Badge & Viewers -->
             <div class="relative z-10 p-1.5 sm:p-2 flex items-center justify-between gap-1">
-              <div class="flex items-center gap-1 bg-[#EF4444] text-white text-[8.5px] font-black px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
+              <div class="flex items-center gap-1 bg-primary text-white text-[8.5px] font-black px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
                 <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
                 <span>LIVE</span>
               </div>
 
               <div class="flex items-center gap-0.5 bg-black/60 backdrop-blur-xs text-white text-[8.5px] font-semibold px-1.5 py-0.5 rounded-full border border-white/10">
                 <Eye class="w-2.5 h-2.5 text-white/90" />
-                <span>{{ formatCompact(item.viewers || 180) }}</span>
+                <span>{{ formatCompact(item.viewers || 0) }}</span>
               </div>
             </div>
 
@@ -88,13 +62,18 @@
             <div class="relative z-10 p-1.5 sm:p-2 text-white">
               <div class="flex items-center gap-1.5">
                 <!-- Circular Host Avatar Profile with gold badge -->
-                <div class="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full ring-1.5 ring-white/90 overflow-hidden bg-gray-800 shadow-md shrink-0">
+                <div class="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full ring-1.5 ring-white/90 overflow-hidden bg-gray-800 shadow-md shrink-0 flex items-center justify-center">
                   <img
+                    v-if="(item.user_avatar || item.thumbnail) && !avatarErrMap[item.id]"
                     :src="item.user_avatar || item.thumbnail"
                     :alt="item.user_name"
                     class="w-full h-full object-cover"
+                    @error="avatarErrMap[item.id] = true"
                   />
-                  <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#EBAD25] flex items-center justify-center ring-1 ring-white text-white shadow-2xs">
+                  <span v-else class="text-[10px] font-bold text-white uppercase select-none">
+                    {{ (item.user_name || 'H').charAt(0).toUpperCase() }}
+                  </span>
+                  <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-secondary flex items-center justify-center ring-1 ring-white text-white shadow-2xs">
                     <Check class="w-1.5 h-1.5 text-white stroke-[3.5]" />
                   </div>
                 </div>
@@ -109,8 +88,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between mt-1 pt-1 border-t border-white/15 text-[8.5px] text-white/80">
-                <span class="truncate">{{ item.city || 'Indonesia' }}</span>
+              <div class="flex items-center justify-end mt-1 pt-1 border-t border-white/15 text-[8.5px] text-white/80">
                 <span class="text-[#EF4444] font-bold bg-white/95 px-1.5 py-0.2 rounded-full text-[8px] shadow-xs">Tonton</span>
               </div>
             </div>
@@ -120,11 +98,25 @@
         <!-- VIDEO FEED CARD: Video Thumbnail + Right Side Interactions -->
         <div
           v-else
-          class="relative rounded-2xl overflow-hidden bg-black aspect-[9/13.5] sm:aspect-[9/13] shadow-md group cursor-pointer transition-all duration-300 hover:shadow-xl hover:ring-2 hover:ring-[#2563EB]/40 flex flex-col justify-between border border-gray-200/20"
+          class="relative rounded-2xl overflow-hidden bg-black aspect-[9/13.5] sm:aspect-[9/13] shadow-md group cursor-pointer transition-all duration-300 hover:shadow-xl hover:ring-2 hover:ring-[#E31B23]/40 flex flex-col justify-between border border-gray-200/20"
           @click="openVideoModal(item)"
+          @mouseenter="onCardMouseEnter(item)"
+          @mouseleave="onCardMouseLeave(item)"
         >
-          <!-- Background Poster / Thumbnail -->
+          <!-- Hover-to-Play Video Element (Muted loop preview ala YouTube / Instagram) -->
+          <video
+            v-if="hoveredVideoId === item.id && item.video_url"
+            :src="item.video_url"
+            autoplay
+            muted
+            loop
+            playsinline
+            class="absolute inset-0 w-full h-full object-cover z-0"
+          />
+
+          <!-- Background Poster / Thumbnail (Visible when not playing preview) -->
           <img
+            v-show="hoveredVideoId !== item.id"
             :src="item.thumbnail"
             :alt="item.title || item.content || 'Video BekasKu'"
             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -134,59 +126,66 @@
           <!-- Dark Gradient Overlays for readable text -->
           <div class="absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/90 pointer-events-none" />
 
-          <!-- Top Row: VIDEO Badge & City -->
-          <div class="relative z-10 p-2 sm:p-2.5 flex items-center justify-between gap-1">
-            <div class="flex items-center gap-1 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-white/20">
+          <!-- Top Row: VIDEO Badge -->
+          <div class="relative z-10 p-2 sm:p-2.5 flex items-center justify-start">
+            <div
+              class="flex items-center gap-1 backdrop-blur-xs text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-white/20 transition-colors"
+              :class="hoveredVideoId === item.id ? 'bg-[#E31B23] text-white shadow-xs' : 'bg-black/60 text-white'"
+            >
               <Play class="w-2 h-2 fill-white text-white" />
-              <span>VIDEO</span>
-            </div>
-
-            <div class="text-[9px] text-white/80 font-medium truncate max-w-[65px] bg-black/40 backdrop-blur-xs px-1.5 py-0.5 rounded-full">
-              {{ item.city || 'Indonesia' }}
+              <span>{{ hoveredVideoId === item.id ? 'MEMUTAR' : 'VIDEO' }}</span>
             </div>
           </div>
 
-          <!-- Center Play Overlay Button on Hover -->
-          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <!-- Center Play Overlay Button on Hover (Hidden while preview is playing) -->
+          <div
+            v-if="hoveredVideoId !== item.id"
+            class="absolute inset-0 flex items-center justify-center pointer-events-none"
+          >
             <div class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-xs border border-white/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 shadow-lg">
               <Play class="w-4 h-4 fill-white text-white ml-0.5" />
             </div>
           </div>
 
-          <!-- Right Side Floating Actions (TikTok style as in video_feed_view.dart) -->
+          <!-- Right Side Floating Actions -->
           <div class="absolute right-1.5 bottom-12 sm:bottom-14 z-10 flex flex-col items-center gap-2" @click.stop>
             <!-- Host Avatar with Border -->
             <NuxtLink
-              :to="`/seller/${item.id}`"
-              class="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full ring-1.5 ring-white overflow-hidden bg-gray-800 shadow-md group/avatar"
+              :to="`/seller/${item.user_id || item.id}`"
+              class="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full ring-1.5 ring-white overflow-hidden bg-gray-800 shadow-md group/avatar flex items-center justify-center shrink-0"
               title="Kunjungi Profil"
             >
               <img
+                v-if="item.user_avatar && !avatarErrMap[item.id]"
                 :src="item.user_avatar"
                 :alt="item.user_name"
                 class="w-full h-full object-cover group-hover/avatar:scale-110 transition-transform"
+                @error="avatarErrMap[item.id] = true"
               />
+              <span v-else class="text-[10px] font-bold text-white uppercase select-none">
+                {{ (item.user_name || 'U').charAt(0).toUpperCase() }}
+              </span>
             </NuxtLink>
 
             <!-- Like Action -->
             <button
               type="button"
-              class="flex flex-col items-center text-white hover:text-red-400 transition-colors"
+              class="flex flex-col items-center text-white hover:text-red-400 transition-colors cursor-pointer"
               @click.stop="toggleLike(item)"
             >
               <Heart
                 class="w-4 h-4 transition-transform active:scale-125"
-                :class="likedMap[item.id] ? 'fill-red-500 text-red-500' : 'text-white'"
+                :class="getLikeState(item).liked ? 'fill-red-500 text-red-500' : 'text-white'"
               />
               <span class="text-[9px] font-bold text-white mt-0.5 shadow-xs">
-                {{ formatCompact((item.likes || 0) + (likedMap[item.id] ? 1 : 0)) }}
+                {{ formatCompact(getLikeState(item).count) }}
               </span>
             </button>
 
-            <!-- Comment Action -->
+            <!-- Comment Action (Opens Instagram-Style Modal / Comments) -->
             <button
               type="button"
-              class="flex flex-col items-center text-white hover:text-blue-300 transition-colors"
+              class="flex flex-col items-center text-white hover:text-blue-300 transition-colors cursor-pointer"
               @click.stop="openVideoModal(item)"
             >
               <MessageCircle class="w-4 h-4 text-white" />
@@ -198,7 +197,7 @@
             <!-- Share Action -->
             <button
               type="button"
-              class="flex flex-col items-center text-white hover:text-yellow-300 transition-colors"
+              class="flex flex-col items-center text-white hover:text-yellow-300 transition-colors cursor-pointer"
               @click.stop="shareVideo(item)"
             >
               <Share2 class="w-3.5 h-3.5 text-white" />
@@ -225,126 +224,316 @@
           </div>
         </div>
       </template>
+      </div>
+
+      <!-- Bottom Controls: Arrows on Bottom-Left, Lihat Semua Video on Bottom-Right -->
+      <div class="flex items-center justify-between pt-2 pb-0.5 px-0.5">
+        <!-- Bottom-Left: Panah Geser Video (Kiri & Kanan) -->
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+            :disabled="currentIndex === 0 || feedVideos.length <= 4"
+            title="Video sebelumnya"
+            aria-label="Video sebelumnya"
+            @click="scrollPrev"
+          >
+            <ChevronLeft class="w-4 h-4 stroke-[2.2]" />
+          </button>
+
+          <button
+            type="button"
+            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+            :disabled="currentIndex >= feedVideos.length - 4 || feedVideos.length <= 4"
+            title="Video selanjutnya"
+            aria-label="Video selanjutnya"
+            @click="scrollNext"
+          >
+            <ChevronRight class="w-4 h-4 stroke-[2.2]" />
+          </button>
+        </div>
+
+        <!-- Bottom-Right: Tombol Lihat Semua Video -->
+        <NuxtLink
+          to="/showcase/video"
+          class="text-xs font-bold text-primary hover:text-red-700 flex items-center gap-0.5 transition-colors group cursor-pointer"
+        >
+          <span>{{ t('Lihat Semua Video') }}</span>
+          <ChevronRight class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+        </NuxtLink>
+      </div>
     </div>
 
-    <!-- Interactive Video Player Modal (Full TikTok/Reels Style View) -->
+    <!-- Empty State Illustration Card -->
+    <div
+      v-else
+      class="bg-white rounded-2xl border border-gray-100/90 p-5 flex flex-col items-center justify-center text-center shadow-2xs h-full min-h-[220px]"
+    >
+      <div class="w-40 sm:w-48 h-24 sm:h-28 mb-2 flex items-center justify-center">
+        <img
+          src="/images/live_empty.svg"
+          alt="Belum Ada Siaran Langsung"
+          class="w-full h-full object-contain pointer-events-none"
+        />
+      </div>
+      <h4 class="font-outfit font-bold text-gray-900 text-sm sm:text-base">
+        {{ t('Belum Ada Siaran Langsung') }}
+      </h4>
+      <p class="text-xs text-gray-500 max-w-xs mt-1 leading-relaxed">
+        {{ t('Saat ini belum ada penjual yang sedang live shopping atau posting video baru. Tetap pantau ya!') }}
+      </p>
+    </div>
+
+    <!-- Interactive Video Player Modal (Instagram-Style 2-Column on Desktop) -->
     <Teleport to="body">
       <div
         v-if="activeModalVideo"
-        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4"
         @click.self="closeVideoModal"
       >
-        <div class="relative w-full max-w-sm sm:max-w-md h-[88vh] max-h-[740px] bg-black rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between border border-white/20">
-          <!-- Video Element -->
-          <video
-            ref="modalVideoPlayerRef"
-            :src="activeModalVideo.video_url"
-            :poster="activeModalVideo.thumbnail"
-            class="absolute inset-0 w-full h-full object-cover"
-            autoplay
-            playsinline
-            loop
-            @click="togglePlayPause"
-          />
+        <div class="relative w-full max-w-sm md:max-w-4xl h-[90vh] md:h-[82vh] max-h-[760px] bg-black rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row border border-white/20">
+          
+          <!-- LEFT COLUMN: Video Player Stage -->
+          <div class="relative h-[45%] shrink-0 md:flex-1 md:max-w-[480px] md:h-full bg-black flex items-center justify-center overflow-hidden">
+            <!-- Video Element -->
+            <video
+              ref="modalVideoPlayerRef"
+              :src="activeModalVideo.video_url"
+              :poster="activeModalVideo.thumbnail"
+              class="w-full h-full object-cover cursor-pointer"
+              autoplay
+              playsinline
+              loop
+              @click="togglePlayPause"
+            />
 
-          <!-- Gradient Overlays -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none" />
+            <!-- Gradient Overlays for mobile/video text -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none md:hidden" />
 
-          <!-- Top Header inside Modal -->
-          <div class="relative z-20 p-4 flex items-center justify-between text-white">
-            <div class="flex items-center gap-2">
-              <span
-                v-if="activeModalVideo.is_live"
-                class="bg-[#EF4444] text-white text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md animate-pulse"
-              >
-                <Radio class="w-3 h-3" />
-                <span>SEDANG LIVE</span>
-              </span>
-              <span v-else class="bg-white/20 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+            <!-- Top Header on Mobile -->
+            <div class="absolute top-0 left-0 right-0 z-20 p-4 flex items-center justify-between text-white md:hidden">
+              <span class="bg-white/20 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                 Video Feed
               </span>
+              <button
+                type="button"
+                class="w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center"
+                @click.stop="closeVideoModal"
+              >
+                <X class="w-4 h-4" />
+              </button>
             </div>
 
-            <button
-              type="button"
-              class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-white hover:text-black flex items-center justify-center transition-colors cursor-pointer border border-white/20 shadow-md"
-              title="Tutup"
-              @click.stop="closeVideoModal"
+            <!-- Center Play/Pause Indicator -->
+            <div
+              v-if="!isPlaying"
+              class="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
             >
-              <X class="w-5 h-5" />
-            </button>
-          </div>
+              <div class="w-16 h-16 rounded-full bg-black/60 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-xl">
+                <Play class="w-8 h-8 fill-white text-white ml-1" />
+              </div>
+            </div>
 
-          <!-- Center Play/Pause Indicator -->
-          <div
-            v-if="!isPlaying"
-            class="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
-          >
-            <div class="w-16 h-16 rounded-full bg-black/60 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-xl">
-              <Play class="w-8 h-8 fill-white text-white ml-1" />
+            <!-- Floating Controls on Video (Mute button - Mobile only) -->
+            <div class="absolute bottom-4 right-4 z-10 md:hidden">
+              <button
+                type="button"
+                class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center border border-white/20 hover:bg-black/70 cursor-pointer"
+                @click="toggleMute"
+              >
+                <VolumeX v-if="isMuted" class="w-4 h-4 text-white" />
+                <Volume2 v-else class="w-4 h-4 text-white" />
+              </button>
             </div>
           </div>
 
-          <!-- Side Interaction Column inside Modal -->
-          <div class="absolute right-4 bottom-24 z-10 flex flex-col items-center gap-4">
-            <!-- Creator Avatar -->
-            <NuxtLink
-              :to="`/seller/${activeModalVideo.id}`"
-              class="w-11 h-11 rounded-full ring-2 ring-white overflow-hidden bg-gray-800 shadow-lg"
-              @click="closeVideoModal"
-            >
-              <img
-                :src="activeModalVideo.user_avatar"
-                :alt="activeModalVideo.user_name"
-                class="w-full h-full object-cover"
-              />
-            </NuxtLink>
+          <!-- RIGHT COLUMN: Instagram-Style Comment & Details Sidebar (Desktop) -->
+          <div class="w-full flex-1 min-h-0 md:flex-none md:w-[380px] lg:w-[420px] bg-white flex flex-col justify-between text-gray-900 border-t md:border-t-0 md:border-l border-gray-100 shrink-0 md:h-full overflow-hidden">
+            <!-- Header: Creator Profile + Close Button -->
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/20 bg-gray-100 shrink-0 flex items-center justify-center">
+                  <img
+                    v-if="activeModalVideo.user_avatar && !modalAvatarErr"
+                    :src="activeModalVideo.user_avatar"
+                    :alt="activeModalVideo.user_name"
+                    class="w-full h-full object-cover"
+                    @error="modalAvatarErr = true"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500 bg-gray-200">
+                    {{ (activeModalVideo.user_name || 'U').charAt(0).toUpperCase() }}
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <NuxtLink
+                    :to="`/seller/${activeModalVideo.user_id || activeModalVideo.id}`"
+                    class="text-xs sm:text-sm font-bold text-gray-900 hover:text-primary transition-colors truncate block"
+                  >
+                    @{{ activeModalVideo.user_name }}
+                  </NuxtLink>
+                  <p class="text-[10px] text-gray-400">Seller BekasKu</p>
+                </div>
+              </div>
 
-            <!-- Like -->
-            <button
-              type="button"
-              class="flex flex-col items-center text-white"
-              @click="toggleLike(activeModalVideo)"
-            >
-              <Heart
-                class="w-7 h-7"
-                :class="likedMap[activeModalVideo.id] ? 'fill-red-500 text-red-500' : 'text-white'"
-              />
-              <span class="text-xs font-bold mt-1">
-                {{ formatCompact((activeModalVideo.likes || 0) + (likedMap[activeModalVideo.id] ? 1 : 0)) }}
-              </span>
-            </button>
-
-            <!-- Comment -->
-            <div class="flex flex-col items-center text-white">
-              <MessageCircle class="w-7 h-7 text-white" />
-              <span class="text-xs font-bold mt-1">
-                {{ formatCompact(activeModalVideo.comments || 0) }}
-              </span>
+              <button
+                type="button"
+                class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+                title="Tutup"
+                @click="closeVideoModal"
+              >
+                <X class="w-5 h-5" />
+              </button>
             </div>
 
-            <!-- Volume Mute/Unmute -->
-            <button
-              type="button"
-              class="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center"
-              @click="toggleMute"
-            >
-              <VolumeX v-if="isMuted" class="w-5 h-5 text-white" />
-              <Volume2 v-else class="w-5 h-5 text-white" />
-            </button>
-          </div>
+            <!-- Body: Caption, Pinned Product, Comments List (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+              <!-- Caption Block -->
+              <div class="text-xs text-gray-800 leading-relaxed">
+                <span class="font-bold text-gray-900 mr-1.5">@{{ activeModalVideo.user_name }}</span>
+                <span>{{ activeModalVideo.content || activeModalVideo.title }}</span>
+              </div>
 
-          <!-- Bottom Description inside Modal -->
-          <div class="relative z-10 p-4 pr-16 text-white space-y-1.5">
-            <h4 class="font-outfit font-black text-base">
-              @{{ activeModalVideo.user_name }}
-            </h4>
-            <p class="text-xs text-white/90 leading-relaxed">
-              {{ activeModalVideo.content || activeModalVideo.title }}
-            </p>
-            <div class="flex items-center gap-2 pt-1 text-white/80 text-xs">
-              <Music class="w-3.5 h-3.5" />
-              <span class="truncate">{{ activeModalVideo.music || 'Original sound' }}</span>
+              <!-- Pinned Product Chip (if attached) -->
+              <NuxtLink
+                v-if="activeModalVideo.product || activeModalVideo.product_id"
+                :to="`/product/${activeModalVideo.product?._id || activeModalVideo.product_id}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50 hover:bg-red-50/50 border border-gray-200 transition-colors"
+              >
+                <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-200 shrink-0 flex items-center justify-center">
+                  <img
+                    v-if="sanitizeMediaUrl(activeModalVideo.product?.image || activeModalVideo.thumbnail, '')"
+                    :src="sanitizeMediaUrl(activeModalVideo.product?.image || activeModalVideo.thumbnail, '')"
+                    :alt="activeModalVideo.product?.title || 'Produk Terkait'"
+                    class="w-full h-full object-cover"
+                  />
+                  <ShoppingBag v-else class="w-4 h-4 text-gray-400" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-bold text-gray-900 truncate">{{ activeModalVideo.product?.title || 'Produk Terkait' }}</p>
+                  <p class="text-[11px] font-black text-primary">Rp {{ formatRupiah(activeModalVideo.product?.price || 0) }}</p>
+                </div>
+                <span class="text-[10px] font-bold text-white bg-primary px-2 py-1 rounded-md shrink-0">
+                  Lihat
+                </span>
+              </NuxtLink>
+
+              <!-- Sound Track Row -->
+              <div class="flex items-center gap-1.5 text-[11px] text-gray-400">
+                <Music class="w-3 h-3 text-gray-400 shrink-0" />
+                <span class="truncate">{{ activeModalVideo.music || 'Original video sound' }}</span>
+              </div>
+
+              <!-- Divider -->
+              <div class="border-t border-gray-100 pt-2">
+                <h5 class="text-xs font-bold text-gray-700 mb-3">
+                  Komentar ({{ modalComments.length }})
+                </h5>
+
+                <!-- Comments List -->
+                <div v-if="modalCommentsLoading" class="flex justify-center py-6">
+                  <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+
+                <div v-else-if="modalComments.length === 0" class="text-center py-8 text-gray-400 space-y-1">
+                  <MessageSquare class="w-8 h-8 mx-auto text-gray-300 stroke-[1.5]" />
+                  <p class="text-xs font-medium text-gray-500">Belum ada komentar</p>
+                  <p class="text-[11px] text-gray-400">Jadilah yang pertama berkomentar!</p>
+                </div>
+
+                <div v-else class="space-y-3">
+                  <div
+                    v-for="c in modalComments"
+                    :key="c._id"
+                    class="flex items-start gap-2.5 text-xs"
+                  >
+                    <div class="w-7 h-7 rounded-full overflow-hidden bg-gray-100 shrink-0 ring-1 ring-gray-200">
+                      <img
+                        v-if="c.user_avatar && sanitizeMediaUrl(c.user_avatar, '')"
+                        :src="sanitizeMediaUrl(c.user_avatar, '')"
+                        class="w-full h-full object-cover"
+                      />
+                      <div v-else class="w-full h-full flex items-center justify-center font-bold text-[10px] text-gray-500 bg-gray-200">
+                        {{ c.user_name.charAt(0).toUpperCase() }}
+                      </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-gray-900">{{ c.user_name }}</span>
+                        <span class="text-[10px] text-gray-400">{{ c.time || 'Baru saja' }}</span>
+                      </div>
+                      <p class="text-gray-700 mt-0.5 break-words">{{ c.comment }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer: Actions & Sticky Comment Input -->
+            <div class="p-3 sm:p-4 border-t border-gray-100 bg-white shrink-0 space-y-2.5">
+              <!-- Action Bar -->
+              <div class="flex items-center justify-between text-gray-700">
+                <div class="flex items-center gap-3">
+                  <button
+                    type="button"
+                    class="flex items-center gap-1.5 hover:text-red-500 transition-colors cursor-pointer"
+                    @click="toggleLike(activeModalVideo)"
+                  >
+                    <Heart
+                      class="w-5 h-5"
+                      :class="getLikeState(activeModalVideo).liked ? 'fill-red-500 text-red-500' : 'text-gray-700'"
+                    />
+                    <span class="text-xs font-bold">
+                      {{ formatCompact(getLikeState(activeModalVideo).count) }}
+                    </span>
+                  </button>
+
+                  <div class="flex items-center gap-1.5 text-gray-700">
+                    <MessageCircle class="w-5 h-5 text-gray-700" />
+                    <span class="text-xs font-bold">{{ modalComments.length }}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    class="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
+                    title="Bisukan Audio"
+                    @click="toggleMute"
+                  >
+                    <VolumeX v-if="isMuted" class="w-4 h-4" />
+                    <Volume2 v-else class="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    class="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
+                    title="Bagikan"
+                    @click="shareVideo(activeModalVideo)"
+                  >
+                    <Share2 class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Input Form -->
+              <form class="flex items-center gap-2" @submit.prevent="submitModalComment">
+                <input
+                  v-model="modalCommentInput"
+                  type="text"
+                  placeholder="Tulis komentar..."
+                  class="flex-1 px-3 py-2 text-xs bg-gray-100 rounded-full border border-transparent focus:border-primary focus:bg-white focus:outline-hidden transition-all text-gray-900 placeholder:text-gray-400"
+                  :disabled="isSubmittingModalComment"
+                />
+                <button
+                  type="submit"
+                  class="w-8 h-8 rounded-full bg-primary hover:bg-red-700 text-white flex items-center justify-center transition-transform active:scale-90 disabled:opacity-40 cursor-pointer shrink-0 shadow-xs"
+                  :disabled="!modalCommentInput.trim() || isSubmittingModalComment"
+                >
+                  <Send class="w-3.5 h-3.5 ml-0.5" />
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -354,6 +543,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, reactive, onMounted, onBeforeUnmount } from 'vue'
 import {
   ChevronLeft,
   ChevronRight,
@@ -368,8 +558,18 @@ import {
   Volume2,
   VolumeX,
   Check,
+  Send,
+  MessageSquare,
+  ShoppingBag,
 } from 'lucide-vue-next'
-import type { VideoFeedItem } from '~/composables/useLiveShopping'
+import { sanitizeMediaUrl } from '~/utils/media'
+import { formatNumber } from '~/utils/format'
+import type { VideoFeedItem, VideoCommentItem } from '~/types/video'
+import { useLiveShopping } from '~/composables/useLiveShopping'
+import { useVideoFeed } from '~/composables/useVideoFeed'
+import { useAuthStore } from '~/stores/auth'
+import { useAuthModal } from '~/composables/useAuthModal'
+import { useNotification } from '~/composables/useNotification'
 
 interface Props {
   sessions?: VideoFeedItem[]
@@ -382,13 +582,28 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { liveSessions, fetchLiveSessions } = useLiveShopping()
+const { fetchComments, postComment, toggleLike: apiToggleLike } = useVideoFeed()
+const authStore = useAuthStore()
+const authModal = useAuthModal()
+const { showNotification } = useNotification()
+const { t } = useLocale()
 
-// Feed video list: prioritize props or composable
-const feedVideos = computed(() => {
-  if (props.sessions && props.sessions.length > 0) {
-    return props.sessions
-  }
-  return liveSessions.value
+// Avatar error tracking to fallback cleanly to initials instead of BekasKu logo
+const avatarErrMap = reactive<Record<string, boolean>>({})
+const modalAvatarErr = ref(false)
+
+// Feed video list: prioritize props or composable, sanitize media URLs
+const feedVideos = computed<VideoFeedItem[]>(() => {
+  const rawList = (props.sessions && props.sessions.length > 0)
+    ? props.sessions
+    : liveSessions.value
+
+  return rawList.map(item => ({
+    ...item,
+    thumbnail: sanitizeMediaUrl(item.thumbnail, ''),
+    user_avatar: sanitizeMediaUrl(item.user_avatar, ''),
+    video_url: sanitizeMediaUrl(item.video_url, ''),
+  }))
 })
 
 onMounted(async () => {
@@ -397,9 +612,16 @@ onMounted(async () => {
   }
 })
 
+onBeforeUnmount(() => {
+  if (hoverTimer) {
+    clearTimeout(hoverTimer)
+    hoverTimer = null
+  }
+})
+
 // Carousel Pagination Index
 const currentIndex = ref(0)
-const visibleCards = computed(() => {
+const visibleCards = computed<VideoFeedItem[]>(() => {
   const list = feedVideos.value
   if (list.length === 0) return []
   return list.slice(currentIndex.value, currentIndex.value + 4)
@@ -418,35 +640,126 @@ function scrollNext() {
   }
 }
 
-// Like state map
-const likedMap = reactive<Record<string, boolean>>({})
+// Hover-to-Play Video Preview ala YouTube & Instagram
+const hoveredVideoId = ref<string | null>(null)
+let hoverTimer: ReturnType<typeof setTimeout> | null = null
 
-function toggleLike(item: VideoFeedItem) {
-  likedMap[item.id] = !likedMap[item.id]
+function onCardMouseEnter(item: VideoFeedItem) {
+  if (item.is_live || !item.video_url) return
+  if (hoverTimer) clearTimeout(hoverTimer)
+  hoverTimer = setTimeout(() => {
+    hoveredVideoId.value = item.id
+  }, 100)
+}
+
+function onCardMouseLeave(item: VideoFeedItem) {
+  if (hoverTimer) {
+    clearTimeout(hoverTimer)
+    hoverTimer = null
+  }
+  if (hoveredVideoId.value === item.id) {
+    hoveredVideoId.value = null
+  }
+}
+
+interface LikeState {
+  liked: boolean
+  count: number
+}
+
+// Like state map (synced without double-counting)
+const likeOverrides = reactive<Record<string, LikeState>>({})
+
+function getLikeState(item: VideoFeedItem): LikeState {
+  const override = likeOverrides[item.id]
+  if (override) {
+    return override
+  }
+  return {
+    liked: item.is_liked === true,
+    count: item.total_like ?? item.likes ?? 0,
+  }
+}
+
+async function toggleLike(item: VideoFeedItem) {
+  if (!authStore.isLoggedIn) {
+    authModal.openLogin({
+      featureTitle: 'Sukai Video',
+      redirectPath: '/',
+    })
+    return
+  }
+  const current = getLikeState(item)
+  const target: VideoFeedItem = {
+    ...item,
+    is_liked: current.liked,
+    total_like: current.count,
+    likes: current.count,
+  }
+  await apiToggleLike(target)
+  likeOverrides[item.id] = {
+    liked: target.is_liked === true,
+    count: target.total_like ?? target.likes ?? current.count,
+  }
 }
 
 function shareVideo(item: VideoFeedItem) {
+  const videoId = encodeURIComponent(item._id || item.id)
+  const shareUrl = `${window.location.origin}/showcase/video?id=${videoId}`
   if (navigator.share) {
     navigator.share({
       title: item.title || 'Video BekasKu',
       text: item.content || 'Lihat video ini di BekasKu!',
-      url: window.location.href,
+      url: shareUrl,
     }).catch(() => {})
-  } else {
-    navigator.clipboard?.writeText(window.location.href)
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showNotification({
+        type: 'success',
+        message: 'Tautan video berhasil disalin.',
+      })
+    }).catch(() => {})
   }
 }
 
-// Modal Video Player State
+// Modal Video Player & Comments State
 const activeModalVideo = ref<VideoFeedItem | null>(null)
 const modalVideoPlayerRef = ref<HTMLVideoElement | null>(null)
 const isPlaying = ref(true)
 const isMuted = ref(false)
 
-function openVideoModal(item: VideoFeedItem) {
+const modalComments = ref<VideoCommentItem[]>([])
+const modalCommentsLoading = ref(false)
+const modalCommentInput = ref('')
+const isSubmittingModalComment = ref(false)
+
+function onCardClick(item: VideoFeedItem) {
+  if (item.is_live) {
+    navigateTo(`/live/${item.live_id || item.id}`)
+  } else {
+    openVideoModal(item)
+  }
+}
+
+async function openVideoModal(item: VideoFeedItem) {
   activeModalVideo.value = item
   isPlaying.value = true
   isMuted.value = false
+  modalAvatarErr.value = false
+  modalComments.value = []
+  modalCommentInput.value = ''
+
+  // Load comments
+  const videoId = item._id || item.id
+  if (videoId) {
+    modalCommentsLoading.value = true
+    try {
+      const res = await fetchComments(videoId, 1)
+      modalComments.value = res.comments
+    } finally {
+      modalCommentsLoading.value = false
+    }
+  }
 }
 
 function closeVideoModal() {
@@ -454,6 +767,7 @@ function closeVideoModal() {
     modalVideoPlayerRef.value.pause()
   }
   activeModalVideo.value = null
+  modalComments.value = []
 }
 
 function togglePlayPause() {
@@ -473,6 +787,37 @@ function toggleMute() {
   modalVideoPlayerRef.value.muted = isMuted.value
 }
 
+async function submitModalComment() {
+  const text = modalCommentInput.value.trim()
+  if (!text || isSubmittingModalComment.value || !activeModalVideo.value) return
+
+  if (!authStore.isLoggedIn) {
+    authModal.openLogin({
+      featureTitle: 'Kirim Komentar Video',
+      redirectPath: '/',
+    })
+    return
+  }
+
+  isSubmittingModalComment.value = true
+  try {
+    const videoId = activeModalVideo.value._id || activeModalVideo.value.id
+    const created = await postComment(videoId, text)
+    modalComments.value.unshift(created)
+    if (activeModalVideo.value.total_comment !== undefined) {
+      activeModalVideo.value.total_comment += 1
+    }
+    modalCommentInput.value = ''
+  } catch (err: any) {
+    showNotification({
+      type: 'error',
+      message: err?.message || 'Gagal mengirim komentar.',
+    })
+  } finally {
+    isSubmittingModalComment.value = false
+  }
+}
+
 function formatCompact(num: number): string {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
@@ -482,5 +827,8 @@ function formatCompact(num: number): string {
   }
   return num.toString()
 }
-</script>
 
+function formatRupiah(num: number): string {
+  return formatNumber(num)
+}
+</script>

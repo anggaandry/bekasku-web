@@ -116,8 +116,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import {
   type Banner,
   useBanners,
-  MONGODB_ACTIVE_ADS,
-} from '~/composables/useBanners'
+  } from '~/composables/useBanners'
 
 interface Props {
   banners?: Banner[]
@@ -129,7 +128,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
 })
 
-const { logAdClick } = useBanners()
+const { logBannerClick } = useBanners()
 
 const currentIndex = ref(0)
 
@@ -137,8 +136,7 @@ const displayBanners = computed<Banner[]>(() => {
   if (props.banners && props.banners.length > 0) {
     return props.banners
   }
-  return MONGODB_ACTIVE_ADS
-})
+  return })
 
 const mainBanner = computed(() => {
   const len = displayBanners.value.length
@@ -169,7 +167,7 @@ function nextTrio() {
 
 function onBannerClick(banner?: Banner) {
   if (banner && banner.link) {
-    logAdClick(banner._id || banner.id)
+    logBannerClick(banner._id || banner.id)
     window.open(banner.link, '_blank', 'noopener,noreferrer')
   }
 }

@@ -1,9 +1,9 @@
 <template>
   <footer class="w-full bg-[#FAFAFA] border-t border-gray-200 mt-6 text-xs text-gray-700">
     <!-- 1. Variant 1 Feature: Dark Surface (#16191E) High-Impact Trust & Rekber Bar -->
-    <div class="bg-[#16191E] text-white py-6 border-b border-neutral-800">
+    <div class="bg-[#16191E] text-white py-6 border-b border-gray-800">
       <div class="max-w-[1400px] mx-auto px-4 md:px-8">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-6 border-b border-neutral-800">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-6 border-b border-gray-800">
           <div class="flex items-center gap-3 text-center md:text-left">
             <div class="w-10 h-10 rounded-xl bg-[#2563EB]/20 border border-[#2563EB]/40 flex items-center justify-center text-[#2563EB]">
               <ShieldCheck class="w-6 h-6 text-[#2563EB]" />
@@ -19,7 +19,7 @@
           </div>
 
           <NuxtLink
-            to="/terms"
+            to="/safety-guide"
             class="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5"
           >
             <span>Pelajari Cara Kerja Rekber</span>
@@ -29,7 +29,7 @@
 
         <!-- 4 Guarantee Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
-          <div class="bg-neutral-900/80 border border-neutral-800 p-3.5 rounded-xl flex items-start gap-3">
+          <div class="bg-gray-900/80 border border-gray-800 p-3.5 rounded-xl flex items-start gap-3">
             <Lock class="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
             <div>
               <h4 class="font-bold text-white text-xs">Uang Ditahan Aman</h4>
@@ -39,7 +39,7 @@
             </div>
           </div>
 
-          <div class="bg-neutral-900/80 border border-neutral-800 p-3.5 rounded-xl flex items-start gap-3">
+          <div class="bg-gray-900/80 border border-gray-800 p-3.5 rounded-xl flex items-start gap-3">
             <RotateCcw class="w-5 h-5 text-[#EBAD25] shrink-0 mt-0.5" />
             <div>
               <h4 class="font-bold text-white text-xs">Garansi Retur 2 Hari</h4>
@@ -49,7 +49,7 @@
             </div>
           </div>
 
-          <div class="bg-neutral-900/80 border border-neutral-800 p-3.5 rounded-xl flex items-start gap-3">
+          <div class="bg-gray-900/80 border border-gray-800 p-3.5 rounded-xl flex items-start gap-3">
             <Truck class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <div>
               <h4 class="font-bold text-white text-xs">Ekspedisi Terintegrasi</h4>
@@ -59,7 +59,7 @@
             </div>
           </div>
 
-          <div class="bg-neutral-900/80 border border-neutral-800 p-3.5 rounded-xl flex items-start gap-3">
+          <div class="bg-gray-900/80 border border-gray-800 p-3.5 rounded-xl flex items-start gap-3">
             <Headphones class="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
             <div>
               <h4 class="font-bold text-white text-xs">CS Resolusi Konflik</h4>
@@ -79,10 +79,10 @@
         <div class="col-span-1 lg:col-span-2 space-y-3">
           <h4 class="font-outfit font-bold text-gray-900 text-sm">Layanan Pelanggan</h4>
           <ul class="space-y-2 text-gray-600 text-xs">
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Pusat Bantuan &amp; FAQ</NuxtLink></li>
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Cara Belanja Aman</NuxtLink></li>
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Cara Berjualan Cepat</NuxtLink></li>
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Rekening Bersama (Rekber)</NuxtLink></li>
+            <li><NuxtLink to="/faq" class="hover:text-[#2563EB]">Pusat Bantuan &amp; FAQ</NuxtLink></li>
+            <li><NuxtLink to="/safety-guide" class="hover:text-[#2563EB]">Cara Belanja Aman</NuxtLink></li>
+            <li><NuxtLink to="/policy/terms" class="hover:text-[#2563EB]">Cara Berjualan Cepat</NuxtLink></li>
+            <li><NuxtLink to="/safety-guide" class="hover:text-[#2563EB]">Rekening Bersama (Rekber)</NuxtLink></li>
           </ul>
         </div>
 
@@ -90,10 +90,10 @@
         <div class="col-span-1 lg:col-span-2 space-y-3">
           <h4 class="font-outfit font-bold text-gray-900 text-sm">Jelajahi BekasKu</h4>
           <ul class="space-y-2 text-gray-600 text-xs">
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Tentang BekasKu</NuxtLink></li>
+            <li><NuxtLink to="/about" class="hover:text-[#2563EB]">Tentang BekasKu</NuxtLink></li>
             <li><NuxtLink to="/peduli" class="hover:text-[#2563EB] text-emerald-700 font-medium">BekasKu Peduli</NuxtLink></li>
             <li><NuxtLink to="/seller" class="hover:text-[#2563EB]">BekasKu+ Influencer</NuxtLink></li>
-            <li><NuxtLink to="/privacy" class="hover:text-[#2563EB]">Kebijakan Privasi</NuxtLink></li>
+            <li><NuxtLink to="/policy/privacy" class="hover:text-[#2563EB]">Kebijakan Privasi</NuxtLink></li>
           </ul>
         </div>
 
@@ -129,10 +129,10 @@
         <div class="col-span-2 lg:col-span-2 space-y-4">
           <h4 class="font-outfit font-bold text-gray-900 text-sm">Download App &amp; Kontak</h4>
           <div class="flex flex-col gap-2">
-            <a :href="PLAY_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]">
+            <a :href="PLAY_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]" rel="noopener noreferrer">
               <span>Google Play</span>
             </a>
-            <a :href="APP_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]">
+            <a :href="APP_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]" rel="noopener noreferrer">
               <span>App Store</span>
             </a>
           </div>
@@ -146,7 +146,7 @@
                 :href="s.link"
                 target="_blank"
                 class="w-7 h-7 rounded-full bg-gray-900 hover:bg-[#2563EB] text-white flex items-center justify-center p-1"
-              >
+               rel="noopener noreferrer">
                 <img v-if="s.logo" :src="s.logo" :alt="s.title" class="w-full h-full object-contain filter invert" />
               </a>
             </div>
@@ -158,9 +158,9 @@
       <div class="border-t border-gray-200 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
         <p>&copy; 2026 <strong class="text-gray-700">PT Jantaka Ladang Unggul</strong>. Marketplace Jual Beli Barang Bekas &amp; Preloved Terpercaya.</p>
         <div class="flex items-center gap-3">
-          <NuxtLink to="/terms" class="hover:text-[#2563EB]">Ketentuan</NuxtLink>
+          <NuxtLink to="/policy/terms" class="hover:text-[#2563EB]">Ketentuan</NuxtLink>
           <span>•</span>
-          <NuxtLink to="/privacy" class="hover:text-[#2563EB]">Privasi</NuxtLink>
+          <NuxtLink to="/policy/privacy" class="hover:text-[#2563EB]">Privasi</NuxtLink>
         </div>
       </div>
     </div>

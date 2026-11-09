@@ -74,10 +74,10 @@
         <div class="col-span-1 lg:col-span-2 space-y-3">
           <h4 class="font-outfit font-bold text-gray-900 text-sm">Layanan Pelanggan</h4>
           <ul class="space-y-2 text-gray-600 text-xs">
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Pusat Bantuan &amp; FAQ</NuxtLink></li>
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Cara Belanja Aman</NuxtLink></li>
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Panduan Berjualan</NuxtLink></li>
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Rekening Bersama (Rekber)</NuxtLink></li>
+            <li><NuxtLink to="/faq" class="hover:text-[#2563EB]">Pusat Bantuan &amp; FAQ</NuxtLink></li>
+            <li><NuxtLink to="/safety-guide" class="hover:text-[#2563EB]">Cara Belanja Aman</NuxtLink></li>
+            <li><NuxtLink to="/policy/terms" class="hover:text-[#2563EB]">Panduan Berjualan</NuxtLink></li>
+            <li><NuxtLink to="/safety-guide" class="hover:text-[#2563EB]">Rekening Bersama (Rekber)</NuxtLink></li>
           </ul>
         </div>
 
@@ -85,10 +85,10 @@
         <div class="col-span-1 lg:col-span-2 space-y-3">
           <h4 class="font-outfit font-bold text-gray-900 text-sm">Jelajahi BekasKu</h4>
           <ul class="space-y-2 text-gray-600 text-xs">
-            <li><NuxtLink to="/terms" class="hover:text-[#2563EB]">Tentang BekasKu</NuxtLink></li>
+            <li><NuxtLink to="/about" class="hover:text-[#2563EB]">Tentang BekasKu</NuxtLink></li>
             <li><NuxtLink to="/peduli" class="hover:text-[#2563EB] text-emerald-700 font-medium">BekasKu Peduli</NuxtLink></li>
             <li><NuxtLink to="/seller" class="hover:text-[#2563EB]">BekasKu+ Influencer</NuxtLink></li>
-            <li><NuxtLink to="/privacy" class="hover:text-[#2563EB]">Kebijakan Privasi</NuxtLink></li>
+            <li><NuxtLink to="/policy/privacy" class="hover:text-[#2563EB]">Kebijakan Privasi</NuxtLink></li>
           </ul>
         </div>
 
@@ -124,10 +124,10 @@
         <div class="col-span-2 lg:col-span-2 space-y-4">
           <h4 class="font-outfit font-bold text-gray-900 text-sm">Download App &amp; Kontak</h4>
           <div class="flex flex-col gap-2">
-            <a :href="PLAY_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]">
+            <a :href="PLAY_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]" rel="noopener noreferrer">
               <span>Google Play</span>
             </a>
-            <a :href="APP_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]">
+            <a :href="APP_STORE_URL" target="_blank" class="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg text-[11px] font-bold max-w-[150px]" rel="noopener noreferrer">
               <span>App Store</span>
             </a>
           </div>
@@ -140,7 +140,7 @@
                 :href="s.link"
                 target="_blank"
                 class="w-7 h-7 rounded-full bg-gray-900 hover:bg-[#2563EB] text-white flex items-center justify-center p-1"
-              >
+               rel="noopener noreferrer">
                 <img v-if="s.logo" :src="s.logo" :alt="s.title" class="w-full h-full object-contain filter invert" />
               </a>
             </div>
@@ -152,9 +152,9 @@
       <div class="border-t border-gray-200 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
         <p>&copy; 2026 <strong class="text-gray-700">PT Jantaka Ladang Unggul</strong>. Marketplace Jual Beli Barang Bekas &amp; Preloved Terpercaya.</p>
         <div class="flex items-center gap-3">
-          <NuxtLink to="/terms" class="hover:text-[#2563EB]">Ketentuan</NuxtLink>
+          <NuxtLink to="/policy/terms" class="hover:text-[#2563EB]">Ketentuan</NuxtLink>
           <span>•</span>
-          <NuxtLink to="/privacy" class="hover:text-[#2563EB]">Privasi</NuxtLink>
+          <NuxtLink to="/policy/privacy" class="hover:text-[#2563EB]">Privasi</NuxtLink>
         </div>
       </div>
     </div>

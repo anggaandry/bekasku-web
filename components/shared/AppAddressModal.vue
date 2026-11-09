@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="modelValue"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+      class="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto font-outfit overscroll-contain"
       @click.self="close"
     >
       <div

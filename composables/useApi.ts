@@ -2,24 +2,37 @@ import {
   DEFAULT_API_BASE,
   TOKEN_REQ,
   TOKEN_DEF,
+  TOKEN_PAYMENT,
   JWT_SECRET_DEF,
   API_REQUEST_TOKEN,
   STORAGE_KEY_TOKEN,
+  STORAGE_KEY_USER_ID,
+  STORAGE_KEY_USER_PROFILE,
 } from '~/utils/constants'
+import { isJwtExpired } from '~/utils/jwt'
+import { normalizeAppLocale, useLocaleState } from '~/composables/useLocale'
 
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: any
   headers?: Record<string, string>
   params?: Record<string, any>
+  skipAuthRefresh?: boolean
+  usePaymentToken?: boolean
 }
-
-// In-memory token cache for SSR/Client
-let cachedToken: string | null = null
 
 export function useApi() {
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase || DEFAULT_API_BASE
+
+  // SSR-safe state & cookie (tidak bocor antar user di SSR server)
+  const tokenCookie = useCookie<string | null>(STORAGE_KEY_TOKEN, {
+    maxAge: 60 * 60 * 24 * 7, // 7 hari
+    sameSite: 'lax',
+    path: '/',
+  })
+  const tokenState = useState<string | null>('auth_token', () => tokenCookie.value || null)
+  const { langCookie, localeState } = useLocaleState()
 
   /**
    * Request / Refresh Guest JWT Token dari backend
@@ -40,14 +53,8 @@ export function useApi() {
       )
 
       if (response && response.token) {
-        cachedToken = response.token
-        if (import.meta.client) {
-          try {
-            localStorage.setItem(STORAGE_KEY_TOKEN, response.token)
-          } catch {
-            // ignore localStorage disabled
-          }
-        }
+        tokenState.value = response.token
+        tokenCookie.value = response.token
         return response.token
       }
     } catch (err) {
@@ -57,24 +64,32 @@ export function useApi() {
   }
 
   /**
-   * Dapatkan token aktif (dari memory, localStorage, atau request baru)
+   * Dapatkan token aktif (dari cookie/useState SSR-safe atau request baru)
    */
   async function getToken(): Promise<string | null> {
-    if (cachedToken) return cachedToken
+    if (tokenState.value && !isJwtExpired(tokenState.value)) return tokenState.value
+    if (tokenCookie.value && !isJwtExpired(tokenCookie.value)) {
+      tokenState.value = tokenCookie.value
+      return tokenCookie.value
+    }
+    return await fetchGuestToken()
+  }
 
+  /**
+   * Bersihkan token dan session di storage saat token kadaluarsa
+   */
+  function handleSessionExpired() {
+    tokenState.value = null
+    tokenCookie.value = null
     if (import.meta.client) {
       try {
-        const stored = localStorage.getItem(STORAGE_KEY_TOKEN)
-        if (stored) {
-          cachedToken = stored
-          return stored
-        }
+        localStorage.removeItem(STORAGE_KEY_TOKEN)
+        localStorage.removeItem(STORAGE_KEY_USER_ID)
+        localStorage.removeItem(STORAGE_KEY_USER_PROFILE)
       } catch {
         // ignore
       }
     }
-
-    return await fetchGuestToken()
   }
 
   /**
@@ -84,9 +99,23 @@ export function useApi() {
     let token = await getToken()
     const method = options.method || 'POST'
 
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData
+    const activeLang = normalizeAppLocale(localeState.value || langCookie.value)
+    const isPlainObjectBody =
+      !isFormData &&
+      options.body &&
+      typeof options.body === 'object' &&
+      !Array.isArray(options.body)
+
+    const resolvedBody = isPlainObjectBody
+      ? { lang: activeLang, ...options.body }
+      : options.body
+
+    const authToken = options.usePaymentToken ? TOKEN_PAYMENT : TOKEN_DEF
     const buildHeaders = (t: string | null) => ({
-      'Content-Type': 'application/json',
-      'x-auth-token': `Bearer ${TOKEN_DEF}`,
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      'Accept-Language': activeLang,
+      'x-auth-token': `Bearer ${authToken}`,
       'x-auth-secret': JWT_SECRET_DEF,
       ...(t ? { 'x-auth-key': t } : {}),
       ...(options.headers || {}),
@@ -98,23 +127,31 @@ export function useApi() {
     try {
       const res = await $fetch<T>(url, {
         method,
-        body: options.body,
+        body: resolvedBody,
         params: options.params,
         headers: buildHeaders(token),
       })
       return res
     } catch (err: any) {
-      // Periksa apakah token expired atau perlu refresh
       const status = err?.response?.status || err?.statusCode
       const errMsg = err?.data?.message?.toString()?.toLowerCase() || ''
+      const isTokenError =
+        status === 403 ||
+        errMsg.includes('jwt-expired') ||
+        errMsg.includes('token needed') ||
+        errMsg.includes('key needed') ||
+        errMsg.includes('key access')
 
-      if (status === 401 || status === 403 || errMsg.includes('key needed') || errMsg.includes('jwt-expired')) {
-        // Coba refresh token 1 kali dan retry request
+      if (isTokenError) {
+        handleSessionExpired()
+      }
+
+      if (!options.skipAuthRefresh && isTokenError) {
         token = await fetchGuestToken()
         if (token) {
           return await $fetch<T>(url, {
             method,
-            body: options.body,
+            body: resolvedBody,
             params: options.params,
             headers: buildHeaders(token),
           })
@@ -125,7 +162,6 @@ export function useApi() {
     }
   }
 
-  // Convenience methods
   async function get<T>(path: string, options: Omit<ApiOptions, 'method'> = {}): Promise<T> {
     return request<T>(path, { ...options, method: 'GET' })
   }
@@ -142,6 +178,11 @@ export function useApi() {
     return request<T>(path, { ...options, method: 'DELETE' })
   }
 
+  function setToken(newToken: string | null) {
+    tokenState.value = newToken
+    tokenCookie.value = newToken
+  }
+
   return {
     get,
     post,
@@ -150,5 +191,6 @@ export function useApi() {
     request,
     fetchGuestToken,
     getToken,
+    setToken,
   }
 }

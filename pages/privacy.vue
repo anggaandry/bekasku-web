@@ -1,7 +1,7 @@
-<template>
-  <AppPolicyViewer />
-</template>
-
 <script setup lang="ts">
-import AppPolicyViewer from '~/components/policy/AppPolicyViewer.vue';
+import PrivacyPageView from '~/components/static/PrivacyPageView.vue'
 </script>
+
+<template>
+  <PrivacyPageView canonical-path="/policy/privacy" />
+</template>

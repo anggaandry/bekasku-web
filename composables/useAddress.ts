@@ -1,170 +1,273 @@
-import { API_MYADDRESS_LIST, API_MYADDRESS_SUBMIT } from '~/utils/constants'
+import {
+  API_MYADDRESS_LIST,
+  API_MYADDRESS_INIT,
+  API_MYADDRESS_SUBMIT,
+  API_MYADDRESS_DELETE,
+  API_PROFILE_UPDATE,
+  API_LOCATION,
+  DEFAULT_LOCATION,
+} from '~/utils/constants'
+import { useLocationStore } from '~/stores/location'
 import { useAuthStore } from '~/stores/auth'
+import type { UserAddress, AddressFormPayload } from '~/types/address'
 
-export interface UserAddress {
-  id?: string
-  _id?: string
-  address_id?: string
-  address_name: string
-  contact_name: string
-  contact_phone: string
-  address: string
-  city?: string
-  province?: string
-  subdistrict?: string
-  postal?: string
-  address_note?: string
-  main?: boolean | number
-}
-
-const STORAGE_KEY_SHIPPING_ADDR = 'bks_shipping_address'
+export type { UserAddress, AddressFormPayload }
 
 export function useAddress() {
   const api = useApi()
+  const locationStore = useLocationStore()
   const authStore = useAuthStore()
 
-  const currentAddressText = useState<string>('current_shipping_address_text', () => 'Jl. Mawar No. 27 Blok B, Medan')
-  const currentAddress = useState<UserAddress | null>('current_shipping_address', () => null)
-  const addressList = useState<UserAddress[]>('user_addresses_list', () => [])
+  const addresses = useState<UserAddress[]>('user_addresses', () => [])
+  const selectedAddress = useState<UserAddress | null>('user_selected_address', () => null)
   const loading = ref(false)
+  const isSubmitting = ref(false)
+  const error = ref<string | null>(null)
 
-  // Fallback initial sample addresses if user hasn't created any yet
-  const defaultSampleAddresses: UserAddress[] = [
-    {
-      id: 'addr-1',
-      address_name: 'Rumah',
-      contact_name: 'Erlangga',
-      contact_phone: '081234567890',
-      address: 'Jl. Mawar No. 27 Blok B, Medan, Sumatera Utara 20142',
-      city: 'Medan',
-      province: 'Sumatera Utara',
-      address_note: 'Pagar hitam depan pos satpam',
-      main: true,
-    },
-    {
-      id: 'addr-2',
-      address_name: 'Kantor',
-      contact_name: 'Erlangga',
-      contact_phone: '081234567890',
-      address: 'Gedung BekasKu Hub Lt. 4, Jl. Asia No. 88, Medan Kota',
-      city: 'Medan',
-      province: 'Sumatera Utara',
-      address_note: 'Lobi utama resepsionis',
-      main: false,
-    },
-  ]
+  const defaultAddress = computed(() => {
+    return (
+      addresses.value.find(a => a.main === true || a.main === 1 || a.main === 'true' || a.is_default === true) ||
+      addresses.value[0] ||
+      null
+    )
+  })
 
-  /**
-   * Fetch addresses from API /myaddress/list (or initialize defaults)
-   */
-  async function fetchAddresses() {
-    // Load from localStorage if present
-    if (import.meta.client) {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY_SHIPPING_ADDR)
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          currentAddress.value = parsed
-          currentAddressText.value = parsed.address || currentAddressText.value
-        }
-      } catch {
-        // ignore
-      }
+  const currentAddress = computed(() => {
+    return selectedAddress.value || defaultAddress.value
+  })
+
+  const currentAddressText = computed(() => {
+    if (currentAddress.value) {
+      const label = currentAddress.value.address_name || currentAddress.value.name || 'Alamat'
+      const city = currentAddress.value.city || locationStore.city || 'Medan'
+      return `${label} (${city})`
     }
+    return locationStore.city || DEFAULT_LOCATION
+  })
 
-    if (authStore.isLoggedIn) {
-      loading.value = true
-      try {
-        const res = await api.post<{ result?: UserAddress[]; message?: string }>(
-          API_MYADDRESS_LIST,
-          {}
-        )
-        if (res && res.result && Array.isArray(res.result) && res.result.length > 0) {
-          addressList.value = res.result
-          const mainAddr = res.result.find((a) => a.main === true || a.main === 1) || res.result[0]
-          if (!currentAddress.value && mainAddr) {
-            selectAddress(mainAddr)
-          }
-          return res.result
-        }
-      } catch (err) {
-        console.warn('[useAddress] Failed to fetch /myaddress/list from API:', err)
-      } finally {
-        loading.value = false
-      }
+  async function fetchAddresses(): Promise<UserAddress[]> {
+    if (!authStore.isLoggedIn) {
+      addresses.value = []
+      return []
     }
-
-    // Fallback if empty
-    if (addressList.value.length === 0) {
-      addressList.value = defaultSampleAddresses
-      if (!currentAddress.value) {
-        selectAddress(defaultSampleAddresses[0])
-      }
-    }
-
-    return addressList.value
-  }
-
-  /**
-   * Select active address
-   */
-  function selectAddress(addr: UserAddress) {
-    currentAddress.value = addr
-    currentAddressText.value = addr.address
-    if (import.meta.client) {
-      try {
-        localStorage.setItem(STORAGE_KEY_SHIPPING_ADDR, JSON.stringify(addr))
-      } catch {
-        // ignore
-      }
-    }
-  }
-
-  /**
-   * Add new address to API & local list
-   */
-  async function addAddress(newAddr: Omit<UserAddress, 'id'>): Promise<UserAddress> {
     loading.value = true
-    const createdAddr: UserAddress = {
-      ...newAddr,
-      id: `addr-${Date.now()}`,
-    }
-
+    error.value = null
     try {
-      if (authStore.isLoggedIn) {
-        await api.post(API_MYADDRESS_SUBMIT, {
-          address_name: newAddr.address_name,
-          contact_name: newAddr.contact_name,
-          contact_phone: newAddr.contact_phone,
-          address: newAddr.address,
-          city: newAddr.city || '',
-          province: newAddr.province || '',
-          address_note: newAddr.address_note || '',
-          main: newAddr.main ? true : false,
-        })
+      const response = await api.post<{ result?: UserAddress[] }>(API_MYADDRESS_LIST, {})
+      const list = response?.result || []
+      addresses.value = list
+      if (!selectedAddress.value && list.length > 0) {
+        const def = list.find(a => a.main === true || a.main === 1 || a.main === 'true' || a.is_default === true) || list[0]
+        if (def) {
+          selectedAddress.value = def
+          if (def.city) {
+            locationStore.setLocation({
+              city: def.city,
+              province: def.province || locationStore.province,
+              location: def.address || `${def.city}`,
+              lat: typeof def.lat === 'number' ? def.lat : parseFloat(def.lat || '') || locationStore.lat,
+              lon: typeof def.lon === 'number' ? def.lon : parseFloat(def.lon || '') || locationStore.lon,
+            })
+          }
+        }
       }
-    } catch (err) {
-      console.warn('[useAddress] Failed to submit address to API:', err)
+      return addresses.value
+    } catch (err: unknown) {
+      const errObj = err as { message?: string }
+      error.value = errObj?.message || 'Gagal memuat alamat'
+      addresses.value = []
+      return []
     } finally {
       loading.value = false
     }
+  }
 
-    if (createdAddr.main) {
-      addressList.value = addressList.value.map((a) => ({ ...a, main: false }))
+  function selectAddress(addr: UserAddress) {
+    selectedAddress.value = addr
+    const latNum = typeof addr.lat === 'number' ? addr.lat : parseFloat(addr.lat || '') || locationStore.lat
+    const lonNum = typeof addr.lon === 'number' ? addr.lon : parseFloat(addr.lon || '') || locationStore.lon
+
+    if (addr.city) {
+      locationStore.setLocation({
+        city: addr.city,
+        province: addr.province || locationStore.province,
+        location: addr.address || addr.city,
+        lat: latNum,
+        lon: lonNum,
+      })
     }
 
-    addressList.value = [createdAddr, ...addressList.value]
-    selectAddress(createdAddr)
-    return createdAddr
+    if (!authStore.isLoggedIn) {
+      api.post(API_LOCATION, {
+        user_id: 'GUEST',
+        lat: latNum,
+        lon: lonNum,
+        location: addr.address || addr.city,
+        city: addr.city,
+        province: addr.province || locationStore.province,
+      }).catch(() => {})
+    }
+  }
+
+  async function getAddressDetail(addressId: string | number): Promise<UserAddress | null> {
+    if (!addressId) return null
+    try {
+      const res = await api.post<{ result?: UserAddress }>(API_MYADDRESS_INIT, {
+        address_id: String(addressId),
+      })
+      return res?.result || null
+    } catch {
+      return null
+    }
+  }
+
+  async function saveAddress(payload: AddressFormPayload): Promise<{ success: boolean; message?: string; result?: UserAddress }> {
+    isSubmitting.value = true
+    try {
+      const body = {
+        address_id: payload.address_id || '',
+        address_name: payload.address_name,
+        address: payload.address.replaceAll(/[<>]/g, '').trim(),
+        address_note: (payload.address_note || '').replaceAll(/[<>]/g, '').trim(),
+        city: payload.city,
+        province: payload.province,
+        postal: payload.postal,
+        subdistrict: payload.subdistrict,
+        type_city: payload.type_city,
+        main: payload.main,
+        lon: String(payload.lon || ''),
+        lat: String(payload.lat || ''),
+        contact_name: payload.contact_name.replaceAll(/[<>]/g, '').trim(),
+        contact_phone: payload.contact_phone.replaceAll(/\D/g, ''),
+      }
+
+      const res = await api.post<{ status?: boolean; message?: string; result?: UserAddress }>(API_MYADDRESS_SUBMIT, body)
+      const ok = res?.status === true || String(res?.message || '').toUpperCase() === 'SUCCESS'
+
+      if (ok) {
+        await fetchAddresses()
+        if (payload.main) {
+          const latNum = parseFloat(String(payload.lat)) || locationStore.lat
+          const lonNum = parseFloat(String(payload.lon)) || locationStore.lon
+          locationStore.setLocation({
+            city: payload.city,
+            province: payload.province,
+            location: payload.address || payload.city,
+            lat: latNum,
+            lon: lonNum,
+          })
+        }
+        return { success: true, message: res?.message, result: res?.result }
+      }
+
+      return { success: false, message: res?.message || 'Gagal menyimpan alamat' }
+    } catch (err: unknown) {
+      const errObj = err as { data?: { message?: string }; message?: string }
+      return { success: false, message: errObj?.data?.message || errObj?.message || 'Terjadi kesalahan sistem' }
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  async function deleteAddress(addressId: string | number): Promise<{ success: boolean; message?: string }> {
+    if (!addressId) return { success: false, message: 'ID alamat tidak valid' }
+    isSubmitting.value = true
+    try {
+      const res = await api.post<{ status?: boolean; message?: string }>(API_MYADDRESS_DELETE, {
+        address_id: String(addressId),
+      })
+      const ok = res?.status === true || String(res?.message || '').toUpperCase() === 'SUCCESS'
+      if (ok) {
+        await fetchAddresses()
+        return { success: true }
+      }
+      return { success: false, message: res?.message || 'Gagal menghapus alamat' }
+    } catch (err: unknown) {
+      const errObj = err as { data?: { message?: string }; message?: string }
+      return { success: false, message: errObj?.data?.message || errObj?.message || 'Gagal menghapus alamat' }
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  async function setDefaultAddress(addressId: string | number): Promise<{ success: boolean; message?: string }> {
+    if (!addressId) return { success: false }
+    isSubmitting.value = true
+    try {
+      const res = await api.post<{ status?: boolean; message?: string }>(API_PROFILE_UPDATE, {
+        address_default_id: String(addressId),
+      })
+      const ok = res?.status === true || String(res?.message || '').toUpperCase() === 'SUCCESS'
+      if (ok) {
+        await fetchAddresses()
+        const target = addresses.value.find(a => String(a.id || a._id) === String(addressId))
+        if (target) {
+          selectAddress(target)
+        }
+        return { success: true }
+      }
+      return { success: false, message: res?.message || 'Gagal memperbarui alamat utama' }
+    } catch (err: unknown) {
+      const errObj = err as { data?: { message?: string }; message?: string }
+      return { success: false, message: errObj?.data?.message || errObj?.message || 'Gagal mengatur alamat utama' }
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  // Backward compatibility alias for existing code
+  async function addAddress(payload: Partial<UserAddress>): Promise<UserAddress> {
+    const latStr = payload.lat !== undefined ? String(payload.lat) : String(locationStore.lat)
+    const lonStr = payload.lon !== undefined ? String(payload.lon) : String(locationStore.lon)
+
+    const formPayload: AddressFormPayload = {
+      address_id: payload.id || payload._id || '',
+      address_name: payload.address_name || 'Rumah',
+      contact_name: payload.contact_name || '',
+      contact_phone: payload.contact_phone || '',
+      city: payload.city || locationStore.city || 'Medan',
+      province: payload.province || locationStore.province || 'Sumatera Utara',
+      postal: payload.postal || payload.postal_code || '20112',
+      subdistrict: payload.subdistrict || 'Medan Petisah',
+      type_city: payload.type_city || 'Kota',
+      address: payload.address || '',
+      address_note: payload.address_note || '',
+      main: Boolean(payload.main ?? (addresses.value.length === 0)),
+      lat: latStr,
+      lon: lonStr,
+    }
+
+    const res = await saveAddress(formPayload)
+    if (res.success && res.result) {
+      selectAddress(res.result)
+      return res.result
+    }
+    if (res.success && addresses.value.length > 0) {
+      const latest = addresses.value[0]
+      if (latest) {
+        selectAddress(latest)
+        return latest
+      }
+    }
+
+    throw new Error(res.message || 'Gagal menyimpan alamat')
   }
 
   return {
-    currentAddressText,
+    addresses,
+    addressList: addresses,
+    defaultAddress,
     currentAddress,
-    addressList,
+    currentAddressText,
     loading,
+    isSubmitting,
+    error,
     fetchAddresses,
     selectAddress,
+    getAddressDetail,
+    saveAddress,
+    deleteAddress,
+    setDefaultAddress,
     addAddress,
   }
 }

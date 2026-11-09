@@ -123,7 +123,7 @@
         :key="`dot-${idx}`"
         type="button"
         class="h-1.5 sm:h-2 rounded-full transition-all duration-300 cursor-pointer"
-        :class="currentRealIndex === idx ? 'w-6 sm:w-8 bg-[#1a1a1a]' : 'w-1.5 sm:w-2 bg-gray-300 hover:bg-gray-400'"
+        :class="currentRealIndex === idx ? 'w-6 sm:w-8 bg-[#E31B23]' : 'w-1.5 sm:w-2 bg-gray-300 hover:bg-gray-400'"
         :aria-label="`Menuju iklan ${idx + 1}`"
         @click="goToSlide(idx)"
       />
@@ -137,11 +137,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-vue-next'
-import {
-  type Banner,
-  useBanners,
-  MONGODB_ACTIVE_ADS,
-} from '~/composables/useBanners'
+import { useBanners } from '~/composables/useBanners'
+import { sanitizeMediaUrl } from '~/utils/media'
+import type { Banner } from '~/types/banner'
 
 interface Props {
   banners?: Banner[]
@@ -153,14 +151,26 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
 })
 
-const { logAdClick } = useBanners()
+const { logBannerClick } = useBanners()
 
-// Display banners from API with robust production MongoDB fallback
+function isVideoUrl(url?: string): boolean {
+  if (!url) return false
+  return /\.(mp4|webm|mov)($|\?)/i.test(url)
+}
+
+// Display banners from API with sanitized URLs and video detection
 const displayBanners = computed<Banner[]>(() => {
   if (props.banners && props.banners.length > 0) {
-    return props.banners
+    return props.banners.map(b => {
+      const sanitized = sanitizeMediaUrl(b.image)
+      return {
+        ...b,
+        image: sanitized,
+        isVideo: b.isVideo ?? isVideoUrl(sanitized),
+      }
+    })
   }
-  return MONGODB_ACTIVE_ADS
+  return []
 })
 
 // Number of clone buffers at start and end
@@ -256,7 +266,7 @@ function handleSlideClick(itemIdx: number, banner: Banner) {
 
   if (itemIdx === trackIndex.value) {
     if (banner && banner.link) {
-      logAdClick(banner._id || banner.id)
+      logBannerClick(banner._id || banner.id)
       window.open(banner.link, '_blank', 'noopener,noreferrer')
     }
   } else if (itemIdx < trackIndex.value) {
@@ -269,7 +279,7 @@ function handleSlideClick(itemIdx: number, banner: Banner) {
 function handleSingleClick() {
   const ad = displayBanners.value[0]
   if (ad && ad.link) {
-    logAdClick(ad._id || ad.id)
+    logBannerClick(ad._id || ad.id)
     window.open(ad.link, '_blank', 'noopener,noreferrer')
   }
 }

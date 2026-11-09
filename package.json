@@ -18,6 +18,8 @@
     "@vueuse/nuxt": "^14.3.0",
     "aos": "^2.3.4",
     "dayjs": "^1.11.21",
+    "firebase": "^13.1.0",
+    "livekit-client": "^2.23.0",
     "lucide-vue-next": "^1.0.0",
     "nuxt": "^4.5.0",
     "pinia": "^4.0.2",

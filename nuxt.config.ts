@@ -44,19 +44,21 @@ export default defineNuxtConfig({
   },
 
   app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
     head: {
-      title: 'Bekasku — Jual Beli Barang Bekas & Preloved',
+      title: 'BekasKu — Jual Beli Barang Bekas & Preloved',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {
           name: 'description',
-          content: 'Bekasku — Marketplace jual beli barang bekas dan preloved terpercaya #1 di Indonesia.'
+          content: 'BekasKu — Marketplace jual beli barang bekas dan preloved terpercaya #1 di Indonesia.'
         },
         { name: 'theme-color', content: '#E31B23' }
       ],
       link: [
-        { rel: 'icon', type: 'image/png', href: '/images/icon_only.png' },
+        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+        { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap' }

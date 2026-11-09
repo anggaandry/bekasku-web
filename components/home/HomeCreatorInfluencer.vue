@@ -37,7 +37,7 @@
         </div>
 
         <NuxtLink
-          to="/seller"
+          to="/bekasku-plus"
           class="text-xs sm:text-sm font-medium text-[#2563EB] hover:underline transition-colors"
         >
           Lihat semua

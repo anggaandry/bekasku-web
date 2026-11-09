@@ -52,7 +52,7 @@
         <div
           v-for="card in displayCards"
           :key="card.id"
-          class="group relative w-[155px] sm:w-[170px] aspect-[9/14] shrink-0 rounded-2xl overflow-hidden cursor-pointer shadow-xs hover:shadow-md transition-all duration-300 bg-neutral-900"
+          class="group relative w-[155px] sm:w-[170px] aspect-[9/14] shrink-0 rounded-2xl overflow-hidden cursor-pointer shadow-xs hover:shadow-md transition-all duration-300 bg-[#16191E]"
           @click="handleCardClick(card)"
         >
           <!-- Background Video / Image Thumbnail -->

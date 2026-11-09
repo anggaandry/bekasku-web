@@ -6,16 +6,16 @@
         <!-- Section Header (Clean: Title + See All + Arrows) -->
         <div class="flex items-center justify-between gap-2 pb-3 border-b border-gray-100">
           <h3 class="font-outfit font-black text-gray-900 text-sm sm:text-base tracking-tight uppercase">
-            JASA &amp; LOWONGAN KERJA
+            {{ t('JASA & LOWONGAN KERJA') }}
           </h3>
 
           <!-- Controls: See All & Scroll Arrows -->
           <div class="flex items-center gap-1.5 shrink-0">
             <NuxtLink
-              to="/search?type=6&newest=1"
-              class="text-xs font-bold text-[#2563EB] hover:text-blue-700 transition-colors flex items-center gap-0.5 mr-1"
+              to="/product/search?type=6&newest=1"
+              class="text-xs font-bold text-[#E31B23] hover:text-[#B91219] transition-colors flex items-center gap-0.5 mr-1"
             >
-              <span>Lihat Semua</span>
+              <span>{{ t('Lihat Semua') }}</span>
               <ChevronRight class="w-3.5 h-3.5" />
             </NuxtLink>
 
@@ -64,7 +64,7 @@
             v-else-if="serviceList.length === 0"
             class="w-full py-8 text-center text-gray-400 text-xs flex flex-col items-center justify-center"
           >
-            <p>Belum ada jasa &amp; lowongan kerja aktif</p>
+            <p>{{ t('Belum ada jasa & lowongan kerja aktif') }}</p>
           </div>
 
           <!-- Real Service Items (Clean without badge clutter) -->
@@ -72,14 +72,14 @@
             v-for="service in serviceList"
             v-else
             :key="service.id || service._id"
-            class="group w-[145px] sm:w-[155px] shrink-0 bg-white rounded-xl border border-gray-200/90 overflow-hidden hover:border-[#2563EB]/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer"
+            class="group w-[145px] sm:w-[155px] shrink-0 bg-white rounded-xl border border-gray-200/90 overflow-hidden hover:border-[#E31B23]/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer"
             @click="handleNavigate(service)"
           >
             <!-- Clean Image (No Badge Overlays) -->
             <div class="relative w-full aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
               <img
                 v-if="service.image"
-                :src="service.image"
+                :src="sanitizeMediaUrl(service.image)"
                 :alt="service.title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
                 loading="lazy"
@@ -93,18 +93,18 @@
             <div class="p-2 flex-1 flex flex-col justify-between">
               <div>
                 <!-- Price / Rate -->
-                <div class="font-outfit text-[13px] sm:text-[14px] font-black text-[#2563EB] leading-tight">
+                <div class="font-outfit text-[13px] sm:text-[14px] font-black text-[#E31B23] leading-tight">
                   {{ formatPrice(service.price) }}
                 </div>
 
                 <!-- Title -->
-                <h4 class="font-outfit text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mt-1 group-hover:text-[#2563EB] transition-colors">
+                <h4 class="font-outfit text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mt-1 group-hover:text-[#E31B23] transition-colors">
                   {{ service.title }}
                 </h4>
               </div>
 
-              <!-- Location / City -->
-              <div class="flex items-center gap-1 text-[10.5px] text-gray-500 font-medium mt-2 pt-1 border-t border-gray-100">
+              <!-- Location / City (Clean without divider matching mobile V3) -->
+              <div class="flex items-center gap-1 text-[10.5px] text-gray-500 font-medium mt-2">
                 <MapPin class="w-3 h-3 text-gray-400 shrink-0" />
                 <span class="truncate">{{ service.city || 'Indonesia' }}</span>
               </div>
@@ -120,16 +120,16 @@
         <!-- Section Header (Clean: Title + See All + Arrows) -->
         <div class="flex items-center justify-between gap-2 pb-3 border-b border-gray-100">
           <h3 class="font-outfit font-black text-gray-900 text-sm sm:text-base tracking-tight uppercase">
-            BARANG DIBUTUHKAN
+            {{ t('BARANG DIBUTUHKAN') }}
           </h3>
 
           <!-- Controls: See All & Scroll Arrows -->
           <div class="flex items-center gap-1.5 shrink-0">
             <NuxtLink
-              to="/search?type=4"
-              class="text-xs font-bold text-[#2563EB] hover:text-blue-700 transition-colors flex items-center gap-0.5 mr-1"
+              to="/product/search?type=4"
+              class="text-xs font-bold text-[#E31B23] hover:text-[#B91219] transition-colors flex items-center gap-0.5 mr-1"
             >
-              <span>Lihat Semua</span>
+              <span>{{ t('Lihat Semua') }}</span>
               <ChevronRight class="w-3.5 h-3.5" />
             </NuxtLink>
 
@@ -178,7 +178,7 @@
             v-else-if="neededList.length === 0"
             class="w-full py-8 text-center text-gray-400 text-xs flex flex-col items-center justify-center"
           >
-            <p>Belum ada permintaan barang dibutuhkan aktif</p>
+            <p>{{ t('Belum ada permintaan barang dibutuhkan aktif') }}</p>
           </div>
 
           <!-- Real Needed Items (Clean without badge clutter) -->
@@ -193,7 +193,7 @@
             <div class="relative w-full aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
               <img
                 v-if="item.image"
-                :src="item.image"
+                :src="sanitizeMediaUrl(item.image)"
                 :alt="item.title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
                 loading="lazy"
@@ -207,18 +207,18 @@
             <div class="p-2 flex-1 flex flex-col justify-between">
               <div>
                 <!-- Budget / Price -->
-                <div class="font-outfit text-[13px] sm:text-[14px] font-black text-[#2563EB] leading-tight">
-                  {{ item.price > 0 ? formatPrice(item.price) : 'Budget Negosiasi' }}
+                <div class="font-outfit text-[13px] sm:text-[14px] font-black text-[#E31B23] leading-tight">
+                  {{ item.price > 0 ? formatPrice(item.price) : t('Budget Negosiasi') }}
                 </div>
 
                 <!-- Title -->
-                <h4 class="font-outfit text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mt-1 group-hover:text-[#2563EB] transition-colors">
+                <h4 class="font-outfit text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mt-1 group-hover:text-[#E31B23] transition-colors">
                   {{ item.title }}
                 </h4>
               </div>
 
-              <!-- Location / City -->
-              <div class="flex items-center gap-1 text-[10.5px] text-gray-500 font-medium mt-2 pt-1 border-t border-gray-100">
+              <!-- Location / City (Clean without divider matching mobile V3) -->
+              <div class="flex items-center gap-1 text-[10.5px] text-gray-500 font-medium mt-2">
                 <MapPin class="w-3 h-3 text-gray-400 shrink-0" />
                 <span class="truncate">{{ item.city || 'Indonesia' }}</span>
               </div>
@@ -239,6 +239,7 @@ import {
 } from 'lucide-vue-next'
 import type { Product } from '~/composables/useProducts'
 import { useFormat } from '~/composables/useFormat'
+import { sanitizeMediaUrl } from '~/utils/media'
 
 interface Props {
   services?: Product[]
@@ -253,6 +254,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { formatPrice } = useFormat()
+const { t } = useLocale()
 
 const serviceList = computed(() => props.services || [])
 const neededList = computed(() => props.needed || [])
@@ -270,9 +272,8 @@ function scrollTrack(el: HTMLElement | null, direction: 'left' | 'right') {
 }
 
 function handleNavigate(item: Product) {
-  const id = item.id || item._id
-  if (id) {
-    navigateTo(`/product/${id}`)
+  if (item.id || item._id) {
+    navigateTo(productPath(item))
   }
 }
 </script>

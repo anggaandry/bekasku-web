@@ -1,0 +1,69 @@
+<svg width="240" height="160" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Soft Background Decorative Blobs -->
+  <circle cx="120" cy="80" r="58" fill="#FEE2E2" fill-opacity="0.5"/>
+  <circle cx="150" cy="55" r="22" fill="#FEF3C7" fill-opacity="0.6"/>
+  <circle cx="85" cy="100" r="14" fill="#EFF6FF" fill-opacity="0.8"/>
+
+  <!-- Tripod Stand Base -->
+  <path d="M120 105V142" stroke="#4B5563" stroke-width="3" stroke-linecap="round"/>
+  <path d="M120 142L98 156" stroke="#4B5563" stroke-width="3" stroke-linecap="round"/>
+  <path d="M120 142L142 156" stroke="#4B5563" stroke-width="3" stroke-linecap="round"/>
+  <path d="M120 142V158" stroke="#4B5563" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Ring Light Glow & Ring -->
+  <circle cx="120" cy="62" r="38" stroke="#FDE047" stroke-width="3" stroke-dasharray="4 4" opacity="0.8"/>
+  <circle cx="120" cy="62" r="32" stroke="#E5E7EB" stroke-width="4"/>
+  <circle cx="120" cy="62" r="32" stroke="#FFFFFF" stroke-width="2"/>
+
+  <!-- Smartphone Mount & Body -->
+  <rect x="105" y="40" width="30" height="52" rx="5" fill="#1F2937" stroke="#111827" stroke-width="1.5"/>
+  <rect x="108" y="44" width="24" height="44" rx="3" fill="#FFFFFF"/>
+
+  <!-- Phone Screen: Stream Content -->
+  <!-- Header Bar on Phone -->
+  <rect x="110" y="46" width="10" height="3.5" rx="1.5" fill="#E31B23"/>
+  <circle cx="112" cy="47.75" r="0.8" fill="#FFFFFF"/>
+  <circle cx="128" cy="48" r="1.5" fill="#9CA3AF"/>
+
+  <!-- Host Avatar on Screen -->
+  <circle cx="120" cy="58" r="6.5" fill="#F87171"/>
+  <path d="M112 73C112 68.5 115.5 66 120 66C124.5 66 128 68.5 128 73V74H112V73Z" fill="#E31B23"/>
+
+  <!-- Camera Lens & Mic Indicator -->
+  <circle cx="120" cy="42" r="1" fill="#6B7280"/>
+
+  <!-- Floating Live Badge on Top Right -->
+  <g filter="drop-shadow(0px 2px 4px rgba(227,27,35,0.25))">
+    <rect x="138" y="32" width="38" height="16" rx="8" fill="#E31B23"/>
+    <circle cx="145" cy="40" r="2.5" fill="#FFFFFF"/>
+    <text x="151" y="43" fill="#FFFFFF" font-family="-apple-system, sans-serif" font-size="8" font-weight="900" letter-spacing="0.5">LIVE</text>
+  </g>
+
+  <!-- Floating Heart Reaction Bubble -->
+  <g filter="drop-shadow(0px 2px 4px rgba(235,173,37,0.2))">
+    <circle cx="82" cy="46" r="12" fill="#FFFFFF"/>
+    <circle cx="82" cy="46" r="11" fill="#FFFBEB"/>
+    <path d="M82 51.5L78.2 47.7C76.8 46.3 76.8 44.1 78.2 42.7C79.6 41.3 81.8 41.3 83.2 42.7L82 43.9L80.8 42.7C82.2 41.3 84.4 41.3 85.8 42.7C87.2 44.1 87.2 46.3 85.8 47.7L82 51.5Z" fill="#E31B23"/>
+  </g>
+
+  <!-- Floating Star / Deal Bubble -->
+  <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.06))">
+    <circle cx="162" cy="74" r="10" fill="#FFFFFF"/>
+    <path d="M162 69L163.5 72.2L167 72.6L164.4 75L165.1 78.5L162 76.7L158.9 78.5L159.6 75L157 72.6L160.5 72.2L162 69Z" fill="#EBAD25"/>
+  </g>
+
+  <!-- Shopping Bag beside Stand -->
+  <g filter="drop-shadow(0px 2px 5px rgba(0,0,0,0.08))">
+    <rect x="68" y="112" width="24" height="28" rx="4" fill="#FFFFFF" stroke="#E5E7EB"/>
+    <path d="M68 120H92" stroke="#E31B23" stroke-width="2"/>
+    <path d="M76 112V108C76 105.8 77.8 104 80 104C82.2 104 84 105.8 84 108V112" stroke="#4B5563" stroke-width="2" stroke-linecap="round"/>
+    <!-- Bekasku Mini Crown on Bag -->
+    <path d="M78 127L80 124L82 127L84 124L84 130H76V124L78 127Z" fill="#EBAD25"/>
+  </g>
+
+  <!-- Sparkles & Small Stars -->
+  <path d="M168 102L169 104L171 105L169 106L168 108L167 106L165 105L167 104L168 102Z" fill="#EBAD25"/>
+  <circle cx="72" cy="78" r="1.5" fill="#F87171"/>
+  <circle cx="168" cy="48" r="1.5" fill="#38BDF8"/>
+</svg>
+

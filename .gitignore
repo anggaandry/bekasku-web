@@ -25,3 +25,5 @@ logs
 
 # Antigravity / Plan files
 .plan/
+.agents/
+skills-lock.json
