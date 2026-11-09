@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router'
 import { AlertCircle, ChevronRight } from 'lucide-vue-next'
 import type { ProductDetailResponse } from '~/types/product'
 import { SELL_METHOD_NEEDED, SELL_METHOD_SERVICE } from '~/utils/constants'
+import { sanitizeMediaUrl } from '~/utils/media'
 import { useHelpChatStore } from '~/stores/helpChat'
 import BestDealRegisterModal from '~/components/post/bestdeal/BestDealRegisterModal.vue'
 
@@ -94,14 +95,13 @@ function requireAuth(feature = ''): boolean {
 
 const isProductRoute = computed(() => route.path.startsWith('/product/'))
 
-// SSR Data Fetching via useAsyncData
+// SSR Data Fetching via useAsyncData (Non-lazy agar crawler WhatsApp/Facebook mendapatkan og:image & og:title lengkap saat SSR)
 const { data: initialData, pending: detailPending, error: ssrError } = useAsyncData<ProductDetailResponse | null>(
   `product-detail-${productId.value}`,
   async () => {
     if (!isValidId.value) return null
     return await fetchDetail(productId.value)
-  },
-  { lazy: true }
+  }
 )
 
 const isPageLoading = computed(() => {
@@ -137,23 +137,36 @@ watch(
   { immediate: true }
 )
 
-// Dynamic SEO Head & JSON-LD
+// Dynamic SEO Head & JSON-LD (WhatsApp, Telegram, Twitter, Googlebot)
 useHead(() => {
   const currentProd = product.value || initialData.value?.product
   const title = currentProd?.title ? `${currentProd.title} — BekasKu` : 'Detail Produk — BekasKu'
   const desc = currentProd?.description?.slice(0, 160) || 'Beli dan jual barang bekas berkualitas aman di BekasKu'
   const imgList = currentProd?.image ? (Array.isArray(currentProd.image) ? currentProd.image : [currentProd.image]) : []
-  const firstImage = imgList[0] || 'https://bekasku.id/og-image.jpg'
+  const rawFirstImage = imgList[0] || '/images/icon_only.png'
+  let firstImage = sanitizeMediaUrl(rawFirstImage)
+  if (firstImage.startsWith('/')) {
+    firstImage = `https://bekasku.id${firstImage}`
+  }
+  const canonicalUrl = currentProd
+    ? `https://bekasku.id${productPath({ ...currentProd, id: productId.value })}`
+    : `https://bekasku.id/product/${productId.value}`
   const price = currentProd?.price || 0
 
   return {
     title,
-    link: currentProd ? [{ rel: 'canonical', href: `https://bekasku.id${productPath({ ...currentProd, id: productId.value })}` }] : [],
+    link: [{ rel: 'canonical', href: canonicalUrl }],
     meta: [
       { name: 'description', content: desc },
+      { property: 'og:site_name', content: 'BekasKu' },
       { property: 'og:title', content: title },
       { property: 'og:description', content: desc },
       { property: 'og:image', content: firstImage },
+      { property: 'og:image:secure_url', content: firstImage },
+      { property: 'og:image:width', content: '600' },
+      { property: 'og:image:height', content: '600' },
+      { property: 'og:image:type', content: 'image/jpeg' },
+      { property: 'og:url', content: canonicalUrl },
       { property: 'og:type', content: 'product' },
       { property: 'product:price:amount', content: String(price) },
       { property: 'product:price:currency', content: 'IDR' },
