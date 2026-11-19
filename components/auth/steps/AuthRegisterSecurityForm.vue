@@ -154,7 +154,7 @@ function handleAvatarChange(e: Event) {
           class="w-full h-11 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-semibold font-outfit flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
           @click="authModal.submitRegisterAvatar(selectedAvatarFile)"
         >
-          <span>{{ authModal.isSubmitting.value ? 'Mengunggah...' : 'Simpan & Mulai Jelajah' }}</span>
+          <span>{{ authModal.isSubmitting.value ? 'Mengunggah...' : 'Simpan & Lanjutkan' }}</span>
         </button>
 
         <button

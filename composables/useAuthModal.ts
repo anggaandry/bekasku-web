@@ -16,6 +16,7 @@ import {
 } from '~/composables/usePasswordRules'
 import { sanitizeMediaUrl } from '~/utils/media'
 import { useAuthStore } from '~/stores/auth'
+import { useLocationStore } from '~/stores/location'
 import type {
   AuthStep,
   AuthLoginTab,
@@ -218,6 +219,13 @@ export function useAuthModal() {
   }
 
   function closeModal() {
+    if (import.meta.client && step.value === 'location-ask') {
+      try {
+        localStorage.setItem('bkk_location_prompted', '1')
+      } catch {
+        // ignore
+      }
+    }
     isOpen.value = false
     clearMessages()
     if (import.meta.client && !isReloading.value && !authStore.isLoggedIn) {
@@ -702,12 +710,12 @@ export function useAuthModal() {
   async function submitRegisterAvatar(file: File | null) {
     clearMessages()
     if (!file) {
-      finalizeSuccessNavigation()
+      openLocationAsk()
       return
     }
     const uid = registerDraft.value.userId || authStore.userId
     if (!uid) {
-      finalizeSuccessNavigation()
+      openLocationAsk()
       return
     }
     isSubmitting.value = true
@@ -719,7 +727,7 @@ export function useAuthModal() {
         } else {
           await authStore.fetchProfile()
         }
-        finalizeSuccessNavigation()
+        openLocationAsk()
       } else {
         errorMsg.value = res.message || 'Gagal mengunggah foto profil.'
       }
@@ -1101,19 +1109,50 @@ export function useAuthModal() {
   // =========================================================================
   // FLOW 06: LOCATION PERMISSION / FALLBACK
   // =========================================================================
-  async function applyLocationChoice(loc: string, lat: number, lon: number) {
+  async function applyLocationChoice(
+    loc: string,
+    lat: number,
+    lon: number,
+    province?: string,
+    fullLocation?: string,
+  ) {
     isSubmitting.value = true
+    const locationStore = useLocationStore()
     try {
-      authStore.updateLocation(loc, lat, lon)
+      const resolvedCity = loc || 'Medan'
+      const resolvedAddress = fullLocation || resolvedCity
+      authStore.updateLocation(resolvedCity, lat, lon)
+      locationStore.setLocation({
+        city: resolvedCity,
+        province: province || locationStore.province || 'Sumatera Utara',
+        location: resolvedAddress,
+        lat,
+        lon,
+      })
+
+      if (import.meta.client) {
+        try {
+          localStorage.setItem('bkk_location_prompted', '1')
+        } catch {
+          // ignore
+        }
+      }
+
       if (authStore.userId) {
         await authApi.saveUserLocation({
           user_id: authStore.userId,
-          default_loc: loc,
+          default_loc: resolvedCity,
           default_lat: lat,
           default_lon: lon,
         })
       }
-      finalizeSuccessNavigation()
+
+      if (authStore.isLoggedIn) {
+        finalizeSuccessNavigation()
+      } else {
+        closeModal()
+        await refreshNuxtData().catch(() => {})
+      }
     } finally {
       isSubmitting.value = false
     }

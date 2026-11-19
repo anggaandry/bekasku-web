@@ -48,7 +48,13 @@ export const useLocationStore = defineStore('location', () => {
         const stored = localStorage.getItem(STORAGE_KEY_LOCATION)
         if (stored) {
           const parsed = JSON.parse(stored)
-          setLocation(parsed)
+          setLocation({
+            city: parsed.city || parsed.default_loc,
+            province: parsed.province,
+            location: parsed.location || parsed.default_loc,
+            lat: parsed.lat ?? parsed.default_lat,
+            lon: parsed.lon ?? parsed.default_lon,
+          })
         }
       } catch {
         // ignore

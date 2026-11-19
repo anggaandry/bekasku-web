@@ -29,6 +29,8 @@ import { useHelpChatStore } from '~/stores/helpChat'
 import { useNotificationStore } from '~/stores/notification'
 import { useAccountDrawer } from '~/composables/useAccountDrawer'
 import { useNotificationDrawer } from '~/composables/useNotificationDrawer'
+import { useAuthModal } from '~/composables/useAuthModal'
+import { STORAGE_KEY_LOCATION } from '~/utils/constants'
 import AppHeader from '~/components/layout/AppHeader.vue'
 import AppFooter from '~/components/layout/AppFooter.vue'
 import AppAuthModal from '~/components/auth/AppAuthModal.vue'
@@ -47,6 +49,7 @@ const helpChatStore = useHelpChatStore()
 const notificationStore = useNotificationStore()
 const accountDrawer = useAccountDrawer()
 const notificationDrawer = useNotificationDrawer()
+const authModal = useAuthModal()
 
 watch(
   () => route.query.drawer,
@@ -89,6 +92,24 @@ onMounted(() => {
     helpChatStore.consumePendingHelpPopup()
     notificationStore.fetchAllAndCategorize()
     notificationStore.registerWebPushAndListen()
+  } else {
+    const authPages = ['/beta-access', '/login', '/register', '/forgot-password', '/phone/verify']
+    const isGuestHomeEntry = !authPages.some((p) => route.path.startsWith(p))
+    if (isGuestHomeEntry && !authModal.isOpen.value) {
+      try {
+        const prompted = localStorage.getItem('bkk_location_prompted')
+        const savedLoc = localStorage.getItem(STORAGE_KEY_LOCATION)
+        if (!prompted && !savedLoc) {
+          setTimeout(() => {
+            if (!authStore.isLoggedIn && !authModal.isOpen.value && route.path !== '/beta-access') {
+              authModal.openLocationAsk()
+            }
+          }, 550)
+        }
+      } catch {
+        // ignore
+      }
+    }
   }
 })
 
