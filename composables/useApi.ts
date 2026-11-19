@@ -10,7 +10,8 @@ import {
   STORAGE_KEY_USER_PROFILE,
 } from '~/utils/constants'
 import { isJwtExpired } from '~/utils/jwt'
-import { normalizeAppLocale, useLocaleState } from '~/composables/useLocale'
+import { useLocaleState } from '~/composables/useLocale'
+import { normalizeAppLocale } from '~/utils/locale'
 
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'

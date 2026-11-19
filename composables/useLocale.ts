@@ -3,8 +3,13 @@ import idDict from '~/locales/id.json'
 import enDict from '~/locales/en.json'
 import msDict from '~/locales/ms.json'
 import zhDict from '~/locales/zh.json'
-
-export type AppLocale = 'id' | 'en' | 'ms' | 'zh'
+import {
+  type AppLocale,
+  matchSupportedLocaleTag,
+  normalizeAppLocale,
+  resolveLocaleFromTags,
+  parseAcceptLanguageHeader,
+} from '~/utils/locale'
 
 export interface LocaleOption {
   code: AppLocale
@@ -52,76 +57,6 @@ const DICTIONARIES: Record<AppLocale, Record<string, string>> = {
   zh: zhDict as Record<string, string>,
 }
 
-export function matchSupportedLocaleTag(raw?: string | null): AppLocale | null {
-  const val = String(raw || '').trim().toLowerCase()
-  if (!val) return null
-  if (
-    val === 'id' ||
-    val.startsWith('id_') ||
-    val.startsWith('id-') ||
-    val === 'in' ||
-    val.startsWith('in_') ||
-    val.startsWith('in-')
-  ) {
-    return 'id'
-  }
-  if (val === 'en' || val.startsWith('en_') || val.startsWith('en-')) {
-    return 'en'
-  }
-  if (
-    val === 'ms' ||
-    val.startsWith('ms_') ||
-    val.startsWith('ms-') ||
-    val === 'my' ||
-    val.startsWith('my_') ||
-    val.startsWith('my-')
-  ) {
-    return 'ms'
-  }
-  if (
-    val === 'zh' ||
-    val.startsWith('zh_') ||
-    val.startsWith('zh-') ||
-    val === 'cn' ||
-    val.startsWith('cn_') ||
-    val.startsWith('cn-')
-  ) {
-    return 'zh'
-  }
-  return null
-}
-
-export function normalizeAppLocale(raw?: string | null): AppLocale {
-  return matchSupportedLocaleTag(raw) || 'id'
-}
-
-export function parseAcceptLanguageHeader(header?: string | null): AppLocale {
-  if (!header) return 'id'
-  const entries = header
-    .split(',')
-    .map((part, index) => {
-      const [rawTag = '', ...params] = part.trim().split(';')
-      let q = 1
-      for (const param of params) {
-        const [k, v] = param.trim().split('=')
-        if (k === 'q' && v) {
-          const parsed = Number.parseFloat(v)
-          if (!Number.isNaN(parsed)) q = parsed
-        }
-      }
-      return { tag: rawTag.trim(), q, index }
-    })
-    .filter(item => item.tag && item.q > 0)
-    .sort((a, b) => (b.q !== a.q ? b.q - a.q : a.index - b.index))
-
-  for (const entry of entries) {
-    const matched = matchSupportedLocaleTag(entry.tag)
-    if (matched) return matched
-  }
-
-  return 'id'
-}
-
 export function detectBrowserLocale(): AppLocale {
   if (import.meta.server) {
     try {
@@ -133,15 +68,17 @@ export function detectBrowserLocale(): AppLocale {
   }
 
   if (import.meta.client && typeof navigator !== 'undefined') {
-    const candidates =
-      Array.isArray(navigator.languages) && navigator.languages.length > 0
-        ? navigator.languages
-        : [navigator.language]
-
-    for (const candidate of candidates) {
-      const matched = matchSupportedLocaleTag(candidate)
-      if (matched) return matched
+    const candidates: (string | undefined)[] = [
+      ...(Array.isArray(navigator.languages) ? navigator.languages : []),
+      navigator.language,
+    ]
+    try {
+      const intlLocale = Intl.DateTimeFormat().resolvedOptions().locale
+      if (intlLocale) candidates.push(intlLocale)
+    } catch {
+      // ignore Intl unavailable
     }
+    return resolveLocaleFromTags(candidates)
   }
 
   return 'id'
@@ -153,30 +90,41 @@ export function useLocaleState() {
     sameSite: 'lax',
     path: '/',
   })
+  const manualCookie = useCookie<'1' | null>('bekasku_lang_manual', {
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: 'lax',
+    path: '/',
+  })
 
   const localeState = useState<AppLocale>('bekasku_locale', () => {
-    const fromCookie = matchSupportedLocaleTag(langCookie.value)
-    if (fromCookie) return fromCookie
-    const detected = detectBrowserLocale()
-    langCookie.value = detected
-    return detected
+    if (manualCookie.value === '1') {
+      const fromCookie = matchSupportedLocaleTag(langCookie.value)
+      if (fromCookie) return fromCookie
+    }
+    // Clear non-explicit legacy auto cookie so browser detection / 'id' default applies cleanly
+    if (langCookie.value && manualCookie.value !== '1') {
+      langCookie.value = null
+    }
+    return detectBrowserLocale()
   })
 
   return {
     langCookie,
+    manualCookie,
     localeState,
   }
 }
 
 export function useLocale() {
-  const { langCookie, localeState } = useLocaleState()
+  const { langCookie, manualCookie, localeState } = useLocaleState()
 
   const locale = computed<AppLocale>({
-    get: () => normalizeAppLocale(localeState.value || langCookie.value),
+    get: () => normalizeAppLocale(localeState.value || (manualCookie.value === '1' ? langCookie.value : null)),
     set: (next) => {
       const normalized = normalizeAppLocale(next)
       localeState.value = normalized
       langCookie.value = normalized
+      manualCookie.value = '1'
       if (import.meta.client && typeof document !== 'undefined') {
         document.documentElement.lang = normalized
       }
@@ -192,6 +140,16 @@ export function useLocale() {
 
   function setLocale(next: AppLocale | string) {
     locale.value = normalizeAppLocale(next)
+  }
+
+  function syncBrowserLocale() {
+    if (!import.meta.client) return
+    if (manualCookie.value === '1' && matchSupportedLocaleTag(langCookie.value)) return
+    const detected = detectBrowserLocale()
+    localeState.value = detected
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = detected
+    }
   }
 
   function t(key: string, params?: Record<string, string | number>): string {
@@ -222,7 +180,7 @@ export function useLocale() {
     locales: SUPPORTED_LOCALES,
     currentLocaleMeta,
     setLocale,
+    syncBrowserLocale,
     t,
   }
 }
-

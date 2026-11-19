@@ -2,7 +2,11 @@
 import AppSplashLoader from '~/components/shared/AppSplashLoader.vue'
 import { useLocale } from '~/composables/useLocale'
 
-const { locale } = useLocale()
+const { locale, syncBrowserLocale } = useLocale()
+
+onMounted(() => {
+  syncBrowserLocale()
+})
 
 useHead({
   htmlAttrs: {

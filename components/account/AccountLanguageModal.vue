@@ -54,7 +54,8 @@
 import { computed } from 'vue'
 import { Check } from 'lucide-vue-next'
 import AppModal from '~/components/shared/AppModal.vue'
-import { useLocale, type AppLocale } from '~/composables/useLocale'
+import { useLocale } from '~/composables/useLocale'
+import type { AppLocale } from '~/utils/locale'
 import { useNotification } from '~/composables/useNotification'
 
 const props = defineProps<{
