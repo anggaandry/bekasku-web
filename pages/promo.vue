@@ -156,16 +156,14 @@
             :loading="loadingMore"
           />
 
-          <div v-if="hasMore" class="mt-6 flex justify-center">
-            <button
-              type="button"
-              :disabled="loadingMore"
-              class="px-6 py-2.5 rounded-xl border border-border bg-white hover:bg-surface-2 text-xs sm:text-sm font-bold text-text transition-colors cursor-pointer disabled:opacity-50"
-              @click="fetchPromos(false)"
-            >
-              {{ loadingMore ? 'Memuat promo lainnya...' : 'Muat Lebih Banyak' }}
-            </button>
-          </div>
+          <AppMobileInfiniteTrigger
+            v-if="hasMore"
+            :has-more="hasMore"
+            :loading="loadingMore"
+            loading-text="Memuat promo lainnya..."
+            button-class="px-6 py-2.5 rounded-xl border border-border bg-white hover:bg-surface-2 text-xs sm:text-sm font-bold text-text transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
+            @load-more="fetchPromos(false)"
+          />
         </template>
       </div>
     </main>

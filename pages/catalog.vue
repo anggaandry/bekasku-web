@@ -271,17 +271,15 @@ async function confirmCancel() {
             />
           </div>
 
-          <!-- Infinite Scroll / Load More Trigger -->
-          <div v-if="hasMore" class="text-center pt-4">
-            <button
-              type="button"
-              :disabled="loadingMore"
-              @click="loadMore"
-              class="px-5 py-2.5 rounded-xl bg-white hover:bg-surface-2 border border-border-light text-xs font-semibold text-primary transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
-            >
-              {{ loadingMore ? 'Memuat iklan...' : 'Muat Lebih Banyak' }}
-            </button>
-          </div>
+          <!-- Infinite Scroll (Mobile) / Load More Button (Desktop) -->
+          <AppMobileInfiniteTrigger
+            v-if="hasMore"
+            :has-more="hasMore"
+            :loading="loadingMore"
+            loading-text="Memuat iklan..."
+            button-class="px-5 py-2.5 rounded-xl bg-white hover:bg-surface-2 border border-border-light text-xs font-semibold text-primary transition-colors cursor-pointer shadow-2xs disabled:opacity-50 flex items-center gap-2"
+            @load-more="loadMore"
+          />
         </main>
       </div>
     </div>

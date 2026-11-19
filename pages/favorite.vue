@@ -200,16 +200,15 @@ async function handleLoadMore() {
             </div>
           </div>
 
-          <!-- Tombol Load More Rekomendasi -->
-          <div v-if="hasNextRecom && !loadingRecom" class="pt-4 flex justify-center">
-            <button
-              type="button"
-              class="px-6 py-2.5 rounded-full border border-border-light bg-white hover:bg-surface-2 text-xs font-semibold text-text transition-colors cursor-pointer shadow-2xs font-outfit"
-              @click="handleLoadMore"
-            >
-              Muat Lebih Banyak
-            </button>
-          </div>
+          <!-- Infinite Scroll (Mobile) / Load More Button (Desktop) -->
+          <AppMobileInfiniteTrigger
+            v-if="hasNextRecom"
+            :has-more="hasNextRecom"
+            :loading="loadingRecom"
+            loading-text="Memuat rekomendasi..."
+            button-class="px-6 py-2.5 rounded-full border border-border-light bg-white hover:bg-surface-2 text-xs font-semibold text-text transition-colors cursor-pointer shadow-2xs font-outfit flex items-center gap-2"
+            @load-more="handleLoadMore"
+          />
         </section>
       </div>
     </main>

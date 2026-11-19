@@ -709,16 +709,14 @@ async function onBestDealSuccess() {
             :product="item"
           />
         </div>
-        <div v-if="hasMoreRec" class="flex justify-center pt-2">
-          <button
-            type="button"
-            :disabled="recLoading"
-            class="px-6 py-2 rounded-xl border border-text text-text text-xs font-semibold hover:bg-text hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
-            @click="fetchRecommendations(productId, true)"
-          >
-            {{ recLoading ? 'Memuat...' : 'Muat Lebih Banyak' }}
-          </button>
-        </div>
+        <AppMobileInfiniteTrigger
+          v-if="hasMoreRec"
+          :has-more="hasMoreRec"
+          :loading="recLoading"
+          loading-text="Memuat..."
+          button-class="px-6 py-2 rounded-xl border border-text text-text text-xs font-semibold hover:bg-text hover:text-white transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-2"
+          @load-more="fetchRecommendations(productId, true)"
+        />
       </section>
     </main>
 

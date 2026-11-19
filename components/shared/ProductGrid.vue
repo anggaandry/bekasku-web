@@ -61,28 +61,21 @@
       </template>
     </div>
 
-    <!-- Load More CTA -->
-    <div
-      v-if="hasMore && products.length > 0"
-      class="flex justify-center pt-5 pb-2"
-    >
-      <button
-        type="button"
-        :disabled="loading"
-        class="bg-white hover:bg-surface-2 border-2 border-text text-text font-outfit font-bold text-xs sm:text-sm px-8 py-2.5 rounded-full shadow-xs transition-transform active:scale-95 disabled:opacity-50 cursor-pointer flex items-center gap-2"
-        @click="emit('loadMore')"
-      >
-        <RefreshCw v-if="loading" class="w-4 h-4 animate-spin" />
-        <span>{{ loading ? 'Memuat Produk...' : 'Muat Lebih Banyak' }}</span>
-      </button>
-    </div>
+    <!-- Load More CTA (Desktop button, Mobile auto infinite scroll) -->
+    <AppMobileInfiniteTrigger
+      v-if="products.length > 0 && (hasMore || loading)"
+      :has-more="hasMore"
+      :loading="loading"
+      loading-text="Memuat Produk..."
+      @load-more="emit('loadMore')"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { RefreshCw } from 'lucide-vue-next'
 import type { ProductCard } from '~/types/product'
 import AppProductCard from '~/components/shared/AppProductCard.vue'
+import AppMobileInfiniteTrigger from '~/components/shared/AppMobileInfiniteTrigger.vue'
 
 withDefaults(
   defineProps<{
