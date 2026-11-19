@@ -7,7 +7,7 @@
     <AppIdentityKycModal />
     <AppAccountDrawer
       :model-value="accountDrawer.isOpen.value"
-      @update:model-value="val => accountDrawer.isOpen.value = val"
+      @update:model-value="val => val ? accountDrawer.open() : accountDrawer.close()"
       @logout="handleLogout"
     />
     <AppNotificationDrawer
@@ -45,6 +45,15 @@ const helpChatStore = useHelpChatStore()
 const notificationStore = useNotificationStore()
 const accountDrawer = useAccountDrawer()
 const notificationDrawer = useNotificationDrawer()
+
+watch(
+  () => route.query.drawer,
+  (drawer) => {
+    if (!import.meta.client || window.innerWidth >= 768) return
+    accountDrawer.isOpen.value = drawer === 'account'
+  },
+  { immediate: true }
+)
 
 function handleLogout() {
   chatStore.disconnectAll()

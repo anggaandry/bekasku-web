@@ -40,6 +40,7 @@ import { useAuthModal } from '~/composables/useAuthModal'
 import { useTransactionStore } from '~/stores/transaction'
 import { useHelpChatStore } from '~/stores/helpChat'
 import { useLocale } from '~/composables/useLocale'
+import { useAccountDrawer } from '~/composables/useAccountDrawer'
 
 const props = defineProps<{
   modelValue: boolean
@@ -56,6 +57,7 @@ const authModal = useAuthModal()
 const transactionStore = useTransactionStore()
 const helpChatStore = useHelpChatStore()
 const { t } = useLocale()
+const accountDrawer = useAccountDrawer()
 
 const subView = ref<'profile' | 'settings'>('profile')
 const avatarLoadError = ref(false)
@@ -85,8 +87,12 @@ function closeDrawer() {
   emit('update:modelValue', false)
 }
 
+function closeForNavigation() {
+  accountDrawer.closeForNavigation()
+}
+
 function goToSettings() {
-  closeDrawer()
+  closeForNavigation()
   navigateTo('/account')
 }
 
@@ -204,7 +210,7 @@ const preferenceSettingItems: AccountSettingItem[] = [
 ]
 
 function handleAccountSettingClick(item: AccountSettingItem) {
-  closeDrawer()
+  closeForNavigation()
   navigateTo(item.to)
 }
 
@@ -279,7 +285,7 @@ function handleLogoutClick() {
                 <NuxtLink
                   to="/account?tab=profile"
                   class="relative shrink-0 group"
-                  @click="closeDrawer()"
+                  @click="closeForNavigation()"
                 >
                   <div class="w-15 h-15 rounded-full p-0.5 bg-white shadow-xs">
                     <div class="w-full h-full rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-base font-bold text-primary">
@@ -305,7 +311,7 @@ function handleLogoutClick() {
                   <NuxtLink
                     to="/account?tab=profile"
                     class="block text-lg font-semibold text-white truncate hover:underline"
-                    @click="closeDrawer()"
+                    @click="closeForNavigation()"
                   >
                     {{ authStore.displayName }}
                   </NuxtLink>
@@ -324,7 +330,7 @@ function handleLogoutClick() {
                     ? 'bg-[#FF4D55] border-[#FF7A82] text-white'
                     : 'bg-[#FFF5E6] border-[#FDE68A] text-[#C09440]'
                 "
-                @click="closeDrawer()"
+                @click="closeForNavigation()"
               >
                 <div class="flex items-center gap-2.5 min-w-0">
                   <Crown
@@ -349,7 +355,7 @@ function handleLogoutClick() {
                 <NuxtLink
                   to="/transaction"
                   class="inline-flex items-center gap-0.5 text-xs text-gray-500 hover:text-primary transition-colors"
-                  @click="closeDrawer()"
+                  @click="closeForNavigation()"
                 >
                   <span>{{ t('Lihat Riwayat Pesanan') }}</span>
                   <ChevronRight class="w-3.5 h-3.5 text-gray-400" />
@@ -361,7 +367,7 @@ function handleLogoutClick() {
                   :key="orderTab.label"
                   :to="orderTab.to"
                   class="flex flex-col items-center justify-start py-1.5 px-0.5 rounded-xl hover:bg-gray-50 group transition-colors"
-                  @click="closeDrawer()"
+                  @click="closeForNavigation()"
                 >
                   <div class="relative flex items-center justify-center">
                     <component
@@ -393,7 +399,7 @@ function handleLogoutClick() {
                   :key="item.label"
                   :to="item.to"
                   class="flex flex-col items-center justify-start py-1.5 px-0.5 rounded-xl hover:bg-gray-50 group transition-colors"
-                  @click="closeDrawer()"
+                  @click="closeForNavigation()"
                 >
                   <div class="relative flex items-center justify-center">
                     <component
@@ -429,7 +435,7 @@ function handleLogoutClick() {
                 <NuxtLink
                   to="/bekasku-plus"
                   class="mt-3 w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
-                  @click="closeDrawer()"
+                  @click="closeForNavigation()"
                 >
                   <ArrowRight class="w-4 h-4" />
                   <span>{{ t('Daftar Sekarang') }}</span>
@@ -462,7 +468,7 @@ function handleLogoutClick() {
                   v-else
                   :to="helpItem.to || '/help'"
                   class="flex items-center gap-3.5 px-5 hover:bg-gray-50 transition-colors group"
-                  @click="closeDrawer()"
+                  @click="closeForNavigation()"
                 >
                   <component :is="helpItem.icon" class="w-4 h-4 text-gray-900 group-hover:text-primary shrink-0" />
                   <div
@@ -579,7 +585,7 @@ function handleLogoutClick() {
                   v-else
                   :to="helpItem.to || '/help'"
                   class="flex items-center gap-3.5 pl-5 hover:bg-surface-2 transition-colors group"
-                  @click="closeDrawer()"
+                  @click="closeForNavigation()"
                 >
                   <component :is="helpItem.icon" class="w-4 h-4 text-text group-hover:text-primary shrink-0" />
                   <div
@@ -599,7 +605,7 @@ function handleLogoutClick() {
               <NuxtLink
                 to="/account?tab=delete"
                 class="flex items-center gap-3.5 pl-5 hover:bg-surface-2 transition-colors group"
-                @click="closeDrawer()"
+                @click="closeForNavigation()"
               >
                 <Trash2 class="w-4 h-4 text-text group-hover:text-red-600 shrink-0" />
                 <div class="flex-1 flex items-center justify-between py-3.5 pr-5 text-xs sm:text-[13px] font-medium text-text group-hover:text-red-600">
