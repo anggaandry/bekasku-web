@@ -112,11 +112,25 @@ function handleProceedToPayment() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-surface-2 py-6 px-4 sm:px-6 pb-28 md:pb-8">
-    <div class="max-w-5xl mx-auto space-y-5">
-      <PromotionWizardStep :current-step="2" />
+  <div class="min-h-screen bg-white md:bg-surface-2 pb-24 md:pb-8 md:py-6 md:px-6">
+    <!-- Mobile App Bar (matching Mobile V3 Pilih Paket) -->
+    <header class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-100 px-4 h-14 flex items-center justify-center relative">
+      <NuxtLink
+        to="/seller/promotion"
+        class="absolute left-3 p-1.5 text-gray-800 hover:text-primary transition-colors"
+        aria-label="Kembali"
+      >
+        <ArrowLeft class="w-5 h-5" />
+      </NuxtLink>
+      <h1 class="text-base font-bold text-gray-900 font-outfit">
+        Pilih Paket
+      </h1>
+    </header>
 
-      <div class="flex items-center justify-between gap-3">
+    <div class="max-w-5xl mx-auto px-4 md:px-0 py-4 md:py-0 space-y-4 md:space-y-5">
+      <PromotionWizardStep class="hidden md:block" :current-step="2" />
+
+      <div class="hidden md:flex items-center justify-between gap-3">
         <nav class="flex items-center gap-1.5 text-xs text-text-muted font-outfit" aria-label="Breadcrumb">
           <NuxtLink to="/seller/promotion" class="hover:text-primary transition-colors">Pusat Promosi</NuxtLink>
           <ChevronRight class="w-3.5 h-3.5" />
@@ -133,7 +147,7 @@ function handleProceedToPayment() {
 
       <div
         v-if="targetProduct"
-        class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3.5 shadow-2xs"
+        class="hidden md:flex bg-white rounded-xl border border-gray-200 p-4 items-center gap-3.5 shadow-2xs"
       >
         <NuxtImg
           :src="targetProduct.image?.[0] || '/images/empty-product.png'"

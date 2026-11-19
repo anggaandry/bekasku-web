@@ -45,10 +45,10 @@ const selectedProduct = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white rounded-2xl border border-border p-4 sm:p-5 shadow-2xs space-y-4">
+  <div class="md:bg-white md:rounded-2xl md:border md:border-border md:p-5 md:shadow-2xs space-y-4 pb-20 md:pb-0">
     <!-- Header & Search Input -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
+      <div class="hidden md:block">
         <h3 class="text-sm sm:text-base font-bold font-outfit text-text">
           Pilih Barang yang Ingin Dipromosikan
         </h3>
@@ -59,12 +59,12 @@ const selectedProduct = computed(() => {
 
       <!-- Search Bar -->
       <div class="relative w-full sm:w-72">
-        <Search class="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           :value="searchInput"
           type="text"
-          placeholder="Cari nama barang..."
-          class="w-full bg-surface-2 border border-border rounded-xl pl-9 pr-8 py-2 text-xs text-text placeholder:text-text-muted focus:outline-hidden focus:border-primary transition-colors"
+          placeholder="Cari nama barang"
+          class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-8 py-2.5 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-hidden focus:border-primary transition-colors"
           @input="onSearchInput"
         >
         <button
@@ -123,14 +123,11 @@ const selectedProduct = computed(() => {
             height="56"
           />
           <div class="min-w-0 flex-1">
-            <h4 class="text-xs sm:text-sm font-semibold text-text truncate font-outfit">
+            <h4 class="text-xs sm:text-sm font-medium text-gray-700 line-clamp-2 leading-snug font-outfit">
               {{ p.title }}
             </h4>
-            <div class="text-xs font-bold text-primary mt-0.5">
+            <div class="text-sm font-bold text-gray-900 mt-1">
               {{ formatRupiah(p.price) }}
-            </div>
-            <div v-if="p.city" class="text-[11px] text-text-muted truncate mt-0.5">
-              {{ p.city }}
             </div>
           </div>
         </div>
@@ -138,16 +135,16 @@ const selectedProduct = computed(() => {
         <!-- Radio Indicator -->
         <div class="shrink-0 pl-2">
           <div
-            class="w-5 h-5 rounded-full border flex items-center justify-center transition-colors"
+            class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors"
             :class="[
               p._id === props.selectedId
-                ? 'border-primary bg-primary text-white'
-                : 'border-border bg-white'
+                ? 'border-primary bg-white'
+                : 'border-gray-300 bg-white'
             ]"
           >
             <div
               v-if="p._id === props.selectedId"
-              class="w-2 h-2 rounded-full bg-white"
+              class="w-2.5 h-2.5 rounded-full bg-primary"
             />
           </div>
         </div>
@@ -155,8 +152,8 @@ const selectedProduct = computed(() => {
     </div>
 
     <!-- Action Bar / Footer -->
-    <div class="pt-3 border-t border-border-light flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="text-xs text-text-muted text-center sm:text-left">
+    <div class="fixed md:static bottom-0 inset-x-0 z-30 bg-white border-t border-gray-100 md:border-border-light p-4 md:px-0 md:pb-0 md:pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="hidden md:block text-xs text-text-muted text-left">
         <span v-if="selectedProduct" class="font-medium text-text">
           Terpilih: {{ selectedProduct.title }}
         </span>
@@ -168,11 +165,10 @@ const selectedProduct = computed(() => {
       <button
         type="button"
         :disabled="!props.selectedId"
-        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xs"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 md:py-2.5 bg-primary text-white text-sm md:text-xs font-bold rounded-xl hover:bg-primary-dark disabled:opacity-45 disabled:cursor-not-allowed transition-colors cursor-pointer"
         @click="emit('proceed')"
       >
         <span>Lanjutkan</span>
-        <ArrowRight class="w-4 h-4" />
       </button>
     </div>
   </div>

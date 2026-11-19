@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, ArrowRight } from 'lucide-vue-next'
+import { Check, ChevronUp } from 'lucide-vue-next'
 import type { PromotionType, PromotionPackage } from '~/types/promotion'
 import { formatRupiah } from '~/utils/format'
 
@@ -15,56 +15,60 @@ const emit = defineEmits<{
   (e: 'apply-quota'): void
   (e: 'proceed-payment'): void
 }>()
+
+const discountAmount = computed(() => {
+  const pkg = props.selectedPackage
+  if (!pkg || !pkg.final_price || pkg.final_price <= pkg.price) return 0
+  return pkg.final_price - pkg.price
+})
 </script>
 
 <template>
-  <div class="fixed md:static bottom-0 inset-x-0 z-30 bg-white border-t md:border border-border p-4 shadow-lg md:shadow-2xs md:rounded-2xl flex items-center justify-between gap-4">
-    <div class="min-w-0">
-      <div class="text-[11px] text-text-muted">
-        Fitur: <span class="font-bold text-text capitalize">{{ props.selectedType }}</span>
-      </div>
-      <div v-if="props.useQuotaMode" class="text-sm font-bold text-emerald-600 font-outfit mt-0.5">
-        Gunakan 1 Kuota (Sisa: {{ props.availableQuota }})
-      </div>
-      <div v-else-if="props.selectedPackage" class="flex items-baseline gap-2 mt-0.5">
-        <span class="text-base sm:text-lg font-bold text-primary font-outfit">
-          {{ formatRupiah(props.selectedPackage.price) }}
-        </span>
-        <span v-if="(props.selectedPackage.discount || 0) > 0" class="text-[11px] sm:text-xs text-red-600 font-semibold">
-          Hemat {{ props.selectedPackage.discount }}%
-        </span>
-        <span v-else class="text-[11px] text-text-muted hidden sm:inline">
-          Total Diskon: Rp -
-        </span>
-      </div>
-      <div v-else class="text-xs text-text-muted mt-0.5">
-        Pilih paket atau kuota
-      </div>
+  <div class="fixed md:static bottom-0 inset-x-0 z-30 bg-white border-t md:border border-gray-200 px-4 py-3 md:p-4 shadow-lg md:shadow-2xs md:rounded-xl flex items-center justify-end md:justify-between gap-4">
+    <div class="hidden md:block text-xs text-gray-500">
+      Paket terpilih: <span class="font-bold text-gray-900 capitalize">{{ props.selectedType }}</span>
     </div>
 
-    <div class="shrink-0">
+    <div class="flex items-center gap-3 sm:gap-4 w-full md:w-auto justify-end">
+      <div v-if="props.useQuotaMode" class="text-right">
+        <div class="text-sm font-bold text-emerald-600 font-outfit">
+          Gratis (1 Kuota)
+        </div>
+        <div class="text-[11px] text-gray-500">
+          Sisa kuota: {{ props.availableQuota }}
+        </div>
+      </div>
+
+      <div v-else class="text-right">
+        <div class="flex items-center justify-end gap-1 text-sm sm:text-base font-bold text-gray-900 font-outfit">
+          <span>{{ props.selectedPackage ? formatRupiah(props.selectedPackage.price) : 'Rp-' }}</span>
+          <ChevronUp class="w-3.5 h-3.5 text-gray-600" />
+        </div>
+        <div class="text-[11px] text-gray-500">
+          Total Diskon {{ discountAmount > 0 ? formatRupiah(discountAmount) : 'Rp-' }}
+        </div>
+      </div>
+
       <button
         v-if="props.useQuotaMode"
         type="button"
         :disabled="props.loading || props.availableQuota <= 0"
-        class="inline-flex items-center justify-center gap-1.5 px-6 sm:px-8 py-2.5 sm:py-3 bg-emerald-600 text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xs"
+        class="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 disabled:opacity-45 disabled:cursor-not-allowed transition-colors cursor-pointer"
         @click="emit('apply-quota')"
       >
         <Check class="w-4 h-4" />
-        <span>{{ props.loading ? 'Menerapkan...' : 'Pasang Sekarang' }}</span>
+        <span>{{ props.loading ? 'Menerapkan...' : 'Pasang' }}</span>
       </button>
 
       <button
         v-else
         type="button"
         :disabled="props.loading || !props.selectedPackage"
-        class="inline-flex items-center justify-center gap-1.5 px-6 sm:px-8 py-2.5 sm:py-3 bg-primary text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xs"
+        class="inline-flex items-center justify-center px-7 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark disabled:opacity-45 disabled:cursor-not-allowed transition-colors cursor-pointer"
         @click="emit('proceed-payment')"
       >
         <span>Bayar</span>
-        <ArrowRight class="w-4 h-4" />
       </button>
     </div>
   </div>
 </template>
-

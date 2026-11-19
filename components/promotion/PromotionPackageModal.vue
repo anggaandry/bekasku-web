@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, Check } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next'
 import type { PromotionType, PromotionPackage } from '~/types/promotion'
 import { formatRupiah } from '~/utils/format'
 
@@ -19,9 +19,11 @@ const emit = defineEmits<{
 const tempSelected = ref<PromotionPackage | null>(props.currentSelected)
 
 watch(
-  () => props.currentSelected,
-  (val) => {
-    tempSelected.value = val
+  () => [props.modelValue, props.currentSelected] as const,
+  ([open, val]) => {
+    if (open) {
+      tempSelected.value = val || filteredPackages.value[0] || null
+    }
   }
 )
 
@@ -29,7 +31,7 @@ const filteredPackages = computed(() => {
   if (!props.type) return []
   return props.packages
     .filter((p) => p.type === props.type)
-    .sort((a, b) => (a.price || 0) - (b.price || 0))
+    .sort((a, b) => (b.price || 0) - (a.price || 0))
 })
 
 const typeTitle = computed(() => {
@@ -57,100 +59,96 @@ function onConfirm() {
       @click.self="emit('update:modelValue', false)"
     >
       <div
-        class="bg-white rounded-t-3xl sm:rounded-3xl border border-border w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto"
+        class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto"
       >
         <!-- Modal Header -->
-        <div class="flex items-center justify-between pb-3 border-b border-border-light">
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              class="w-8 h-8 rounded-full hover:bg-surface-2 flex items-center justify-center text-text-muted hover:text-text transition-colors"
-              @click="emit('update:modelValue', false)"
-            >
-              <X class="w-4 h-4" />
-            </button>
-            <h3 class="text-base font-bold font-outfit text-text">
-              Beli Fitur {{ typeTitle }}
-            </h3>
-          </div>
+        <div class="flex items-center gap-3 pb-1">
+          <button
+            type="button"
+            class="p-1 -ml-1 text-gray-800 hover:text-primary transition-colors cursor-pointer"
+            aria-label="Tutup"
+            @click="emit('update:modelValue', false)"
+          >
+            <X class="w-5 h-5" />
+          </button>
+          <h3 class="text-base font-bold font-outfit text-gray-900">
+            Beli Fitur {{ typeTitle }}
+          </h3>
         </div>
 
         <!-- Package List -->
-        <div v-if="filteredPackages.length === 0" class="text-center py-8 text-xs text-text-muted">
+        <div v-if="filteredPackages.length === 0" class="text-center py-8 text-xs text-gray-500">
           Tidak ada paket tersedia untuk fitur ini.
         </div>
 
-        <div v-else class="space-y-2.5">
+        <div v-else class="space-y-3">
           <div
             v-for="pkg in filteredPackages"
             :key="pkg._id"
-            class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer"
+            class="p-4 rounded-xl border transition-all cursor-pointer"
             :class="[
               tempSelected?._id === pkg._id
-                ? 'border-primary bg-primary/5 shadow-2xs'
-                : 'border-border-light hover:border-border hover:bg-surface-2/60'
+                ? 'border-primary bg-[#FFF5F5]'
+                : 'border-gray-200 bg-white hover:border-gray-300'
             ]"
             @click="onSelect(pkg)"
           >
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs sm:text-sm font-semibold text-text font-outfit">
-                  {{ pkg.name || `${pkg.quota || 1}x ${typeTitle} (${pkg.days || 7} Hari)` }}
-                </span>
-                <span
-                  v-if="(pkg.discount || 0) > 0"
-                  class="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded-md"
-                >
-                  Hemat {{ pkg.discount }}%
-                </span>
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <h4 class="text-sm font-bold text-gray-900 font-outfit">
+                  {{ pkg.name || `Fitur ${typeTitle}` }}
+                </h4>
+                <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                  {{ pkg.description || 'Dapatkan s.d. 2x lebih banyak calon pembeli' }}
+                </p>
               </div>
 
-              <!-- Price Row -->
-              <div class="flex items-baseline gap-2 mt-1">
-                <div class="text-sm font-bold text-primary font-outfit">
-                  {{ formatRupiah(pkg.price) }}
-                </div>
-                <div
-                  v-if="(pkg.discount || 0) > 0 && pkg.final_price && pkg.final_price > pkg.price"
-                  class="text-xs text-text-muted line-through"
-                >
-                  {{ formatRupiah(pkg.final_price) }}
-                </div>
+              <!-- Radio Circle -->
+              <div
+                class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5"
+                :class="tempSelected?._id === pkg._id ? 'border-primary' : 'border-gray-300'"
+              >
+                <div v-if="tempSelected?._id === pkg._id" class="w-2.5 h-2.5 rounded-full bg-primary" />
               </div>
             </div>
 
-            <!-- Radio Indicator -->
-            <div class="shrink-0 pl-2">
-              <div
-                class="w-5 h-5 rounded-full border flex items-center justify-center transition-colors"
-                :class="[
-                  tempSelected?._id === pkg._id
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-border bg-white'
-                ]"
-              >
-                <div
-                  v-if="tempSelected?._id === pkg._id"
-                  class="w-2 h-2 rounded-full bg-white"
-                />
+            <!-- Price & Validity Row -->
+            <div class="flex items-center justify-between gap-2 mt-3">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-gray-900 font-outfit">
+                  {{ formatRupiah(pkg.price) }}
+                </span>
+                <span
+                  v-if="(pkg.discount || 0) > 0 && pkg.final_price && pkg.final_price > pkg.price"
+                  class="text-xs text-gray-400 line-through"
+                >
+                  {{ formatRupiah(pkg.final_price) }}
+                </span>
+                <span
+                  v-if="(pkg.discount || 0) > 0"
+                  class="text-[10px] font-bold text-primary bg-[#FCE8EA] px-1.5 py-0.5 rounded"
+                >
+                  {{ pkg.discount }}%
+                </span>
               </div>
+
+              <span class="text-xs font-medium text-gray-700 shrink-0">
+                Masa Berlaku: {{ pkg.days || 30 }} hari
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- Action CTA Button -->
-        <div class="pt-3 border-t border-border-light">
-          <button
-            type="button"
-            :disabled="!tempSelected"
-            class="w-full py-3 bg-primary text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xs"
-            @click="onConfirm"
-          >
-            Pasang Paket
-          </button>
-        </div>
+        <!-- Bottom CTA -->
+        <button
+          type="button"
+          :disabled="!tempSelected"
+          class="w-full py-3 rounded-xl bg-primary hover:bg-primary-dark disabled:opacity-45 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors cursor-pointer"
+          @click="onConfirm"
+        >
+          Pasang
+        </button>
       </div>
     </div>
   </Teleport>
 </template>
-

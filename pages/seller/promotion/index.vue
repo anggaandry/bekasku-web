@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { ChevronRight, TrendingUp, Package } from 'lucide-vue-next'
+import { ChevronRight, TrendingUp, Package, ArrowLeft } from 'lucide-vue-next'
 import { usePromotion } from '~/composables/usePromotion'
 import type { PromotionTargetProduct } from '~/types/promotion'
 import PromotionQuotaBanner from '~/components/promotion/PromotionQuotaBanner.vue'
@@ -49,10 +49,25 @@ function proceedToPromotion() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-surface-2 py-6 px-4 sm:px-6">
-    <div class="max-w-5xl mx-auto space-y-5">
-      <!-- Breadcrumb -->
-      <nav class="flex items-center gap-1.5 text-xs text-text-muted font-outfit" aria-label="Breadcrumb">
+  <div class="min-h-screen bg-white md:bg-surface-2 md:py-6 md:px-6 pb-8">
+    <!-- Mobile App Bar (matching Mobile V3) -->
+    <header class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-100 px-4 h-14 flex items-center justify-center relative">
+      <button
+        type="button"
+        class="absolute left-3 p-1.5 text-gray-800 hover:text-primary transition-colors cursor-pointer"
+        aria-label="Kembali"
+        @click="$router.back()"
+      >
+        <ArrowLeft class="w-5 h-5" />
+      </button>
+      <h1 class="text-base font-bold text-gray-900 font-outfit">
+        {{ activeTab === 'products' ? 'Pilih Barang' : 'Pusat Promosi' }}
+      </h1>
+    </header>
+
+    <div class="max-w-5xl mx-auto px-4 md:px-0 py-4 md:py-0 space-y-4 md:space-y-5">
+      <!-- Breadcrumb (Desktop) -->
+      <nav class="hidden md:flex items-center gap-1.5 text-xs text-text-muted font-outfit" aria-label="Breadcrumb">
         <NuxtLink to="/" class="hover:text-primary transition-colors">Beranda</NuxtLink>
         <ChevronRight class="w-3.5 h-3.5" />
         <NuxtLink to="/account" class="hover:text-primary transition-colors">Akun Saya</NuxtLink>
