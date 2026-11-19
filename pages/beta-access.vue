@@ -1,63 +1,64 @@
 <template>
-  <div class="min-h-screen bg-[#0F1115] text-white flex flex-col justify-between p-4 sm:p-8 font-outfit relative overflow-hidden">
-    <!-- Subtle Background Glow -->
-    <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[#E31B23]/15 blur-3xl pointer-events-none" />
-    <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-[#2563EB]/15 blur-3xl pointer-events-none" />
-
-    <!-- Top Bar -->
-    <header class="max-w-5xl w-full mx-auto flex items-center justify-between z-10">
-      <div class="flex items-center gap-3">
-        <img src="/icon_only.png" alt="BekasKu" class="h-8 w-8 rounded-lg object-contain" />
-        <span class="text-base font-extrabold tracking-tight text-white">BekasKu</span>
-        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#E31B23]/20 text-[#FF5A60] border border-[#E31B23]/30">
-          Private Beta Preview
+  <div class="min-h-screen bg-[#F9F9F9] text-text flex flex-col justify-between font-outfit">
+    <!-- Top BekasKu Brand Bar -->
+    <header class="w-full bg-primary text-white py-3 px-4 sm:px-6 shadow-xs">
+      <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <img src="/images/logo_white.png" alt="BekasKu" class="h-7 w-auto object-contain" />
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-white">
+            Preview Beta
+          </span>
+        </div>
+        <span class="hidden sm:inline text-xs text-white/85 font-medium">
+          Sandbox Environment
         </span>
-      </div>
-      <div class="hidden sm:flex items-center gap-2 text-xs text-gray-400">
-        <ShieldCheck class="w-4 h-4 text-emerald-400" />
-        <span>Sandbox Environment • Investor &amp; QA Portal</span>
       </div>
     </header>
 
-    <!-- Center Card -->
-    <main class="max-w-md w-full mx-auto my-auto z-10 py-8">
-      <div class="bg-[#16191E] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
-        <div class="flex items-center gap-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-[#E31B23]/15 border border-[#E31B23]/30 flex items-center justify-center shrink-0">
-            <Lock class="w-6 h-6 text-[#E31B23]" />
+    <!-- Center Clean Card -->
+    <main class="w-full max-w-md mx-auto px-4 py-8 my-auto">
+      <div class="bg-white rounded-2xl border border-border-light shadow-xs p-6 sm:p-8 space-y-5">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Lock class="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight">
-              Akses Terbatas BekasKu Web V3
+            <h1 class="text-lg font-bold text-text tracking-tight">
+              Akses Pratinjau BekasKu
             </h1>
-            <p class="text-xs text-gray-400 mt-0.5">
-              Khusus peninjauan Investor &amp; pengujian Tim Quality Assurance
+            <p class="text-xs text-text-muted mt-0.5">
+              Masukkan PIN akses untuk membuka pratinjau beta.
             </p>
           </div>
         </div>
 
-        <p class="text-xs text-gray-300 leading-relaxed bg-white/5 rounded-2xl p-3.5 border border-white/5">
-          Lingkungan pratinjau ini terhubung ke server <strong>Sandbox BekasKu V3</strong> untuk menjaga keamanan data transaksi publik selama tahap evaluasi pra-rilis.
-        </p>
-
         <form class="space-y-4" @submit.prevent="handleUnlock">
           <div>
-            <label for="beta-pin-input" class="block text-xs font-semibold text-gray-300 mb-1.5">
-              Kode Akses / PIN Pratinjau
+            <label for="beta-pin-input" class="block text-xs font-semibold text-text mb-1.5">
+              Kode Akses / PIN
             </label>
             <div class="relative">
-              <KeyRound class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <KeyRound class="w-4 h-4 text-text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 id="beta-pin-input"
                 v-model="pinInput"
-                type="password"
+                :type="showPin ? 'text' : 'password'"
                 autocomplete="off"
-                placeholder="Masukkan kode akses (misal: BKK2026)"
-                class="w-full h-11 pl-10 pr-4 rounded-xl bg-[#0F1115] border border-white/15 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#E31B23] transition-colors font-mono tracking-wider"
+                placeholder="Masukkan kode akses"
+                class="w-full h-11 pl-10 pr-10 rounded-xl bg-surface-2 border border-border text-sm text-text placeholder-text-muted focus:outline-none focus:border-primary transition-colors font-mono tracking-wider"
                 @input="errorMsg = ''"
               />
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text cursor-pointer"
+                :aria-label="showPin ? 'Sembunyikan PIN' : 'Lihat PIN'"
+                @click="showPin = !showPin"
+              >
+                <EyeOff v-if="showPin" class="w-4 h-4" />
+                <Eye v-else class="w-4 h-4" />
+              </button>
             </div>
-            <p v-if="errorMsg" class="mt-2 text-xs text-red-400 flex items-center gap-1.5">
+            <p v-if="errorMsg" class="mt-2 text-xs text-danger flex items-center gap-1.5">
               <AlertCircle class="w-3.5 h-3.5 shrink-0" />
               <span>{{ errorMsg }}</span>
             </p>
@@ -66,77 +67,64 @@
           <button
             type="submit"
             :disabled="!pinInput.trim() || isSubmitting"
-            class="w-full h-11 rounded-xl bg-[#E31B23] hover:bg-[#c8161d] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+            class="w-full h-11 rounded-xl bg-primary hover:bg-primary-dark disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
-            <span>Buka Pratinjau BekasKu Web</span>
-            <ArrowRight class="w-4 h-4" />
+            <span>{{ isSubmitting ? 'Memverifikasi...' : 'Masuk ke Pratinjau' }}</span>
+            <ArrowRight v-if="!isSubmitting" class="w-4 h-4" />
           </button>
         </form>
-
-        <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-400">
-          <span>Akses berlaku otomatis 30 hari</span>
-          <a
-            href="https://qa.bekasku.id"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-gray-300 hover:text-white underline underline-offset-2"
-          >
-            Portal QA Tracker
-          </a>
-        </div>
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="max-w-5xl w-full mx-auto text-center text-xs text-gray-500 z-10">
-      &copy; {{ new Date().getFullYear() }} PT Jantaka Ladang Unggul — BekasKu Ecosystem
+    <!-- Simple Footer -->
+    <footer class="w-full py-4 px-4 text-center text-xs text-text-muted">
+      &copy; {{ new Date().getFullYear() }} BekasKu — PT Jantaka Ladang Unggul
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ShieldCheck, Lock, KeyRound, ArrowRight, AlertCircle } from 'lucide-vue-next'
+import { Lock, KeyRound, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-vue-next'
 
 definePageMeta({
   layout: false,
 })
 
 useHead({
-  title: 'Private Beta Access — BekasKu Web Marketplace V3',
+  title: 'Akses Pratinjau — BekasKu',
   meta: [
     { name: 'robots', content: 'noindex, nofollow' },
   ],
 })
 
 const route = useRoute()
-const config = useRuntimeConfig()
 const pinInput = ref('')
+const showPin = ref(false)
 const errorMsg = ref('')
 const isSubmitting = ref(false)
 
-const accessCookie = useCookie<string | null>('bkk_beta_access', {
-  maxAge: 60 * 60 * 24 * 30,
-  path: '/',
-  sameSite: 'lax',
-})
-
-function handleUnlock() {
-  const configuredPin = String(config.public.betaPin || 'BKK2026').toUpperCase()
-  const validPins = new Set([configuredPin, 'BKK2026', 'BEKASKU2026', 'INVESTOR2026', 'QA2026'])
-  const entered = pinInput.value.trim().toUpperCase()
-
-  if (!validPins.has(entered)) {
-    errorMsg.value = 'Kode akses tidak valid. Gunakan PIN resmi Investor atau QA.'
-    return
-  }
+async function handleUnlock() {
+  const entered = pinInput.value.trim()
+  if (!entered || isSubmitting.value) return
 
   isSubmitting.value = true
-  accessCookie.value = 'granted'
+  errorMsg.value = ''
 
-  const redirectTarget = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/')
-    ? route.query.redirect
-    : '/'
+  try {
+    await $fetch('/api/beta-unlock', {
+      method: 'POST',
+      body: { pin: entered },
+    })
 
-  navigateTo(redirectTarget, { replace: true })
+    const redirectTarget = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/')
+      ? route.query.redirect
+      : '/'
+
+    await navigateTo(redirectTarget, { replace: true })
+  } catch {
+    errorMsg.value = 'Kode akses tidak valid. Silakan periksa kembali.'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>

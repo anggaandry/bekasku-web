@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   const config = useRuntimeConfig()
   const reqUrl = useRequestURL()
   const isBetaDomain = reqUrl.hostname.startsWith('beta.') || reqUrl.hostname.startsWith('preview.')
@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  // Bypass social link preview bots (WhatsApp, Telegram, Facebook, Twitter) so OpenGraph SSR works for QA testing
+  // Bypass social link preview bots (WhatsApp, Telegram, Facebook, Twitter) so OpenGraph SSR works
   if (import.meta.server) {
     const headers = useRequestHeaders(['user-agent'])
     const ua = String(headers['user-agent'] || '')
@@ -17,23 +17,24 @@ export default defineNuxtRouteMiddleware((to) => {
     }
   }
 
-  const configuredPin = String(config.public.betaPin || 'BKK2026').toUpperCase()
-  const validPins = new Set([configuredPin, 'BKK2026', 'BEKASKU2026', 'INVESTOR2026', 'QA2026'])
-
   const accessCookie = useCookie<string | null>('bkk_beta_access', {
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    maxAge: 60 * 60 * 24 * 30,
     path: '/',
     sameSite: 'lax',
   })
 
-  // Support Magic Link auto-unlock: ?access=BKK2026 or ?pin=BKK2026 or ?vip_key=BKK2026
+  // Server-only PIN check for Magic Link (?access=... / ?pin=... / ?vip_key=...) so PINs never ship to client bundle
   const queryKey = String(to.query.access || to.query.pin || to.query.vip_key || '').trim().toUpperCase()
-  if (queryKey && validPins.has(queryKey)) {
-    accessCookie.value = 'granted'
-    if (to.path === '/beta-access') {
-      return navigateTo('/', { replace: true })
+  if (queryKey && import.meta.server) {
+    const configuredPin = String(config.betaPin || 'BKK2026').toUpperCase()
+    const validPins = new Set([configuredPin, 'BKK2026', 'BEKASKU2026', 'INVESTOR2026', 'QA2026'])
+    if (validPins.has(queryKey)) {
+      accessCookie.value = 'granted'
+      if (to.path === '/beta-access') {
+        return navigateTo('/', { replace: true })
+      }
+      return
     }
-    return
   }
 
   if (to.path === '/beta-access') {
