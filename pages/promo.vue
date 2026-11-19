@@ -3,33 +3,59 @@
     <h1 class="sr-only">Promo Spesial &amp; Best Deal — BekasKu</h1>
 
     <!-- Mobile Sticky Top Bar (matching PromoAppBar in Mobile V3) -->
-    <header class="md:hidden sticky top-0 z-40 bg-primary text-white px-4 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <BadgePercent class="w-5 h-5 text-white" />
-        <span class="text-base font-bold tracking-tight">Promo BekasKu</span>
-      </div>
+    <header class="md:hidden sticky top-0 z-40 bg-primary text-white px-3 py-2.5 flex items-center gap-2">
+      <button
+        type="button"
+        class="flex-1 min-w-0 h-10 bg-white rounded-xl px-3 flex items-center gap-2 text-left text-gray-500 text-sm cursor-pointer"
+        @click="navigateTo('/search/result?type=2')"
+      >
+        <Search class="w-4 h-4 text-gray-500 shrink-0" />
+        <span class="truncate">Cari di Best Deal</span>
+      </button>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-0.5 shrink-0">
         <button
           type="button"
-          class="p-1.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-          aria-label="Cari promo"
-          @click="navigateTo('/search/result?type=2')"
+          class="p-1.5 text-white hover:text-white/80 rounded-lg relative shrink-0 cursor-pointer"
+          aria-label="Chat"
+          @click="handleAuthAction('/chat', 'Chat & Pesan')"
         >
-          <Search class="w-5 h-5 text-white" />
+          <MessageSquare class="w-5 h-5" />
+          <span
+            v-if="chatStore.totalUnread > 0"
+            class="absolute -top-0.5 -right-0.5 bg-badge-bg text-badge-text text-[9px] font-black min-w-3.5 h-3.5 px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-primary"
+          >
+            {{ chatStore.totalUnread > 99 ? '99+' : chatStore.totalUnread }}
+          </span>
         </button>
+
         <button
           type="button"
-          class="relative p-1.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-          aria-label="Keranjang belanja"
-          @click="handleCartClick"
+          class="p-1.5 text-white hover:text-white/80 rounded-lg relative shrink-0 cursor-pointer"
+          aria-label="Notifikasi"
+          @click="handleNotificationClick"
         >
-          <ShoppingCart class="w-5 h-5 text-white" />
+          <Bell class="w-5 h-5" />
+          <span
+            v-if="notifStore.totalUnread > 0"
+            class="absolute -top-0.5 -right-0.5 bg-badge-bg text-badge-text text-[9px] font-black min-w-[14px] h-3.5 px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-primary"
+          >
+            {{ notifStore.totalUnread > 99 ? '99+' : notifStore.totalUnread }}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="p-1.5 text-white hover:text-white/80 rounded-lg relative shrink-0 cursor-pointer"
+          aria-label="Keranjang belanja"
+          @click="handleAuthAction('/cart', 'Keranjang Belanja')"
+        >
+          <ShoppingCart class="w-5 h-5" />
           <span
             v-if="cartStore.totalItems > 0"
-            class="absolute -top-0.5 -right-0.5 bg-white text-primary text-[9px] font-black min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center"
+            class="absolute -top-0.5 -right-0.5 bg-badge-bg text-badge-text text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center ring-1.5 ring-primary"
           >
-            {{ cartStore.totalItems > 9 ? '9+' : cartStore.totalItems }}
+            {{ cartStore.totalItems }}
           </span>
         </button>
       </div>
@@ -37,7 +63,7 @@
 
     <!-- Primary Promo Banner (matching _buildPromoBanner in Mobile V3) -->
     <section class="bg-primary text-white">
-      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-6 md:py-7 flex items-center justify-between gap-4">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-1.5 pb-5 md:py-7 flex items-center justify-between gap-4">
         <div class="min-w-0 flex-1">
           <h2 class="text-xl sm:text-2xl font-bold tracking-tight leading-snug">
             Promo spesial hari ini
@@ -47,9 +73,11 @@
           </p>
         </div>
 
-        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0">
-          <BadgePercent class="w-9 h-9 sm:w-11 sm:h-11 text-white" />
-        </div>
+        <img
+          src="/images/discounttag.png"
+          alt="Promo spesial hari ini"
+          class="w-24 h-20 sm:w-28 sm:h-24 object-contain shrink-0 select-none"
+        />
       </div>
     </section>
 
@@ -77,18 +105,20 @@
           v-else-if="products.length === 0"
           class="py-16 px-6 flex flex-col items-center justify-center text-center"
         >
-          <div class="w-20 h-20 rounded-3xl bg-primary/8 flex items-center justify-center mb-5">
-            <BadgePercent class="w-10 h-10 text-primary" />
-          </div>
+          <img
+            src="/images/nocart.png"
+            alt="Belum ada promo disini"
+            class="w-44 h-44 object-contain mb-6 select-none"
+          />
           <h3 class="text-lg font-bold text-text">
             Belum ada promo disini
           </h3>
-          <p class="text-sm text-text-muted mt-1.5 max-w-sm">
+          <p class="text-sm text-text-muted mt-1.5 max-w-xs">
             Cek kembali nanti untuk mendapatkan promo menarik lainnya
           </p>
           <NuxtLink
             to="/"
-            class="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-semibold transition-colors"
+            class="hidden md:inline-flex mt-6 items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-semibold transition-colors"
           >
             <span>Jelajahi Beranda</span>
           </NuxtLink>
@@ -146,10 +176,13 @@
 </template>
 
 <script setup lang="ts">
-import { BadgePercent, Search, ShoppingCart } from 'lucide-vue-next'
+import { Bell, MessageSquare, Search, ShoppingCart } from 'lucide-vue-next'
 import { usePromo } from '~/composables/usePromo'
 import { useCartStore } from '~/stores/cart'
 import { useAuthStore } from '~/stores/auth'
+import { useChatStore } from '~/stores/chat'
+import { useNotificationStore } from '~/stores/notification'
+import { useNotificationDrawer } from '~/composables/useNotificationDrawer'
 import { useAuthModal } from '~/composables/useAuthModal'
 import ProductGrid from '~/components/shared/ProductGrid.vue'
 import AppErrorState from '~/components/shared/AppErrorState.vue'
@@ -167,6 +200,9 @@ useHead({
 
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const chatStore = useChatStore()
+const notifStore = useNotificationStore()
+const notificationDrawer = useNotificationDrawer()
 const authModal = useAuthModal()
 const { products, bdTime, loading, loadingMore, error, hasMore, fetchPromos } = usePromo()
 
@@ -194,11 +230,19 @@ function startCountdown(secs: number) {
   }, 1000)
 }
 
-function handleCartClick() {
+function handleAuthAction(path: string, featureTitle: string) {
   if (!authStore.isLoggedIn) {
-    authModal.openLogin({ featureTitle: 'Keranjang Belanja', redirectPath: '/cart' })
+    authModal.openLogin({ featureTitle, redirectPath: path })
   } else {
-    navigateTo('/cart')
+    navigateTo(path)
+  }
+}
+
+function handleNotificationClick() {
+  if (!authStore.isLoggedIn) {
+    authModal.openLogin({ featureTitle: 'Notifikasi' })
+  } else {
+    notificationDrawer.open()
   }
 }
 
