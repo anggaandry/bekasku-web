@@ -61,8 +61,8 @@ onMounted(async () => {
 
   const res = await fetchStatus()
   if (!res || res.status === 'none') {
-    // If not registered yet, redirect to landing
-    router.replace('/bekasku-plus')
+    // If not registered yet, redirect to registration intro
+    router.replace('/bekasku-plus/intro')
   }
 })
 
@@ -92,7 +92,7 @@ const handleBackHome = () => {
         <button
           type="button"
           class="w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center text-text cursor-pointer"
-          @click="router.push('/bekasku-plus')"
+          @click="router.push('/bekasku-plus/intro')"
         >
           <ArrowLeft class="w-4 h-4" />
         </button>

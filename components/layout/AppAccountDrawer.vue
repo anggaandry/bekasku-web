@@ -433,7 +433,7 @@ function handleLogoutClick() {
                   Daftar BekasKu+ Sekarang
                 </p>
                 <NuxtLink
-                  to="/bekasku-plus"
+                  to="/bekasku-plus/intro"
                   class="mt-3 w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
                   @click="closeForNavigation()"
                 >

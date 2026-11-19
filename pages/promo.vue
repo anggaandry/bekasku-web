@@ -63,21 +63,33 @@
 
     <!-- Primary Promo Banner (matching _buildPromoBanner in Mobile V3) -->
     <section class="bg-primary text-white">
-      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-1.5 pb-5 md:py-7 flex items-center justify-between gap-4">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-1.5 pb-5 md:py-7 flex items-center justify-between gap-4 md:gap-8">
         <div class="min-w-0 flex-1">
-          <h2 class="text-xl sm:text-2xl font-bold tracking-tight leading-snug">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight leading-snug">
             Promo spesial hari ini
           </h2>
-          <p class="text-sm text-white/90 mt-1">
+          <p class="text-sm md:text-base text-white/90 mt-1">
             Semua promo hanya untuk kamu!
           </p>
         </div>
 
-        <img
-          src="/images/discounttag.png"
-          alt="Promo spesial hari ini"
-          class="w-24 h-20 sm:w-28 sm:h-24 object-contain shrink-0 select-none"
-        />
+        <div class="flex items-center gap-4 shrink-0">
+          <!-- Desktop Quick Search in Best Deal -->
+          <button
+            type="button"
+            class="hidden md:flex items-center gap-2.5 h-10 w-64 lg:w-72 px-4 rounded-xl bg-white text-gray-500 hover:text-gray-800 text-sm shadow-xs transition-colors cursor-pointer"
+            @click="navigateTo('/search/result?type=2')"
+          >
+            <Search class="w-4 h-4 text-gray-500 shrink-0" />
+            <span class="truncate">Cari di Best Deal...</span>
+          </button>
+
+          <img
+            src="/images/discounttag.png"
+            alt="Promo spesial hari ini"
+            class="w-24 h-20 sm:w-28 sm:h-24 object-contain shrink-0 select-none"
+          />
+        </div>
       </div>
     </section>
 
@@ -145,9 +157,9 @@
 
             <NuxtLink
               to="/search/result?type=2"
-              class="text-sm font-medium text-primary hover:underline shrink-0"
+              class="text-xs sm:text-sm font-semibold text-primary hover:underline shrink-0"
             >
-              Lihat semua
+              Filter &amp; Cari
             </NuxtLink>
           </div>
 

@@ -1,6 +1,8 @@
 import { API_SELLER_SEARCH, SEARCH_MAX_ITEMS } from '~/utils/constants'
 import type { SellerResult, SellerSearchResponse } from '~/types/search'
 
+export type SellerSortOption = 'followers' | 'rating' | 'newest'
+
 export interface SellerSearchParams {
   filter?: string
   type?: number
@@ -13,6 +15,8 @@ export interface SellerSearchParams {
   verified?: number
   trusted?: number
   vip?: number
+  bekaskuPlus?: boolean
+  sort?: SellerSortOption
   page?: number
   limit?: number
   saveHistory?: boolean
@@ -44,6 +48,12 @@ export function useSellerSearch() {
         vip: params.vip ?? 0,
         page: params.page ?? 1,
         limit: params.limit ?? 10,
+      }
+      if (params.bekaskuPlus) {
+        body.bekasku_plus = true
+      }
+      if (params.sort) {
+        body.sort = params.sort
       }
       if (params.saveHistory !== undefined) {
         body.save_history = params.saveHistory

@@ -232,12 +232,11 @@
             {{ t(item.label) }}
           </button>
 
-          <button
-            type="button"
-            class="px-2 py-0.5 rounded-lg transition-all flex items-center shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-primary"
+          <NuxtLink
+            to="/bekasku-plus"
+            class="px-2 py-0.5 rounded-lg transition-all flex items-center shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             :class="isRoutePrefixActive(['/bekasku-plus']) ? 'bg-red-50/80 ring-1 ring-primary/20' : 'hover:bg-red-50/70'"
-            :title="isHydratedLoggedIn ? 'BekasKu+ Curated Partner' : 'Masuk untuk mengakses BekasKu+'"
-            @click="handleAuthAction('/bekasku-plus', 'BekasKu+ Official Seller')"
+            title="BekasKu+ Creator & Influencer"
           >
             <img
               src="/images/bekasku_plus_variant_6_horizontal.png"
@@ -246,7 +245,7 @@
               height="16"
               class="h-4 max-h-4 w-auto max-w-[96px] object-contain shrink-0"
             />
-          </button>
+          </NuxtLink>
 
           <!-- Public Link: Live & Video (Accessible with or without login) -->
           <NuxtLink

@@ -40,7 +40,7 @@
       </div>
 
       <NuxtLink
-        to="/product/search?type=2"
+        to="/promo"
         class="text-xs sm:text-sm font-semibold text-[#E31B23] hover:text-[#B91219] flex items-center gap-1 transition-colors"
       >
         <span>{{ t('Lihat semua') }}</span>
