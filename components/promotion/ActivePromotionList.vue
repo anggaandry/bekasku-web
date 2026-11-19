@@ -2,6 +2,7 @@
 import { TrendingUp, Star, Zap, ChevronRight, Clock, Plus } from 'lucide-vue-next'
 import type { ActivePromotionProduct } from '~/types/promotion'
 import { formatRupiah } from '~/utils/format'
+import { sanitizeMediaUrl } from '~/utils/media'
 
 const props = defineProps<{
   promotions: ActivePromotionProduct[]
@@ -13,9 +14,8 @@ const emit = defineEmits<{
 }>()
 
 function getProductImage(img?: string[] | string): string {
-  if (Array.isArray(img) && img.length > 0) return img[0]
-  if (typeof img === 'string' && img.length > 0) return img
-  return '/images/empty-product.png'
+  const raw = Array.isArray(img) && img.length > 0 ? img[0] : typeof img === 'string' ? img : ''
+  return sanitizeMediaUrl(raw, '/images/empty-product.png')
 }
 
 function formatExpiry(dateStr?: string | null): string {

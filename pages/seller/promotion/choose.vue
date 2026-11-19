@@ -5,6 +5,7 @@ import { ChevronRight, ArrowLeft, AlertCircle } from 'lucide-vue-next'
 import { usePromotion } from '~/composables/usePromotion'
 import type { PromotionType, PromotionPackage, PromotionTargetProduct } from '~/types/promotion'
 import { formatRupiah } from '~/utils/format'
+import { sanitizeMediaUrl } from '~/utils/media'
 import PromotionWizardStep from '~/components/promotion/PromotionWizardStep.vue'
 import PromotionOptionCard from '~/components/promotion/PromotionOptionCard.vue'
 import PromotionPackageModal from '~/components/promotion/PromotionPackageModal.vue'
@@ -150,7 +151,7 @@ function handleProceedToPayment() {
         class="hidden md:flex bg-white rounded-xl border border-gray-200 p-4 items-center gap-3.5 shadow-2xs"
       >
         <NuxtImg
-          :src="targetProduct.image?.[0] || '/images/empty-product.png'"
+          :src="sanitizeMediaUrl(targetProduct.image?.[0], '/images/empty-product.png')"
           :alt="targetProduct.title"
           class="w-16 h-16 rounded-xl object-cover bg-surface-2 border border-border-light shrink-0"
           width="64"

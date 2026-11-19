@@ -61,7 +61,7 @@ function proceedToPromotion() {
         <ArrowLeft class="w-5 h-5" />
       </button>
       <h1 class="text-base font-bold text-gray-900 font-outfit">
-        {{ activeTab === 'products' ? 'Pilih Barang' : 'Pusat Promosi' }}
+        Pilih Barang
       </h1>
     </header>
 
@@ -75,15 +75,16 @@ function proceedToPromotion() {
         <span class="text-text font-medium">Pusat Promosi</span>
       </nav>
 
-      <!-- Quota Summary Banner -->
+      <!-- Quota Summary Banner (Desktop only) -->
       <PromotionQuotaBanner
+        class="hidden md:block"
         :quota="promotion.quota.value"
         :loading="promotion.loading.value"
         @select-tab="activeTab = $event"
       />
 
-      <!-- Navigation Tabs -->
-      <div class="flex items-center gap-2 border-b border-border bg-white px-4 rounded-2xl shadow-2xs">
+      <!-- Navigation Tabs (Desktop only) -->
+      <div class="hidden md:flex items-center gap-2 border-b border-border bg-white px-4 rounded-2xl shadow-2xs">
         <button
           type="button"
           class="relative py-3.5 px-4 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2"
@@ -127,8 +128,8 @@ function proceedToPromotion() {
         </button>
       </div>
 
-      <!-- Tab Content 1: Active Promotions -->
-      <div v-show="activeTab === 'active'">
+      <!-- Tab Content 1: Active Promotions (Desktop tab) -->
+      <div v-show="activeTab === 'active'" class="hidden md:block">
         <ActivePromotionList
           :promotions="promotion.activePromotions.value"
           :loading="promotion.loading.value"
@@ -136,8 +137,8 @@ function proceedToPromotion() {
         />
       </div>
 
-      <!-- Tab Content 2: Choose Product -->
-      <div v-show="activeTab === 'products'">
+      <!-- Tab Content 2: Choose Product (Always visible on Mobile matching V3 Pilih Barang) -->
+      <div :class="activeTab === 'products' ? 'block' : 'block md:hidden'">
         <PromotionProductSelector
           :products="promotion.myProducts.value"
           :loading="promotion.loading.value"

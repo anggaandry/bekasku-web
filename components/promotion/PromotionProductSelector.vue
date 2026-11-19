@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { Search, X, PackageOpen, ArrowRight } from 'lucide-vue-next'
 import type { PromotionTargetProduct } from '~/types/promotion'
 import { formatRupiah } from '~/utils/format'
+import { sanitizeMediaUrl } from '~/utils/media'
 
 const props = defineProps<{
   products: PromotionTargetProduct[]
@@ -34,9 +35,8 @@ function clearSearch() {
 }
 
 function getProductImage(img?: string[] | string): string {
-  if (Array.isArray(img) && img.length > 0) return img[0]
-  if (typeof img === 'string' && img.length > 0) return img
-  return '/images/empty-product.png'
+  const raw = Array.isArray(img) && img.length > 0 ? img[0] : typeof img === 'string' ? img : ''
+  return sanitizeMediaUrl(raw, '/images/empty-product.png')
 }
 
 const selectedProduct = computed(() => {
