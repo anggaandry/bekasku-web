@@ -615,7 +615,7 @@ export function useAuthModal() {
   async function submitRegisterPhone(selectedMethod?: OtpChannel) {
     clearMessages()
     const cleanDigits = formatPhoneLocalDisplay(registerDraft.value.phone)
-    if (cleanDigits.length < PHONE_MIN_LENGTH - 1 || cleanDigits.length > PHONE_MAX_LENGTH) {
+    if (!/^\d{9,13}$/.test(cleanDigits)) {
       errorMsg.value = 'Nomor HP harus terdiri dari 10 hingga 14 digit angka.'
       return
     }
@@ -879,7 +879,7 @@ export function useAuthModal() {
   async function requestPhoneVerifyOtp(selectedMethod?: OtpChannel) {
     clearMessages()
     const cleanDigits = formatPhoneLocalDisplay(phoneVerifyDraft.value.phone)
-    if (cleanDigits.length < PHONE_MIN_LENGTH - 1 || cleanDigits.length > PHONE_MAX_LENGTH) {
+    if (!/^\d{9,13}$/.test(cleanDigits)) {
       errorMsg.value = 'Nomor HP harus terdiri dari 10 hingga 14 digit angka.'
       return false
     }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CreditCard, ChevronRight } from 'lucide-vue-next'
 import type { PaymentMethodItem } from '~/types/checkout'
+import { enforceDigitsKeydown, syncDigitsInput } from '~/utils/inputSanitizers'
 
 const props = defineProps<{
   selectedPayment: PaymentMethodItem | null
@@ -14,8 +15,7 @@ const emit = defineEmits<{
 }>()
 
 function onInputChange(e: Event) {
-  const target = e.target as HTMLInputElement
-  emit('update-input', target.value)
+  emit('update-input', syncDigitsInput(e, { maxLength: 15 }))
 }
 </script>
 
@@ -80,9 +80,12 @@ function onInputChange(e: Event) {
         <input
           :value="props.paymentInput"
           type="tel"
-          maxlength="16"
-          placeholder="0812 3456 7890"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="15"
+          placeholder="081234567890"
           class="w-full bg-white border border-border rounded-xl px-3 py-2 text-xs text-text font-medium tracking-wide focus:outline-hidden focus:border-primary transition-colors"
+          @keydown="enforceDigitsKeydown"
           @input="onInputChange"
         >
       </div>

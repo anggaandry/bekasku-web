@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronRight, AlertCircle, Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '~/stores/auth'
 import { useAuthModal } from '~/composables/useAuthModal'
 import { useBekaskuPlus } from '~/composables/useBekaskuPlus'
+import { enforceDigitsKeydown, syncDigitsInput } from '~/utils/inputSanitizers'
 import CategoryMultiSelector from '~/components/bekasku-plus/CategoryMultiSelector.vue'
 import BekaskuPlusConfirmModal from '~/components/bekasku-plus/BekaskuPlusConfirmModal.vue'
 import type { BekaskuPlusCategory } from '~/types/bekasku-plus'
@@ -239,11 +240,16 @@ async function handleConfirmSubmit() {
               </label>
               <input
                 id="whatsapp"
-                v-model="whatsapp"
+                :value="whatsapp"
                 name="whatsapp"
                 type="tel"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="15"
                 placeholder="Cth. 081xxxxxxx"
                 class="w-full px-4 py-3 bg-white border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-hidden focus:border-primary transition-colors"
+                @keydown="enforceDigitsKeydown"
+                @input="whatsapp = syncDigitsInput($event, { maxLength: 15 })"
               />
             </div>
 

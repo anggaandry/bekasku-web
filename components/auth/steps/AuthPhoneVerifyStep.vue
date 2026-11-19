@@ -2,6 +2,7 @@
 import { ArrowRight } from 'lucide-vue-next'
 import { useAuthModal } from '~/composables/useAuthModal'
 import { normalizePhoneTo62 } from '~/composables/usePasswordRules'
+import { enforceDigitsKeydown, syncDigitsInput } from '~/utils/inputSanitizers'
 import AuthStepHeader from '~/components/auth/AuthStepHeader.vue'
 import AuthOtpMethodPicker from '~/components/auth/AuthOtpMethodPicker.vue'
 import AuthOtpInput from '~/components/auth/AuthOtpInput.vue'
@@ -10,11 +11,7 @@ const authModal = useAuthModal()
 const draft = computed(() => authModal.phoneVerifyDraft.value)
 
 function handlePhoneInput(e: Event) {
-  const input = e.target as HTMLInputElement
-  let digits = input.value.replace(/\D/g, '')
-  if (digits.startsWith('62')) digits = digits.slice(2)
-  if (digits.startsWith('0')) digits = digits.slice(1)
-  draft.value.phone = digits.slice(0, 13)
+  draft.value.phone = syncDigitsInput(e, { stripLeading62Zero: true, maxLength: 13 })
 }
 </script>
 
@@ -44,8 +41,11 @@ function handlePhoneInput(e: Event) {
             :value="draft.phone"
             type="tel"
             inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="13"
             placeholder="81234567890"
             class="flex-1 h-full px-3.5 text-xs sm:text-sm text-text outline-none bg-transparent"
+            @keydown="enforceDigitsKeydown"
             @input="handlePhoneInput"
           />
         </div>
@@ -59,7 +59,7 @@ function handlePhoneInput(e: Event) {
 
       <button
         type="submit"
-        :disabled="authModal.isSubmitting.value || draft.phone.length < 9"
+        :disabled="authModal.isSubmitting.value || !/^\d{9,13}$/.test(draft.phone)"
         class="w-full h-11 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-semibold font-outfit flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
       >
         <span>{{ authModal.isSubmitting.value ? 'Mengirim OTP...' : 'Kirim Kode Verifikasi' }}</span>

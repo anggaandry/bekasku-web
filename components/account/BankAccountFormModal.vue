@@ -104,10 +104,14 @@
               </label>
               <input
                 id="bank-account-number"
-                v-model="accountNumber"
+                :value="accountNumber"
                 type="tel"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="20"
                 placeholder="Contoh: 8470752067"
                 class="w-full h-11 px-3.5 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary text-xs sm:text-sm font-mono tracking-wider text-text placeholder:text-text-muted transition-colors bg-white"
+                @keydown="enforceDigitsKeydown"
                 @input="handleAccountNumberInput"
               >
               <p class="text-[11px] text-text-muted mt-1">
@@ -220,6 +224,7 @@ import {
   Loader2,
 } from 'lucide-vue-next'
 import { BANK_OTHER_ID } from '~/utils/constants'
+import { enforceDigitsKeydown, syncDigitsInput } from '~/utils/inputSanitizers'
 import { useBankAccount } from '~/composables/useBankAccount'
 import { useNotification } from '~/composables/useNotification'
 import type { BankItem } from '~/types/bank'
@@ -279,8 +284,7 @@ function handleSelectBank(bank: BankItem) {
 }
 
 function handleAccountNumberInput(e: Event) {
-  const target = e.target as HTMLInputElement
-  accountNumber.value = target.value.replace(/\D/g, '')
+  accountNumber.value = syncDigitsInput(e, { maxLength: 20 })
 }
 
 async function handleCheckSimilarity() {

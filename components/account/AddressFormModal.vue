@@ -207,10 +207,15 @@
                   <div class="relative">
                     <input
                       id="recipient-phone-input"
-                      v-model="form.contact_phone"
+                      :value="form.contact_phone"
                       type="tel"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      maxlength="15"
                       class="w-full h-11 pl-3.5 pr-10 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary text-xs sm:text-sm text-text placeholder:text-text-muted transition-colors bg-white"
                       placeholder="Masukkan nomor telepon"
+                      @keydown="enforceDigitsKeydown"
+                      @input="form.contact_phone = syncDigitsInput($event, { maxLength: 15 })"
                     >
                     <Phone class="w-4 h-4 text-text-muted absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
                   </div>
@@ -347,6 +352,7 @@ import type { UserAddress, AddressFormPayload, MapLocationPoint } from '~/types/
 import { useAddress } from '~/composables/useAddress'
 import { useNotification } from '~/composables/useNotification'
 import { useLocationStore } from '~/stores/location'
+import { enforceDigitsKeydown, syncDigitsInput } from '~/utils/inputSanitizers'
 import AddressMapPickerModal from '~/components/account/AddressMapPickerModal.vue'
 import AddressSaveConfirmModal from '~/components/account/AddressSaveConfirmModal.vue'
 import AppModal from '~/components/shared/AppModal.vue'

@@ -2,6 +2,7 @@
 import { ChevronRight, CircleCheck, CreditCard } from 'lucide-vue-next'
 import PaymentLogo from '~/components/payment/PaymentLogo.vue'
 import type { PaymentMethodItem } from '~/types/checkout'
+import { enforceDigitsKeydown, syncDigitsInput } from '~/utils/inputSanitizers'
 
 defineProps<{
   selectedPayment: PaymentMethodItem | null
@@ -16,7 +17,7 @@ const emit = defineEmits<{
 }>()
 
 function handleInput(event: Event) {
-  emit('update:phoneInput', (event.target as HTMLInputElement).value)
+  emit('update:phoneInput', syncDigitsInput(event, { maxLength: 15 }))
 }
 </script>
 
@@ -63,8 +64,11 @@ function handleInput(event: Event) {
             :value="phoneInput"
             type="tel"
             inputmode="numeric"
-            placeholder="08xx xxxx xxxx"
+            pattern="[0-9]*"
+            maxlength="15"
+            placeholder="08xxxxxxxxxx"
             class="w-full px-4 py-3.5 rounded-xl bg-surface-2 border border-border-light focus:border-primary focus:outline-hidden text-[15px] font-semibold text-text tracking-wide transition-colors"
+            @keydown="enforceDigitsKeydown"
             @input="handleInput"
           />
         </div>
