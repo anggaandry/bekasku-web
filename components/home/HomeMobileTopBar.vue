@@ -1,18 +1,17 @@
 <template>
-  <div class="md:hidden w-full bg-surface border-b border-border pb-2 px-3 pt-2">
+  <div class="md:hidden w-full bg-white px-4 pt-3 pb-1">
     <!-- Live Stories (hanya tampil jika ada sesi live aktif) -->
     <HomeLiveStories
       v-if="activeLiveSessions.length > 0"
       :sessions="activeLiveSessions"
+      class="mb-2.5"
     />
 
-    <!-- Action Chip Lokasi (Chip Voucher telah dihapus) -->
-    <div class="pt-1">
-      <HomeActionChips
-        :current-city="currentCity"
-        @open-location="isModalOpen = true"
-      />
-    </div>
+    <!-- Action Chip Lokasi -->
+    <HomeActionChips
+      :current-city="currentAddress"
+      @open-location="isModalOpen = true"
+    />
 
     <!-- Address / Location Modal -->
     <AppAddressModal v-model="isModalOpen" />
@@ -35,6 +34,6 @@ const activeLiveSessions = computed(() =>
 )
 
 const locationStore = useLocationStore()
-const currentCity = computed(() => locationStore.city || 'Medan')
+const currentAddress = computed(() => locationStore.location || locationStore.city || 'Medan')
 const isModalOpen = ref(false)
 </script>
