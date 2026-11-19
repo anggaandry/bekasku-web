@@ -30,6 +30,35 @@ const translateY = ref(0)
 const isDragging = ref(false)
 const dragStart = ref({ x: 0, y: 0 })
 
+// Touch swipe & pinch-to-zoom state
+const mainTouchStart = ref<{ x: number; y: number } | null>(null)
+const lightboxTouchStart = ref<{ x: number; y: number } | null>(null)
+const pinchStartDist = ref<number | null>(null)
+const pinchStartScale = ref(1)
+const lastTapTime = ref(0)
+
+function getTouchDistance(t1: Touch, t2: Touch): number {
+  const dx = t1.clientX - t2.clientX
+  const dy = t1.clientY - t2.clientY
+  return Math.hypot(dx, dy)
+}
+
+function onMainTouchStart(e: TouchEvent) {
+  if (e.touches.length !== 1 || props.images.length <= 1) return
+  mainTouchStart.value = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+}
+
+function onMainTouchEnd(e: TouchEvent) {
+  if (!mainTouchStart.value || e.changedTouches.length === 0) return
+  const dx = e.changedTouches[0].clientX - mainTouchStart.value.x
+  const dy = e.changedTouches[0].clientY - mainTouchStart.value.y
+  mainTouchStart.value = null
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+    if (dx < 0) nextImage()
+    else prevImage()
+  }
+}
+
 function prevImage() {
   if (props.images.length <= 1) return
   activeIndex.value = activeIndex.value === 0 ? props.images.length - 1 : activeIndex.value - 1
@@ -102,6 +131,79 @@ function endDrag() {
   isDragging.value = false
 }
 
+function toggleDoubleTapZoom() {
+  if (scale.value > 1) {
+    resetZoom()
+  } else {
+    scale.value = 2.5
+  }
+}
+
+function onLightboxTouchStart(e: TouchEvent) {
+  if (e.touches.length === 2) {
+    pinchStartDist.value = getTouchDistance(e.touches[0], e.touches[1])
+    pinchStartScale.value = scale.value
+    isDragging.value = false
+    lightboxTouchStart.value = null
+    return
+  }
+
+  if (e.touches.length === 1) {
+    const touch = e.touches[0]
+    const now = Date.now()
+    if (now - lastTapTime.value < 280) {
+      toggleDoubleTapZoom()
+      lastTapTime.value = 0
+      return
+    }
+    lastTapTime.value = now
+
+    lightboxTouchStart.value = { x: touch.clientX, y: touch.clientY }
+    if (scale.value > 1) {
+      isDragging.value = true
+      dragStart.value = { x: touch.clientX - translateX.value, y: touch.clientY - translateY.value }
+    }
+  }
+}
+
+function onLightboxTouchMove(e: TouchEvent) {
+  if (e.touches.length === 2 && pinchStartDist.value) {
+    const dist = getTouchDistance(e.touches[0], e.touches[1])
+    const nextScale = Math.min(Math.max(pinchStartScale.value * (dist / pinchStartDist.value), 1), 4)
+    scale.value = nextScale
+    if (nextScale <= 1) {
+      translateX.value = 0
+      translateY.value = 0
+    }
+    return
+  }
+
+  if (e.touches.length === 1 && isDragging.value && scale.value > 1) {
+    translateX.value = e.touches[0].clientX - dragStart.value.x
+    translateY.value = e.touches[0].clientY - dragStart.value.y
+  }
+}
+
+function onLightboxTouchEnd(e: TouchEvent) {
+  if (e.touches.length < 2) {
+    pinchStartDist.value = null
+  }
+  if (isDragging.value) {
+    isDragging.value = false
+  }
+  if (scale.value <= 1 && lightboxTouchStart.value && e.changedTouches.length === 1) {
+    const dx = e.changedTouches[0].clientX - lightboxTouchStart.value.x
+    const dy = e.changedTouches[0].clientY - lightboxTouchStart.value.y
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) nextImage()
+      else prevImage()
+    }
+  }
+  if (e.touches.length === 0) {
+    lightboxTouchStart.value = null
+  }
+}
+
 function onKeyDown(e: KeyboardEvent) {
   if (!isLightboxOpen.value) return
   if (e.key === 'Escape') closeLightbox()
@@ -124,7 +226,11 @@ onUnmounted(() => {
 <template>
   <div class="relative w-full select-none">
     <!-- Main Image Frame -->
-    <div class="relative w-full aspect-square sm:aspect-4/3 md:aspect-square bg-surface-2 md:rounded-2xl overflow-hidden md:border md:border-border/60 group">
+    <div
+      class="relative w-full aspect-square sm:aspect-4/3 md:aspect-square bg-surface-2 md:rounded-2xl overflow-hidden md:border md:border-border/60 group"
+      @touchstart.passive="onMainTouchStart"
+      @touchend.passive="onMainTouchEnd"
+    >
       <img
         v-if="images.length > 0"
         :src="images[activeIndex]"
@@ -265,14 +371,18 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- Center Image Viewport with Drag & Zoom -->
+        <!-- Center Image Viewport with Drag, Pinch-to-Zoom & Swipe -->
         <div
-          class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden"
+          class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden touch-none"
           :class="scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'"
           @mousedown="startDrag"
           @mousemove="onDrag"
           @mouseup="endDrag"
           @mouseleave="endDrag"
+          @dblclick.stop="toggleDoubleTapZoom"
+          @touchstart.prevent="onLightboxTouchStart"
+          @touchmove.prevent="onLightboxTouchMove"
+          @touchend="onLightboxTouchEnd"
           @click.stop
         >
           <img

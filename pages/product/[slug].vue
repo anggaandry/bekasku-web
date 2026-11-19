@@ -471,7 +471,7 @@ async function onBestDealSuccess() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-surface text-text flex flex-col selection:bg-primary selection:text-white pb-24 md:pb-8">
+  <div class="min-h-screen bg-white md:bg-surface text-text flex flex-col selection:bg-primary selection:text-white pb-24 md:pb-8">
     <!-- Mobile Header -->
     <ProductDetailHeader
       class="md:hidden"
@@ -539,7 +539,7 @@ async function onBestDealSuccess() {
     </main>
 
     <!-- 3. Main Content -->
-    <main v-else class="max-w-[1280px] mx-auto px-4 sm:px-6 py-4 sm:py-6 flex-1 w-full space-y-8">
+    <main v-else class="max-w-[1280px] mx-auto px-0 md:px-6 py-0 md:py-6 flex-1 w-full space-y-6 md:space-y-8">
       <!-- Breadcrumb (Desktop) -->
       <nav class="hidden md:flex items-center gap-2 text-xs text-text-muted">
         <NuxtLink to="/" class="hover:text-primary transition-colors">Beranda</NuxtLink>
@@ -555,9 +555,9 @@ async function onBestDealSuccess() {
         <span class="text-text font-semibold truncate max-w-xs">{{ product?.title }}</span>
       </nav>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 md:gap-8 items-start">
         <!-- Left Column -->
-        <div class="lg:col-span-7 space-y-5 bg-white rounded-2xl p-4 sm:p-5">
+        <div class="lg:col-span-7 bg-white md:rounded-2xl p-0 md:p-5 space-y-5">
           <ProductImagesCarousel
             :images="images"
             :title="product?.title"
@@ -565,79 +565,81 @@ async function onBestDealSuccess() {
             @open-analytics="handleOpenAnalytics"
           />
 
-          <!-- Mobile: price & title -->
-          <div v-if="product" class="lg:hidden">
-            <ProductMainInfo
+          <div class="px-4 md:px-0 space-y-5">
+            <!-- Mobile: price & title -->
+            <div v-if="product" class="lg:hidden">
+              <ProductMainInfo
+                :product="product"
+                :is-wishlist="inWishlist"
+                :total-favorite="totalFavorite"
+                :is-bekasku-plus="isBekaskuPlus"
+                :is-vip="isVip"
+                :is-trusted="isTrusted"
+                :is-verified="isVerified"
+                :is-pay-and-pick="isPayAndPick"
+                :is-free-shipping="isFreeShipping"
+                @toggle-wishlist="handleToggleWishlist"
+              />
+            </div>
+
+            <!-- Seller status banners / best deal / help (seller only) -->
+            <ProductSellerStatusPanel
+              v-if="product?.mine"
               :product="product"
-              :is-wishlist="inWishlist"
-              :total-favorite="totalFavorite"
-              :is-bekasku-plus="isBekaskuPlus"
-              :is-vip="isVip"
-              :is-trusted="isTrusted"
-              :is-verified="isVerified"
-              :is-pay-and-pick="isPayAndPick"
-              :is-free-shipping="isFreeShipping"
-              @toggle-wishlist="handleToggleWishlist"
+              :countdown-str="bdCountdown"
+              @register-bestdeal="handleRegisterBestDeal"
+              @bekasku-center="handleBekaskuCenter"
             />
-          </div>
 
-          <!-- Seller status banners / best deal / help (seller only) -->
-          <ProductSellerStatusPanel
-            v-if="product?.mine"
-            :product="product"
-            :countdown-str="bdCountdown"
-            @register-bestdeal="handleRegisterBestDeal"
-            @bekasku-center="handleBekaskuCenter"
-          />
-
-          <div class="h-px bg-border/60" />
-
-          <!-- Mobile: specs -->
-          <div v-if="product" class="lg:hidden space-y-5">
-            <ProductSpecsTable :product="product" />
             <div class="h-px bg-border/60" />
-          </div>
 
-          <ProductDescription :description="product?.description" />
+            <!-- Mobile: specs -->
+            <div v-if="product" class="lg:hidden space-y-5">
+              <ProductSpecsTable :product="product" />
+              <div class="h-px bg-border/60" />
+            </div>
 
-          <ProductVideoThumbnail
-            v-if="videoThumbnail && product?.video"
-            :video-url="sanitizeMediaUrl(product.video, '')"
-            :thumbnail-url="videoThumbnail"
-            :title="product.title"
-          />
+            <ProductDescription :description="product?.description" />
 
-          <ProductDeliveryDisplay
-            v-if="showDelivery"
-            :services="shippingServices"
-            :city="shippingCity"
-          />
+            <ProductVideoThumbnail
+              v-if="videoThumbnail && product?.video"
+              :video-url="sanitizeMediaUrl(product.video, '')"
+              :thumbnail-url="videoThumbnail"
+              :title="product.title"
+            />
 
-          <div class="h-px bg-border/60" />
+            <ProductDeliveryDisplay
+              v-if="showDelivery"
+              :services="shippingServices"
+              :city="shippingCity"
+            />
 
-          <ProductDiscussionPreview
-            :discussions="discussions"
-            :total-discussion="totalDiscussions"
-            :is-loading="discussionLoading"
-            :is-sending="discussionSending"
-            :is-mine="product?.mine"
-            :is-logged-in="authStore.isLoggedIn"
-            @send-discussion="handleSendDiscussion"
-            @require-auth="requireAuth('Diskusi Produk')"
-          />
-
-          <!-- Mobile: seller card -->
-          <div v-if="seller" class="lg:hidden space-y-4">
             <div class="h-px bg-border/60" />
-            <ProductSellerCard
-              :seller="seller"
+
+            <ProductDiscussionPreview
+              :discussions="discussions"
+              :total-discussion="totalDiscussions"
+              :is-loading="discussionLoading"
+              :is-sending="discussionSending"
               :is-mine="product?.mine"
-              :is-bekasku-plus="isBekaskuPlus"
-              :is-vip="isVip"
-              :is-trusted="isTrusted"
-              :is-verified="isVerified"
-              @visit-live="handleVisitLive"
+              :is-logged-in="authStore.isLoggedIn"
+              @send-discussion="handleSendDiscussion"
+              @require-auth="requireAuth('Diskusi Produk')"
             />
+
+            <!-- Mobile: seller card -->
+            <div v-if="seller" class="lg:hidden space-y-4">
+              <div class="h-px bg-border/60" />
+              <ProductSellerCard
+                :seller="seller"
+                :is-mine="product?.mine"
+                :is-bekasku-plus="isBekaskuPlus"
+                :is-vip="isVip"
+                :is-trusted="isTrusted"
+                :is-verified="isVerified"
+                @visit-live="handleVisitLive"
+              />
+            </div>
           </div>
         </div>
 
@@ -698,7 +700,7 @@ async function onBestDealSuccess() {
       </div>
 
       <!-- Recommendations -->
-      <section v-if="recommendations.length > 0" class="pt-6 space-y-4">
+      <section v-if="recommendations.length > 0" class="px-4 md:px-0 pt-4 md:pt-6 space-y-4">
         <h2 class="text-base sm:text-lg font-bold text-text">Sesuai kesukaan kamu</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           <AppProductCard
