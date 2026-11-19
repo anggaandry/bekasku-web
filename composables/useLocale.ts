@@ -84,25 +84,30 @@ export function detectBrowserLocale(): AppLocale {
   return 'id'
 }
 
+function isManualCookieSet(val: unknown): boolean {
+  const s = String(val || '').trim()
+  return s === '1' || s === 'manual' || s === 'true'
+}
+
 export function useLocaleState() {
   const langCookie = useCookie<AppLocale | null>('bekasku_lang', {
     maxAge: 60 * 60 * 24 * 365,
     sameSite: 'lax',
     path: '/',
   })
-  const manualCookie = useCookie<'1' | null>('bekasku_lang_manual', {
+  const manualCookie = useCookie<string | null>('bekasku_lang_manual', {
     maxAge: 60 * 60 * 24 * 365,
     sameSite: 'lax',
     path: '/',
   })
 
   const localeState = useState<AppLocale>('bekasku_locale', () => {
-    if (manualCookie.value === '1') {
+    if (isManualCookieSet(manualCookie.value)) {
       const fromCookie = matchSupportedLocaleTag(langCookie.value)
       if (fromCookie) return fromCookie
     }
     // Clear non-explicit legacy auto cookie so browser detection / 'id' default applies cleanly
-    if (langCookie.value && manualCookie.value !== '1') {
+    if (langCookie.value && !isManualCookieSet(manualCookie.value)) {
       langCookie.value = null
     }
     return detectBrowserLocale()
@@ -119,12 +124,13 @@ export function useLocale() {
   const { langCookie, manualCookie, localeState } = useLocaleState()
 
   const locale = computed<AppLocale>({
-    get: () => normalizeAppLocale(localeState.value || (manualCookie.value === '1' ? langCookie.value : null)),
+    get: () =>
+      normalizeAppLocale(localeState.value || (isManualCookieSet(manualCookie.value) ? langCookie.value : null)),
     set: (next) => {
       const normalized = normalizeAppLocale(next)
       localeState.value = normalized
       langCookie.value = normalized
-      manualCookie.value = '1'
+      manualCookie.value = 'manual'
       if (import.meta.client && typeof document !== 'undefined') {
         document.documentElement.lang = normalized
       }
@@ -144,7 +150,7 @@ export function useLocale() {
 
   function syncBrowserLocale() {
     if (!import.meta.client) return
-    if (manualCookie.value === '1' && matchSupportedLocaleTag(langCookie.value)) return
+    if (isManualCookieSet(manualCookie.value) && matchSupportedLocaleTag(langCookie.value)) return
     const detected = detectBrowserLocale()
     localeState.value = detected
     if (typeof document !== 'undefined') {
