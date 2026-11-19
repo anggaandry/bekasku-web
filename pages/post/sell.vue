@@ -465,9 +465,18 @@ async function applyCategoryFromQuery(): Promise<boolean> {
   return false
 }
 
+const pendingAiPostData = useState<any>('pending_ai_post_data', () => null)
+
 onMounted(async () => {
   applyMethodFromQuery()
   await fetchCategories()
+
+  if (route.query.ai === '1' && pendingAiPostData.value) {
+    const data = pendingAiPostData.value
+    pendingAiPostData.value = null
+    await onAiPostApplied(data)
+    return
+  }
 
   if (route.query.cat) {
     const applied = await applyCategoryFromQuery()
@@ -476,10 +485,12 @@ onMounted(async () => {
     }
   }
 
-  // If opening new post with explicit category query
+  // If opening new post: open category step when open_category=1, or open post type modal on mobile
   if (!isEditMode.value && !selectedSubcategory.value) {
     if (route.query.open_category) {
       showCategoryModal.value = true
+    } else if (route.query.open_type || (import.meta.client && window.innerWidth < 768 && !route.query.method)) {
+      showPostTypeModal.value = true
     }
   }
 })

@@ -12,6 +12,9 @@ import AppConfirmModal from '~/components/shared/AppConfirmModal.vue'
 import AppEmptyState from '~/components/shared/AppEmptyState.vue'
 import AppErrorState from '~/components/shared/AppErrorState.vue'
 import AppBottomNav from '~/components/layout/AppBottomNav.vue'
+import PostTypeModal from '~/components/post/PostTypeModal.vue'
+import { POST_TYPE_SELL, POST_TYPE_NEEDED, POST_TYPE_SERVICE } from '~/utils/constants'
+import type { AiPostAnalysisResult } from '~/types/post'
 
 useHead({
   title: 'Katalog Saya — BekasKu',
@@ -25,6 +28,28 @@ useHead({
 })
 
 const authStore = useAuthStore()
+const showPostTypeModal = ref(false)
+const pendingAiPostData = useState<(AiPostAnalysisResult & { images: string[]; stock: number }) | null>(
+  'pending_ai_post_data',
+  () => null
+)
+
+function handleSelectPostType(type: number) {
+  showPostTypeModal.value = false
+  if (type === POST_TYPE_NEEDED) {
+    navigateTo('/post/sell?method=needed&open_category=1')
+  } else if (type === POST_TYPE_SERVICE) {
+    navigateTo('/post/sell?method=service&open_category=1')
+  } else if (type === POST_TYPE_SELL) {
+    navigateTo('/post/sell?open_category=1')
+  }
+}
+
+function handleAiApplied(data: AiPostAnalysisResult & { images: string[]; stock: number }) {
+  showPostTypeModal.value = false
+  pendingAiPostData.value = data
+  navigateTo('/post/sell?ai=1')
+}
 const {
   items,
   loading,
@@ -198,13 +223,14 @@ async function confirmCancel() {
               description="Pasang iklan barang bekas, preloved, atau kebutuhan Anda sekarang dan jangkau ribuan pembeli terpercaya di BekasKu."
             >
               <template #action>
-                <NuxtLink
-                  to="/post/sell"
+                <button
+                  type="button"
+                  @click="showPostTypeModal = true"
                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer"
                 >
                   <Plus class="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
                   <span>Pasang Iklan Sekarang</span>
-                </NuxtLink>
+                </button>
               </template>
             </AppEmptyState>
           </div>
@@ -260,14 +286,22 @@ async function confirmCancel() {
       </div>
     </div>
 
-    <!-- Mobile Floating Action Button: + Iklan -->
-    <NuxtLink
-      to="/post/sell"
+    <!-- Mobile Floating Action Button: + Iklan (Pilih Jenis Postingan dulu seperti Mobile V3) -->
+    <button
+      type="button"
+      @click="showPostTypeModal = true"
       class="md:hidden fixed bottom-20 right-4 z-40 bg-primary hover:bg-primary-hover text-white px-4 py-2.5 rounded-full shadow-lg flex items-center gap-1.5 font-bold text-sm transition-all active:scale-95 cursor-pointer"
     >
       <Plus class="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
       <span>Iklan</span>
-    </NuxtLink>
+    </button>
+
+    <!-- Choose Post Type Modal (Jual Barang, AI Auto Post, Dibutuhkan, Jasa) -->
+    <PostTypeModal
+      v-model="showPostTypeModal"
+      @select="handleSelectPostType"
+      @ai-applied="handleAiApplied"
+    />
 
     <!-- Mobile Bottom Navigation (Tab 4: Post) -->
     <AppBottomNav class="md:hidden" />
