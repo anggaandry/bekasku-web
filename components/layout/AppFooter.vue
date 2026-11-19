@@ -13,8 +13,10 @@ import { APP_STORE_URL, PLAY_STORE_URL } from '~/utils/constants'
 import { useFooterPartners } from '~/composables/useFooterPartners'
 import { useHelpChatStore } from '~/stores/helpChat'
 import { useLocale } from '~/composables/useLocale'
+import { useCookieConsent } from '~/composables/useCookieConsent'
 
 const { t } = useLocale()
+const { openPreferences: openCookiePreferences } = useCookieConsent()
 
 const {
   paymentMethods,
@@ -276,6 +278,13 @@ function onImgError(e: Event, fallbackText: string) {
           <NuxtLink to="/faq" class="hover:text-primary-dark transition-colors">
             FAQ
           </NuxtLink>
+          <button
+            type="button"
+            class="hover:text-primary-dark transition-colors cursor-pointer"
+            @click="openCookiePreferences"
+          >
+            {{ t('Preferensi Cookie') }}
+          </button>
         </nav>
       </div>
     </div>

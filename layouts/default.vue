@@ -15,6 +15,7 @@
       @update:model-value="val => notificationDrawer.isOpen.value = val"
     />
     <FloatingChatDock class="print:hidden" />
+    <AppCookieConsent class="print:hidden" />
     <AppToastContainer />
   </div>
 </template>
@@ -35,6 +36,7 @@ import AppIdentityKycModal from '~/components/identity/AppIdentityKycModal.vue'
 import AppAccountDrawer from '~/components/layout/AppAccountDrawer.vue'
 import AppNotificationDrawer from '~/components/notification/AppNotificationDrawer.vue'
 import FloatingChatDock from '~/components/shared/FloatingChatDock.vue'
+import AppCookieConsent from '~/components/shared/AppCookieConsent.vue'
 
 const route = useRoute()
 const cartStore = useCartStore()
