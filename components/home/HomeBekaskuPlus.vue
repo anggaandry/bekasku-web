@@ -1,13 +1,13 @@
 <template>
   <div
     v-if="!loading && sellers && sellers.length > 0"
-    class="relative overflow-hidden bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200/90 shadow-2xs flex flex-col h-full"
+    class="relative overflow-hidden md:bg-white md:p-4 md:rounded-2xl md:border md:border-gray-200/90 md:shadow-2xs flex flex-col h-full"
   >
     <!-- Background Watermark Logo BekasKu+ Transparent -->
     <img
       src="/images/bekasku_plus_variant_6.png"
       alt=""
-      class="pointer-events-none absolute -right-6 -bottom-6 w-44 sm:w-56 h-auto opacity-[0.06] select-none -rotate-12 z-0"
+      class="hidden md:block pointer-events-none absolute -right-6 -bottom-6 w-44 sm:w-56 h-auto opacity-[0.06] select-none -rotate-12 z-0"
       aria-hidden="true"
     />
 
@@ -17,16 +17,16 @@
         <img
           src="/images/bekasku_plus_variant_6_horizontal.png"
           alt="BekasKu+"
-          class="h-5 sm:h-5.5 w-auto object-contain"
+          class="h-4.5 sm:h-5.5 w-auto object-contain"
         />
-        <h3 class="text-base sm:text-lg font-bold text-gray-900 tracking-tight font-outfit">
+        <h3 class="text-sm sm:text-lg font-bold text-gray-900 tracking-tight font-outfit">
           {{ t('Creator & Influencer') }}
         </h3>
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- Navigation Arrows if items scrollable -->
-        <div v-if="sellers.length > 2" class="flex items-center gap-1">
+        <!-- Navigation Arrows if items scrollable (Desktop only) -->
+        <div v-if="sellers.length > 2" class="hidden md:flex items-center gap-1">
           <button
             type="button"
             class="w-6 h-6 rounded-full border border-gray-200 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer"

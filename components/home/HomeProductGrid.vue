@@ -2,15 +2,15 @@
   <div class="space-y-4">
     <!-- Section Heading with Red "Lihat semua" Link matching Mobile V3 -->
     <div class="flex items-center justify-between">
-      <h3 class="text-base sm:text-lg font-black text-text tracking-tight font-outfit uppercase">
+      <h3 class="text-base sm:text-lg font-black text-text tracking-tight font-outfit md:uppercase">
         {{ t(title) }}
       </h3>
       <NuxtLink
         to="/search/result?type=0"
-        class="text-xs sm:text-sm font-semibold text-primary hover:text-primary-dark flex items-center gap-0.5 transition-colors"
+        class="text-xs sm:text-sm font-medium md:font-semibold text-primary hover:text-primary-dark flex items-center gap-0.5 transition-colors"
       >
         <span>{{ t('Lihat semua') }}</span>
-        <ChevronRight class="w-4 h-4" />
+        <ChevronRight class="w-4 h-4 hidden md:inline" />
       </NuxtLink>
     </div>
 

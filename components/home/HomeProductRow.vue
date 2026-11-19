@@ -4,25 +4,25 @@
     class="py-3"
   >
     <div class="flex items-center justify-between mb-2.5">
-      <h2 class="text-sm md:text-base font-bold text-text">
+      <h2 class="text-base md:text-base font-black md:font-bold text-text font-outfit tracking-tight">
         {{ title }}
       </h2>
       <NuxtLink
         v-if="viewAllTo"
         :to="viewAllTo"
-        class="inline-flex items-center gap-0.5 text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
+        class="inline-flex items-center gap-0.5 text-xs font-medium md:font-semibold text-primary hover:text-primary-dark transition-colors"
       >
-        <span>Lihat Semua</span>
-        <ChevronRight class="w-3.5 h-3.5" />
+        <span>Lihat semua</span>
+        <ChevronRight class="w-3.5 h-3.5 hidden md:inline" />
       </NuxtLink>
     </div>
 
     <!-- Scroll horizontal kartu produk -->
-    <div class="flex items-stretch gap-3 overflow-x-auto scrollbar-none pb-1">
+    <div class="flex items-stretch gap-2.5 md:gap-3 overflow-x-auto scrollbar-none pb-1">
       <div
         v-for="item in products"
         :key="item.id || item._id"
-        class="w-[140px] sm:w-[160px] md:w-[180px] shrink-0"
+        class="w-[122px] sm:w-[160px] md:w-[180px] shrink-0"
       >
         <AppProductCard :product="item" />
       </div>

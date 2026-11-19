@@ -45,8 +45,8 @@
                 />
               </div>
 
-              <!-- Sisi Kanan: Sedang Tayang (Live & Video Feed Cards) -->
-              <div class="lg:col-span-6 flex flex-col">
+              <!-- Sisi Kanan: Sedang Tayang (Live & Video Feed Cards - Desktop only) -->
+              <div class="hidden md:flex lg:col-span-6 flex-col">
                 <HomeLiveShopping
                   :sessions="liveSessions"
                   :loading="livePending"
@@ -55,11 +55,11 @@
             </div>
           </section>
 
-          <!-- S3: Row 2-Kolom (Kiri: Best Deal Flash Sale | Kanan: BekasKu+ Creator & Influencer) -->
+          <!-- S3: Row 2-Kolom (Mobile: BekasKu+ dulu baru Best Deal | Desktop: Kiri Best Deal | Kanan BekasKu+) -->
           <section id="bestdeal-creator" class="w-full scroll-mt-24">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5 items-stretch">
               <!-- Sisi Kiri: Best Deal Flash Sale (Scroll horizontal dengan countdown) -->
-              <div class="lg:col-span-7 flex flex-col">
+              <div class="order-2 md:order-1 lg:col-span-7 flex flex-col">
                 <HomeBestDeal
                   :products="bestDeals"
                   :loading="bestDealPending"
@@ -68,7 +68,7 @@
               </div>
 
               <!-- Sisi Kanan: BekasKu+ Creator & Influencer (dengan asset logo horizontal) -->
-              <div class="lg:col-span-5 flex flex-col">
+              <div class="order-1 md:order-2 lg:col-span-5 flex flex-col">
                 <HomeBekaskuPlus
                   :sellers="bekaskuPlusSellers"
                   :loading="sellerPending"
@@ -79,9 +79,9 @@
 
           <!-- S3b: Postingan Terbaru (Sembunyi bila kosong sesuai Flow 00 Section 3 #7) -->
           <section v-if="newest && newest.length > 0" id="newest-products" class="w-full scroll-mt-24">
-            <div class="bg-white rounded-2xl border border-gray-200/90 p-3.5 sm:p-4 shadow-2xs">
+            <div class="md:bg-white md:rounded-2xl md:border md:border-gray-200/90 md:p-4 md:shadow-2xs">
               <HomeProductRow
-                title="POSTINGAN TERBARU"
+                title="Postingan Terbaru"
                 :products="newest"
                 :loading="newestPending"
                 view-all-to="/product/search?type=1&newest=1"
@@ -105,14 +105,14 @@
                 :products="recommendationList"
                 :loading="recLoading || (initialRecPending && recommendationList.length === 0)"
                 :has-more="hasMore"
-                title="REKOMENDASI BEKASKU"
+                title="Rekomendasi Bekasku"
                 @load-more="loadMore"
               />
               <template #fallback>
                 <div class="space-y-4">
                   <div class="flex items-center justify-between">
-                    <h3 class="text-base sm:text-lg font-black text-text tracking-tight font-outfit uppercase">
-                      REKOMENDASI BEKASKU
+                    <h3 class="text-base sm:text-lg font-black text-text tracking-tight font-outfit md:uppercase">
+                      Rekomendasi Bekasku
                     </h3>
                   </div>
                   <div class="grid gap-3 sm:gap-3.5 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

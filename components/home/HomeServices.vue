@@ -1,27 +1,27 @@
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5 items-stretch">
     <!-- ── SISI KIRI: JASA & LOWONGAN KERJA ───────────────────────────── -->
-    <div class="lg:col-span-6 bg-white rounded-2xl border border-gray-200/90 p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+    <div class="lg:col-span-6 md:bg-white md:rounded-2xl md:border md:border-gray-200/90 md:p-5 md:shadow-2xs flex flex-col justify-between">
       <div>
         <!-- Section Header (Clean: Title + See All + Arrows) -->
-        <div class="flex items-center justify-between gap-2 pb-3 border-b border-gray-100">
-          <h3 class="font-outfit font-black text-gray-900 text-sm sm:text-base tracking-tight uppercase">
-            {{ t('JASA & LOWONGAN KERJA') }}
+        <div class="flex items-center justify-between gap-2 md:pb-3 md:border-b md:border-gray-100">
+          <h3 class="font-outfit font-black text-gray-900 text-base md:text-base tracking-tight md:uppercase">
+            {{ t('Jasa & Lowongan Kerja') }}
           </h3>
 
           <!-- Controls: See All & Scroll Arrows -->
           <div class="flex items-center gap-1.5 shrink-0">
             <NuxtLink
               to="/product/search?type=6&newest=1"
-              class="text-xs font-bold text-[#E31B23] hover:text-[#B91219] transition-colors flex items-center gap-0.5 mr-1"
+              class="text-xs font-medium md:font-bold text-[#E31B23] hover:text-[#B91219] transition-colors flex items-center gap-0.5 md:mr-1"
             >
-              <span>{{ t('Lihat Semua') }}</span>
-              <ChevronRight class="w-3.5 h-3.5" />
+              <span>{{ t('Lihat semua') }}</span>
+              <ChevronRight class="w-3.5 h-3.5 hidden md:inline" />
             </NuxtLink>
 
             <button
               type="button"
-              class="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
+              class="hidden md:flex w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
               :disabled="loading || serviceList.length === 0"
               @click="scrollTrack(serviceScrollRef, 'left')"
               aria-label="Scroll Kiri Jasa"
@@ -30,7 +30,7 @@
             </button>
             <button
               type="button"
-              class="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
+              class="hidden md:flex w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
               :disabled="loading || serviceList.length === 0"
               @click="scrollTrack(serviceScrollRef, 'right')"
               aria-label="Scroll Kanan Jasa"
@@ -115,27 +115,27 @@
     </div>
 
     <!-- ── SISI KANAN: BARANG DIBUTUHKAN ───────────────────────────── -->
-    <div class="lg:col-span-6 bg-white rounded-2xl border border-gray-200/90 p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+    <div class="lg:col-span-6 md:bg-white md:rounded-2xl md:border md:border-gray-200/90 md:p-5 md:shadow-2xs flex flex-col justify-between">
       <div>
         <!-- Section Header (Clean: Title + See All + Arrows) -->
-        <div class="flex items-center justify-between gap-2 pb-3 border-b border-gray-100">
-          <h3 class="font-outfit font-black text-gray-900 text-sm sm:text-base tracking-tight uppercase">
-            {{ t('BARANG DIBUTUHKAN') }}
+        <div class="flex items-center justify-between gap-2 md:pb-3 md:border-b md:border-gray-100">
+          <h3 class="font-outfit font-black text-gray-900 text-base md:text-base tracking-tight md:uppercase">
+            {{ t('Barang dibutuhkan') }}
           </h3>
 
           <!-- Controls: See All & Scroll Arrows -->
           <div class="flex items-center gap-1.5 shrink-0">
             <NuxtLink
               to="/product/search?type=4"
-              class="text-xs font-bold text-[#E31B23] hover:text-[#B91219] transition-colors flex items-center gap-0.5 mr-1"
+              class="text-xs font-medium md:font-bold text-[#E31B23] hover:text-[#B91219] transition-colors flex items-center gap-0.5 md:mr-1"
             >
-              <span>{{ t('Lihat Semua') }}</span>
-              <ChevronRight class="w-3.5 h-3.5" />
+              <span>{{ t('Lihat semua') }}</span>
+              <ChevronRight class="w-3.5 h-3.5 hidden md:inline" />
             </NuxtLink>
 
             <button
               type="button"
-              class="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
+              class="hidden md:flex w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
               :disabled="loading || neededList.length === 0"
               @click="scrollTrack(neededScrollRef, 'left')"
               aria-label="Scroll Kiri Barang Dibutuhkan"
@@ -144,7 +144,7 @@
             </button>
             <button
               type="button"
-              class="w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
+              class="hidden md:flex w-7 h-7 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
               :disabled="loading || neededList.length === 0"
               @click="scrollTrack(neededScrollRef, 'right')"
               aria-label="Scroll Kanan Barang Dibutuhkan"

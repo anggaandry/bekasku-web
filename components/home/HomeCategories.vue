@@ -2,10 +2,10 @@
   <div class="flex flex-col h-full justify-between">
     <!-- 2-Row Category Track Container (No white border card surrounding it) -->
     <div class="flex-1 flex items-center">
-      <!-- Scrollable Track: 2 Rows Grid Flow Col -->
+      <!-- Scrollable Track: 1 Row on Mobile, 2 Rows on Desktop -->
       <div
         ref="catScrollRef"
-        class="w-full grid grid-rows-2 grid-flow-col auto-cols-max gap-x-4 sm:gap-x-5 gap-y-3 sm:gap-y-3.5 overflow-x-auto scroll-smooth no-scrollbar py-1 select-none"
+        class="w-full grid grid-rows-1 md:grid-rows-2 grid-flow-col auto-cols-max gap-x-3 md:gap-x-5 gap-y-3 md:gap-y-3.5 overflow-x-auto scroll-smooth no-scrollbar py-1 select-none"
         @scroll="handleScroll"
       >
         <!-- Loading Skeletons matching Mobile V3 -->
@@ -25,12 +25,12 @@
           <div
             v-for="cat in displayCategories"
             :key="cat.id || cat._id"
-            class="group/item flex flex-col items-center shrink-0 w-20 sm:w-22 cursor-pointer transition-transform duration-200 active:scale-95"
+            class="group/item flex flex-col items-center shrink-0 w-[68px] md:w-22 cursor-pointer transition-transform duration-200 active:scale-95"
             @click="handleCategoryClick(cat)"
           >
             <!-- Circle Container (Enlarged) -->
             <div
-              class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#F4F5F7] hover:bg-red-50/50 flex items-center justify-center p-2.5 sm:p-3 border border-gray-200/70 shadow-2xs group-hover/item:border-[#E31B23]/40 group-hover/item:scale-108 group-hover/item:shadow-md transition-all duration-300"
+              class="relative w-12 h-12 md:w-16 md:h-16 rounded-full bg-[#F4F5F7] hover:bg-red-50/50 flex items-center justify-center p-2 md:p-3 border border-gray-200/70 shadow-2xs group-hover/item:border-[#E31B23]/40 group-hover/item:scale-108 group-hover/item:shadow-md transition-all duration-300"
               :class="{
                 'ring-2 ring-[#E31B23] ring-offset-2 border-transparent bg-red-50': activeCategory === cat.name
               }"
@@ -66,8 +66,8 @@
       </div>
     </div>
 
-    <!-- Centered Bottom Navigation Controls (Panah Kiri Kanan & Dots di Tengah) -->
-    <div class="flex items-center justify-center gap-2 pt-2 pb-0.5">
+    <!-- Centered Bottom Navigation Controls (Desktop only) -->
+    <div class="hidden md:flex items-center justify-center gap-2 pt-2 pb-0.5">
       <button
         type="button"
         class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
