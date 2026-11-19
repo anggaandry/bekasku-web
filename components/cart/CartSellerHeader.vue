@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Check, Store, MapPin } from 'lucide-vue-next'
 import type { CartSeller } from '~/types/cart'
-import { sanitizeMediaUrl } from '~/utils/media'
+import { resolveSellerAvatarUrl } from '~/utils/media'
 
 const props = defineProps<{
   seller: CartSeller
@@ -11,7 +11,19 @@ const emit = defineEmits<{
   toggle: []
 }>()
 
-const avatarUrl = computed(() => sanitizeMediaUrl(props.seller.seller_avatar, ''))
+const avatarUrl = computed(() =>
+  resolveSellerAvatarUrl(props.seller as unknown as Record<string, unknown>, '')
+)
+
+const imgError = ref(false)
+watch(avatarUrl, () => {
+  imgError.value = false
+})
+
+const sellerInitial = computed(() => {
+  const name = (props.seller.seller_name || '').trim()
+  return name ? name.charAt(0).toUpperCase() : ''
+})
 const isBekaskuPlus = computed(() => {
   const sName = (props.seller.seller_name || '').trim().toLowerCase()
   const sStatus = (props.seller.bekasku_plus_status || '').trim().toLowerCase()
@@ -48,17 +60,31 @@ const isVip = computed(() => {
       </button>
 
       <!-- Avatar Toko -->
-      <div class="w-8 h-8 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0 flex items-center justify-center">
+      <NuxtLink
+        :to="`/seller/${props.seller.seller_id}`"
+        class="w-8 h-8 rounded-full overflow-hidden border border-border shrink-0 flex items-center justify-center transition-opacity hover:opacity-85"
+        :class="avatarUrl && !imgError ? 'bg-surface-2' : 'bg-primary/10'"
+        :title="props.seller.seller_name"
+      >
         <img
-          v-if="avatarUrl"
+          v-if="avatarUrl && !imgError"
           :src="avatarUrl"
           :alt="props.seller.seller_name"
           width="32"
           height="32"
+          loading="lazy"
+          referrerpolicy="no-referrer"
           class="w-full h-full object-cover"
+          @error="imgError = true"
         />
+        <span
+          v-else-if="sellerInitial"
+          class="text-xs font-bold text-primary select-none"
+        >
+          {{ sellerInitial }}
+        </span>
         <Store v-else class="w-4 h-4 text-text-muted" />
-      </div>
+      </NuxtLink>
 
       <!-- Nama & Badges Toko -->
       <div class="min-w-0 flex flex-col">

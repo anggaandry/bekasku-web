@@ -8,6 +8,7 @@ import {
 } from '~/utils/constants'
 import type { CartSeller, CartProduct, CartListResponse, CartSyncItem } from '~/types/cart'
 import { useAuthStore } from '~/stores/auth'
+import { resolveSellerAvatarUrl } from '~/utils/media'
 
 export const useCartStore = defineStore('cart', () => {
   const api = useApi()
@@ -171,6 +172,7 @@ export const useCartStore = defineStore('cart', () => {
 
           return {
             ...s,
+            seller_avatar: resolveSellerAvatarUrl(s as unknown as Record<string, unknown>, ''),
             products,
             checked: products.every((prod) => prod.checked),
           }

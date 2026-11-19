@@ -92,3 +92,17 @@ export function sanitizeMediaUrl(url?: string | null, fallback = '/images/icon_o
 
   return fallback
 }
+
+/**
+ * Extracts and sanitizes a user/seller avatar URL across heterogeneous backend field names.
+ */
+export function resolveSellerAvatarUrl(record?: Record<string, unknown> | null, fallback = ''): string {
+  if (!record || typeof record !== 'object') return fallback
+  const raw =
+    record.seller_avatar ||
+    record.avatar ||
+    record.seller_image ||
+    record.seller_photo ||
+    ''
+  return sanitizeMediaUrl(typeof raw === 'string' ? raw : '', fallback)
+}
