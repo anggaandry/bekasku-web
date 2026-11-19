@@ -1,8 +1,54 @@
 <template>
-  <div class="space-y-4">
-    <!-- Carousel Hero Banner: Center Active + Left & Right Peeking Slides (Ultra Smooth Animated Track) -->
-    <div
-      class="relative w-full overflow-hidden select-none py-1 group/banner banner-container"
+  <div>
+    <!-- Mobile V3 Carousel: Horizontal Scroll with Next-Card Peek + Ad Title & Domain -->
+    <div class="md:hidden">
+      <div v-if="loading" class="px-4">
+        <div class="w-full aspect-[16/9] rounded-xl bg-gray-200 animate-shimmer" />
+      </div>
+      <div
+        v-else-if="displayBanners.length > 0"
+        class="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar px-4 select-none"
+      >
+        <div
+          v-for="(banner, idx) in displayBanners"
+          :key="`mob-${banner._id || banner.id || idx}`"
+          class="shrink-0 snap-start cursor-pointer"
+          :class="displayBanners.length === 1 ? 'w-full' : 'w-[86vw] max-w-[360px]'"
+          @click="openMobileBanner(banner)"
+        >
+          <div class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-gray-100 border border-gray-200/70">
+            <video
+              v-if="banner.isVideo"
+              :src="banner.image"
+              autoplay
+              loop
+              muted
+              playsinline
+              class="w-full h-full object-cover pointer-events-none"
+            />
+            <img
+              v-else
+              :src="banner.image"
+              :alt="banner.title || 'Iklan BekasKu'"
+              class="w-full h-full object-cover pointer-events-none"
+              :loading="idx === 0 ? 'eager' : 'lazy'"
+              draggable="false"
+            />
+          </div>
+          <p v-if="banner.title" class="font-outfit font-bold text-[15px] text-gray-900 mt-2 truncate">
+            {{ banner.title }}
+          </p>
+          <p class="text-xs text-gray-500 mt-0.5 truncate">
+            {{ getBannerDomain(banner.link) ? `Ad · ${getBannerDomain(banner.link)}` : 'Ad' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop Carousel Hero Banner: Center Active + Left & Right Peeking Slides -->
+    <div class="hidden md:block space-y-4">
+      <div
+        class="relative w-full overflow-hidden select-none py-1 group/banner banner-container"
       @mouseenter="pauseAutoplay"
       @mouseleave="onMouseLeave"
       @mousedown="onPointerDown"
@@ -128,7 +174,7 @@
         @click="goToSlide(idx)"
       />
     </div>
-
+    </div>
   </div>
 </template>
 
@@ -152,6 +198,21 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { logBannerClick } = useBanners()
+
+function getBannerDomain(link?: string): string {
+  if (!link) return ''
+  try {
+    return new URL(link).hostname.replace(/^www\./, '')
+  } catch {
+    return ''
+  }
+}
+
+function openMobileBanner(banner: Banner) {
+  if (!banner?.link) return
+  logBannerClick(banner._id || banner.id)
+  window.open(banner.link, '_blank', 'noopener,noreferrer')
+}
 
 function isVideoUrl(url?: string): boolean {
   if (!url) return false

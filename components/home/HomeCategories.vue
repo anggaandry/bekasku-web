@@ -2,10 +2,10 @@
   <div class="flex flex-col h-full justify-between">
     <!-- 2-Row Category Track Container (No white border card surrounding it) -->
     <div class="flex-1 flex items-center">
-      <!-- Scrollable Track: 1 Row on Mobile, 2 Rows on Desktop -->
+      <!-- Scrollable Track: 1 Row (6 icons fit) on Mobile, 2 Rows on Desktop -->
       <div
         ref="catScrollRef"
-        class="w-full grid grid-rows-1 md:grid-rows-2 grid-flow-col auto-cols-max gap-x-3 md:gap-x-5 gap-y-3 md:gap-y-3.5 overflow-x-auto scroll-smooth no-scrollbar py-1 select-none"
+        class="w-full grid grid-rows-1 md:grid-rows-2 grid-flow-col auto-cols-max gap-x-1.5 md:gap-x-5 gap-y-3 md:gap-y-3.5 overflow-x-auto scroll-smooth no-scrollbar py-1 select-none"
         @scroll="handleScroll"
       >
         <!-- Loading Skeletons matching Mobile V3 -->
@@ -25,12 +25,12 @@
           <div
             v-for="cat in displayCategories"
             :key="cat.id || cat._id"
-            class="group/item flex flex-col items-center shrink-0 w-[68px] md:w-22 cursor-pointer transition-transform duration-200 active:scale-95"
+            class="group/item flex flex-col items-center shrink-0 w-[52px] md:w-22 cursor-pointer transition-transform duration-200 active:scale-95"
             @click="handleCategoryClick(cat)"
           >
-            <!-- Circle Container (Enlarged) -->
+            <!-- Circle Container -->
             <div
-              class="relative w-12 h-12 md:w-16 md:h-16 rounded-full bg-[#F4F5F7] hover:bg-red-50/50 flex items-center justify-center p-2 md:p-3 border border-gray-200/70 shadow-2xs group-hover/item:border-[#E31B23]/40 group-hover/item:scale-108 group-hover/item:shadow-md transition-all duration-300"
+              class="relative w-11 h-11 md:w-16 md:h-16 rounded-full bg-[#F4F5F7] hover:bg-red-50/50 flex items-center justify-center p-2 md:p-3 border border-gray-200/70 shadow-2xs group-hover/item:border-[#E31B23]/40 group-hover/item:scale-108 group-hover/item:shadow-md transition-all duration-300"
               :class="{
                 'ring-2 ring-[#E31B23] ring-offset-2 border-transparent bg-red-50': activeCategory === cat.name
               }"
@@ -54,7 +54,7 @@
 
             <!-- Category Label underneath (2-line clean wrap, no truncation) -->
             <span
-              class="font-outfit text-[11px] sm:text-xs font-semibold text-gray-800 group-hover/item:text-[#E31B23] text-center line-clamp-2 leading-tight mt-1.5 transition-colors max-w-full h-8 flex items-center justify-center px-1"
+              class="font-outfit text-[10px] md:text-xs font-medium md:font-semibold text-gray-800 group-hover/item:text-[#E31B23] text-center line-clamp-2 leading-tight mt-1 md:mt-1.5 transition-colors max-w-full h-7 md:h-8 flex items-center justify-center px-0.5 md:px-1"
               :class="{
                 'text-[#E31B23] font-bold': activeCategory === cat.name
               }"
