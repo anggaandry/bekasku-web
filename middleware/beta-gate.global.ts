@@ -30,12 +30,10 @@ export default defineNuxtRouteMiddleware((to) => {
   const queryKey = String(to.query.access || to.query.pin || to.query.vip_key || '').trim().toUpperCase()
   if (queryKey && validPins.has(queryKey)) {
     accessCookie.value = 'granted'
-    const cleanQuery = { ...to.query }
-    delete cleanQuery.access
-    delete cleanQuery.pin
-    delete cleanQuery.vip_key
-    const targetPath = to.path === '/beta-access' ? '/' : to.path
-    return navigateTo({ path: targetPath, query: cleanQuery }, { replace: true })
+    if (to.path === '/beta-access') {
+      return navigateTo('/', { replace: true })
+    }
+    return
   }
 
   if (to.path === '/beta-access') {
