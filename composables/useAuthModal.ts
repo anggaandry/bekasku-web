@@ -31,6 +31,13 @@ import type {
 
 let pendingOnSuccessCallback: (() => void) | null = null
 
+export function maskEmail(email: string): string {
+  const [local, domain] = email.split('@')
+  if (!local || !domain) return email
+  const visible = local.length > 2 ? local.slice(0, 2) : local.slice(0, 1)
+  return `${visible}***@${domain}`
+}
+
 export function sanitizeRedirectPath(raw?: unknown): string {
   if (typeof raw !== 'string') return ''
   const trimmed = raw.trim()
@@ -365,7 +372,7 @@ export function useAuthModal() {
           registerDraft.value.emailType = 'email'
           registerDraft.value.name = email.split('@')[0] || ''
           step.value = 'register-phone'
-          infoMsg.value = 'Akun belum terdaftar, silakan lengkapi nomor handphone untuk mendaftar akun baru.'
+          infoMsg.value = `Email ${maskEmail(email)} belum terdaftar, silakan lengkapi nomor handphone untuk mendaftar akun baru.`
           return
         }
 
@@ -506,7 +513,9 @@ export function useAuthModal() {
         registerDraft.value.name = resolvedName
         registerDraft.value.avatarUrl = sanitizeMediaUrl(res.avatar || cred.photoUrl, '')
         step.value = resolvedEmail ? 'register-phone' : 'register-email'
-        infoMsg.value = 'Akun belum terdaftar, silakan lengkapi nomor handphone untuk mendaftar.'
+        infoMsg.value = resolvedEmail
+          ? `Email ${maskEmail(resolvedEmail)} belum terdaftar, silakan lengkapi nomor handphone untuk mendaftar.`
+          : 'Akun belum terdaftar, silakan lengkapi nomor handphone untuk mendaftar.'
       } else {
         errorMsg.value = res.message || `Autentikasi ${provider === 'google' ? 'Google' : 'Apple'} gagal.`
       }
