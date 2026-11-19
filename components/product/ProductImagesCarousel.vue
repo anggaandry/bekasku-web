@@ -318,7 +318,7 @@ onUnmounted(() => {
     <Teleport to="body">
       <div
         v-if="isLightboxOpen"
-        class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 select-none overflow-hidden"
+        class="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 select-none overflow-hidden"
         @click="closeLightbox"
         @wheel="handleWheel"
       >
