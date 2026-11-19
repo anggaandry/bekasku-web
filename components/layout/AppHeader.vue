@@ -203,13 +203,13 @@
           <button
             type="button"
             class="flex items-center gap-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200/80 px-3 py-1.5 rounded-full text-gray-700 hover:text-primary cursor-pointer group transition-colors shadow-2xs focus-visible:outline-2 focus-visible:outline-primary"
-            :title="t('Pilih Alamat Pengiriman')"
+            :title="currentAddressText || t('Pilih Alamat Pengiriman')"
             @click="isAddressModalOpen = true"
           >
             <MapPin class="w-3.5 h-3.5 text-primary shrink-0" />
             <span class="text-gray-500 font-medium hidden lg:inline">{{ t('Kirim ke:') }}</span>
-            <span class="font-bold text-gray-900 group-hover:text-primary transition-colors truncate max-w-[110px] lg:max-w-[220px]">
-              {{ t(currentAddressText) }}
+            <span class="font-bold text-gray-900 group-hover:text-primary transition-colors truncate max-w-[160px] md:max-w-[220px] lg:max-w-[300px] xl:max-w-[360px]">
+              {{ currentAddressText || t('Pilih Lokasi') }}
             </span>
             <ChevronDown class="w-3 h-3 text-gray-400 group-hover:text-gray-600 shrink-0" />
           </button>

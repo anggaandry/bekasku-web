@@ -9,6 +9,7 @@ import {
 } from '~/utils/constants'
 import { useLocationStore } from '~/stores/location'
 import { useAuthStore } from '~/stores/auth'
+import { formatFullAddress } from '~/utils/format'
 import type { UserAddress, AddressFormPayload } from '~/types/address'
 
 export type { UserAddress, AddressFormPayload }
@@ -38,9 +39,13 @@ export function useAddress() {
 
   const currentAddressText = computed(() => {
     if (currentAddress.value) {
-      const label = currentAddress.value.address_name || currentAddress.value.name || 'Alamat'
-      const city = currentAddress.value.city || locationStore.city || 'Medan'
-      return `${label} (${city})`
+      const fullAddr = formatFullAddress(currentAddress.value)
+      if (fullAddr) return fullAddr
+    }
+    const storeLoc = (locationStore.location || '').trim()
+    if (storeLoc) return storeLoc
+    if (locationStore.city && locationStore.province) {
+      return `${locationStore.city}, ${locationStore.province}`
     }
     return locationStore.city || DEFAULT_LOCATION
   })
@@ -48,6 +53,7 @@ export function useAddress() {
   async function fetchAddresses(): Promise<UserAddress[]> {
     if (!authStore.isLoggedIn) {
       addresses.value = []
+      selectedAddress.value = null
       return []
     }
     loading.value = true
@@ -56,6 +62,11 @@ export function useAddress() {
       const response = await api.post<{ result?: UserAddress[] }>(API_MYADDRESS_LIST, {})
       const list = response?.result || []
       addresses.value = list
+      if (selectedAddress.value) {
+        const selectedKey = String(selectedAddress.value.id || selectedAddress.value._id || '')
+        const matched = list.find((a) => String(a.id || a._id || '') === selectedKey)
+        selectedAddress.value = matched || null
+      }
       if (!selectedAddress.value && list.length > 0) {
         const def = list.find(a => a.main === true || a.main === 1 || a.main === 'true' || a.is_default === true) || list[0]
         if (def) {
@@ -64,7 +75,7 @@ export function useAddress() {
             locationStore.setLocation({
               city: def.city,
               province: def.province || locationStore.province,
-              location: def.address || `${def.city}`,
+              location: formatFullAddress(def) || `${def.city}`,
               lat: typeof def.lat === 'number' ? def.lat : parseFloat(def.lat || '') || locationStore.lat,
               lon: typeof def.lon === 'number' ? def.lon : parseFloat(def.lon || '') || locationStore.lon,
             })
@@ -91,7 +102,7 @@ export function useAddress() {
       locationStore.setLocation({
         city: addr.city,
         province: addr.province || locationStore.province,
-        location: addr.address || addr.city,
+        location: formatFullAddress(addr) || addr.city,
         lat: latNum,
         lon: lonNum,
       })
@@ -102,7 +113,7 @@ export function useAddress() {
         user_id: 'GUEST',
         lat: latNum,
         lon: lonNum,
-        location: addr.address || addr.city,
+        location: formatFullAddress(addr) || addr.city,
         city: addr.city,
         province: addr.province || locationStore.province,
       }).catch(() => {})
@@ -152,7 +163,7 @@ export function useAddress() {
           locationStore.setLocation({
             city: payload.city,
             province: payload.province,
-            location: payload.address || payload.city,
+            location: formatFullAddress(payload) || payload.city,
             lat: latNum,
             lon: lonNum,
           })

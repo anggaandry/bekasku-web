@@ -9,7 +9,7 @@
 
     <!-- Action Chip Lokasi -->
     <HomeActionChips
-      :current-city="currentAddress"
+      :current-city="currentAddressText"
       @open-location="isModalOpen = true"
     />
 
@@ -22,7 +22,7 @@
 import HomeLiveStories from './HomeLiveStories.vue'
 import HomeActionChips from './HomeActionChips.vue'
 import AppAddressModal from '~/components/shared/AppAddressModal.vue'
-import { useLocationStore } from '~/stores/location'
+import { useAddress } from '~/composables/useAddress'
 import type { LiveSession } from '~/types/live'
 
 const props = defineProps<{
@@ -33,7 +33,6 @@ const activeLiveSessions = computed(() =>
   (props.liveSessions || []).filter((s) => s.is_live === true && Boolean(s.live_id)),
 )
 
-const locationStore = useLocationStore()
-const currentAddress = computed(() => locationStore.location || locationStore.city || 'Medan')
+const { currentAddressText } = useAddress()
 const isModalOpen = ref(false)
 </script>

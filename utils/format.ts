@@ -65,3 +65,30 @@ export function formatRelativeTime(iso: string | Date | undefined | null): strin
     return String(iso)
   }
 }
+
+export interface FullAddressFields {
+  address?: string | null
+  subdistrict?: string | null
+  city?: string | null
+  province?: string | null
+}
+
+/**
+ * Formats a full single-line address string (`address, subdistrict, city, province`),
+ * matching Mobile V3 `default_address` without duplicating segments already present.
+ */
+export function formatFullAddress(addr?: FullAddressFields | null): string {
+  if (!addr) return ''
+  const base = (addr.address || '').trim()
+  const tailParts = [addr.subdistrict, addr.city, addr.province]
+    .map((part) => (part || '').trim())
+    .filter(Boolean)
+
+  if (!base) {
+    return tailParts.join(', ')
+  }
+
+  const baseLower = base.toLowerCase()
+  const missingParts = tailParts.filter((part) => !baseLower.includes(part.toLowerCase()))
+  return missingParts.length > 0 ? `${base}, ${missingParts.join(', ')}` : base
+}
