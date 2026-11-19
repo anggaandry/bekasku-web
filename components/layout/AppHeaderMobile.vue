@@ -60,26 +60,13 @@
             {{ cartStore.totalItems }}
           </span>
         </button>
-
-        <button
-          type="button"
-          class="px-1.5 py-1 text-white hover:bg-white/15 rounded-lg text-[10px] font-bold uppercase shrink-0 cursor-pointer flex items-center gap-0.5"
-          :title="t('Bahasa / Language')"
-          :aria-label="t('Bahasa / Language')"
-          @click="isLangModalOpen = true"
-        >
-          <Languages class="w-3.5 h-3.5" aria-hidden="true" />
-          <span>{{ currentLocaleMeta.shortLabel }}</span>
-        </button>
       </div>
     </div>
-
-    <AccountLanguageModal v-model="isLangModalOpen" />
   </header>
 </template>
 
 <script setup lang="ts">
-import { MessageSquare, Bell, ShoppingCart, Languages } from 'lucide-vue-next'
+import { MessageSquare, Bell, ShoppingCart } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import { useAuthStore } from '~/stores/auth'
 import { useChatStore } from '~/stores/chat'
@@ -88,7 +75,6 @@ import { useNotificationDrawer } from '~/composables/useNotificationDrawer'
 import { useAuthModal } from '~/composables/useAuthModal'
 import { useLocale } from '~/composables/useLocale'
 import SearchBar from '~/components/search/SearchBar.vue'
-import AccountLanguageModal from '~/components/account/AccountLanguageModal.vue'
 
 const cartStore = useCartStore()
 const authStore = useAuthStore()
@@ -96,8 +82,7 @@ const chatStore = useChatStore()
 const notifStore = useNotificationStore()
 const notificationDrawer = useNotificationDrawer()
 const authModal = useAuthModal()
-const { t, currentLocaleMeta } = useLocale()
-const isLangModalOpen = ref(false)
+const { t } = useLocale()
 
 const searchQuery = ref('')
 
