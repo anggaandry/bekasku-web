@@ -2,8 +2,8 @@
   <div class="md:hidden w-full bg-surface border-b border-border pb-2 px-3 pt-2">
     <!-- Live Stories (hanya tampil jika ada sesi live aktif) -->
     <HomeLiveStories
-      v-if="liveSessions && liveSessions.length > 0"
-      :sessions="liveSessions"
+      v-if="activeLiveSessions.length > 0"
+      :sessions="activeLiveSessions"
     />
 
     <!-- Action Chip Lokasi (Chip Voucher telah dihapus) -->
@@ -26,9 +26,13 @@ import AppAddressModal from '~/components/shared/AppAddressModal.vue'
 import { useLocationStore } from '~/stores/location'
 import type { LiveSession } from '~/types/live'
 
-defineProps<{
-  liveSessions?: LiveSession[]
+const props = defineProps<{
+  liveSessions?: Array<LiveSession & { is_live?: boolean }>
 }>()
+
+const activeLiveSessions = computed(() =>
+  (props.liveSessions || []).filter((s) => s.is_live === true && Boolean(s.live_id)),
+)
 
 const locationStore = useLocationStore()
 const currentCity = computed(() => locationStore.city || 'Medan')

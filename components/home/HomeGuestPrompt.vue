@@ -1,33 +1,20 @@
 <template>
   <div
     v-if="!isLoggedIn"
-    class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-500/10 via-amber-500/5 to-transparent border border-red-200/60 p-3 sm:p-4 mb-4 flex items-center justify-between shadow-2xs"
+    class="rounded-lg bg-[#F5F5F5] px-3 py-3 md:px-4 md:py-3.5 mb-3 flex items-center justify-between gap-3"
   >
-    <div class="flex items-center gap-3.5">
-      <!-- Mascot Image Brand Official -->
-      <div class="w-11 h-11 sm:w-12 sm:h-12 shrink-0 drop-shadow-sm flex items-center justify-center">
-        <img
-          src="/images/auth/intro_mascot.png"
-          alt="BekasKu Mascot"
-          width="48"
-          height="48"
-          class="w-full h-full object-contain pointer-events-none"
-        />
-      </div>
-
-      <div>
-        <h3 class="text-xs sm:text-sm font-bold text-text tracking-tight">
-          Yuk, Masuk ke Akunmu!
-        </h3>
-        <p class="text-[11px] sm:text-xs text-text-muted line-clamp-1 sm:line-clamp-none">
-          Dapatkan kemudahan chat penjual, tawar barang, dan simpan produk impianmu.
-        </p>
-      </div>
+    <div class="min-w-0 flex-1">
+      <h3 class="text-sm font-semibold text-[#0A0A0A] leading-snug">
+        Yuk masuk dulu
+      </h3>
+      <p class="text-xs font-normal text-[#404040] mt-1 leading-relaxed">
+        Masuk atau daftar dulu biar kamu bisa nikmatin semua fitur.
+      </p>
     </div>
 
     <button
       type="button"
-      class="shrink-0 px-4 py-1.5 sm:py-2 rounded-full bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer"
+      class="shrink-0 h-9 px-3.5 rounded-lg bg-primary hover:bg-primary-dark text-white text-sm font-semibold transition-colors active:scale-95 cursor-pointer"
       @click="authModal.openLogin()"
     >
       Masuk

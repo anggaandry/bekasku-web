@@ -265,6 +265,15 @@ const { data: bestDeals, pending: bestDealPending } = useAsyncData(
   { default: () => [], lazy: true }
 )
 
+const promoHasActive = useState<boolean>('promo_has_active', () => false)
+watch(
+  bestDeals,
+  (list) => {
+    promoHasActive.value = Array.isArray(list) && list.length > 0
+  },
+  { immediate: true },
+)
+
 const { data: services, pending: servicesPending } = useAsyncData(
   'home-services',
   () => fetchServices(),

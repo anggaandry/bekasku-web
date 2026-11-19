@@ -1,8 +1,8 @@
 <template>
-  <div v-if="sessions && sessions.length > 0" class="py-2 overflow-x-auto scrollbar-none">
+  <div v-if="activeLiveSessions.length > 0" class="py-2 overflow-x-auto scrollbar-none">
     <div class="flex items-center gap-3">
       <NuxtLink
-        v-for="session in sessions"
+        v-for="session in activeLiveSessions"
         :key="session.live_id"
         :to="`/live/${session.live_id}`"
         class="flex flex-col items-center gap-1 shrink-0 group"
@@ -30,8 +30,12 @@
 <script setup lang="ts">
 import type { LiveSession } from '~/types/live'
 
-defineProps<{
-  sessions: LiveSession[]
+const props = defineProps<{
+  sessions: Array<LiveSession & { is_live?: boolean }>
 }>()
+
+const activeLiveSessions = computed(() =>
+  (props.sessions || []).filter((s) => s.is_live === true && Boolean(s.live_id)),
+)
 </script>
 

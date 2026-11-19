@@ -11,15 +11,18 @@
         <span class="text-[10px] leading-tight">{{ t('Beranda') }}</span>
       </NuxtLink>
 
-      <!-- Tab 2: Promo (dengan badge 9+ persis mobile V3) -->
+      <!-- Tab 2: Promo (mengarah ke halaman Promo / Best Deal seperti Mobile V3) -->
       <NuxtLink
-        to="/product/search?type=2"
+        to="/promo"
         class="flex flex-col items-center py-1 text-xs transition-colors relative"
-        :class="$route.path.includes('type=2') ? 'text-primary font-bold' : 'text-text-muted hover:text-primary'"
+        :class="$route.path === '/promo' || $route.path.includes('type=2') ? 'text-primary font-bold' : 'text-text-muted hover:text-primary'"
       >
         <div class="relative">
           <BadgePercent class="w-5 h-5 mb-0.5" />
-          <span class="absolute -top-1 -right-2.5 bg-primary text-white text-[8px] font-black px-1 py-0.2 rounded-full ring-1.5 ring-white">
+          <span
+            v-if="hasActivePromo"
+            class="absolute -top-1 -right-2.5 bg-primary text-white text-[8px] font-black px-1 py-0.2 rounded-full ring-1.5 ring-white"
+          >
             9+
           </span>
         </div>
@@ -72,6 +75,7 @@ const authStore = useAuthStore()
 const authModal = useAuthModal()
 const accountDrawer = useAccountDrawer()
 const { t } = useLocale()
+const hasActivePromo = useState<boolean>('promo_has_active', () => false)
 
 function handleAccountTab() {
   if (!authStore.isLoggedIn) {
