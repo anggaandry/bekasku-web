@@ -14,6 +14,17 @@ import {
   getDownloadURL,
   type FirebaseStorage,
 } from 'firebase/storage'
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  isSupported as isMessagingSupported,
+  type Messaging,
+  type MessagePayload,
+} from 'firebase/messaging'
+
+export const FIREBASE_WEB_VAPID_KEY =
+  'BLfdIRnFfjUMavNQgZg5Gbdbpc2MdY99pT-3rm5ExM_EUik2_oui5ukTtvm5uyBH_WqtvRTogn8K3Ef2AEg0ncE'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAqh2JqvVcySAWr-gfBISRYpfo64MKnKW4',
@@ -28,6 +39,8 @@ const firebaseConfig = {
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
 let storage: FirebaseStorage | null = null
+let messaging: Messaging | null = null
+let foregroundUnsubscribe: (() => void) | null = null
 
 export function useFirebase() {
   if (import.meta.client) {
@@ -115,12 +128,65 @@ export function useFirebase() {
     }
   }
 
+  async function requestFcmToken(): Promise<string | null> {
+    if (!import.meta.client || !app) return null
+    try {
+      const supported = await isMessagingSupported()
+      if (!supported || typeof Notification === 'undefined') return null
+
+      let permission = Notification.permission
+      if (permission === 'default') {
+        permission = await Notification.requestPermission()
+      }
+      if (permission !== 'granted') return null
+
+      if (!messaging) {
+        messaging = getMessaging(app)
+      }
+
+      let swRegistration: ServiceWorkerRegistration | undefined
+      if ('serviceWorker' in navigator) {
+        swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      }
+
+      const token = await getToken(messaging, {
+        vapidKey: FIREBASE_WEB_VAPID_KEY,
+        serviceWorkerRegistration: swRegistration,
+      })
+
+      return token || null
+    } catch {
+      return null
+    }
+  }
+
+  async function listenForegroundFcm(onReceive: (payload: MessagePayload) => void): Promise<void> {
+    if (!import.meta.client || !app) return
+    try {
+      const supported = await isMessagingSupported()
+      if (!supported) return
+      if (!messaging) {
+        messaging = getMessaging(app)
+      }
+      if (foregroundUnsubscribe) {
+        foregroundUnsubscribe()
+      }
+      foregroundUnsubscribe = onMessage(messaging, (payload) => {
+        onReceive(payload)
+      })
+    } catch {
+      // ignore unsupported browser environments
+    }
+  }
+
   return {
     auth,
     storage,
     uploadFileToStorage,
     signInWithGoogle,
     signInWithApple,
+    requestFcmToken,
+    listenForegroundFcm,
   }
 }
 

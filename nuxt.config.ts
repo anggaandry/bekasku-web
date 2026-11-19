@@ -70,6 +70,8 @@ export default defineNuxtConfig({
     public: {
       mode: process.env.NUXT_PUBLIC_MODE || 'coming_soon',
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://sandbox.bekasku.id/v3/api',
+      betaGate: process.env.NUXT_PUBLIC_BETA_GATE === 'true',
+      betaPin: process.env.NUXT_PUBLIC_BETA_PIN || 'BKK2026',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=bkk.app.bekasku.bekasku',
       appStoreUrl: 'https://apps.apple.com/id/app/bekasku/id1609048207',
       launchDate: '2026-11-25T00:00:00+07:00',

@@ -16,10 +16,16 @@ import type {
   NotificationReviewListResponse,
 } from '~/types/notification'
 import { useAuthStore } from '~/stores/auth'
+import { useFirebase } from '~/composables/useFirebase'
+import { useNotification } from '~/composables/useNotification'
 
 export const useNotificationStore = defineStore('notification', () => {
   const api = useApi()
   const authStore = useAuthStore()
+  const { requestFcmToken, listenForegroundFcm } = useFirebase()
+  const { showNotification } = useNotification()
+  let lastRealtimeSig = ''
+  let lastRealtimeTs = 0
 
   // Hub state
   const loading = ref(false)
@@ -220,6 +226,51 @@ export const useNotificationStore = defineStore('notification', () => {
     }
   }
 
+  function handleRealtimeNotification(payload: { title?: string; body?: string; link?: string }) {
+    const title = (payload.title || '').trim()
+    const body = (payload.body || '').trim()
+    const sig = `${title}|${body}`
+    const now = Date.now()
+    if (sig && sig === lastRealtimeSig && now - lastRealtimeTs < 3500) {
+      return
+    }
+    lastRealtimeSig = sig
+    lastRealtimeTs = now
+
+    if (title || body) {
+      showNotification({
+        type: 'info',
+        message: title && body ? `${title} — ${body}` : title || body,
+        duration: 5000,
+      })
+    }
+
+    fetchAllAndCategorize()
+  }
+
+  async function registerWebPushAndListen() {
+    if (!import.meta.client || !authStore.isLoggedIn) return
+    try {
+      const fcmToken = await requestFcmToken()
+      if (fcmToken) {
+        await api.post('/online', {
+          fb_token: fcmToken,
+          lang: 'id',
+        })
+      }
+
+      await listenForegroundFcm((payload) => {
+        handleRealtimeNotification({
+          title: payload.notification?.title || payload.data?.title,
+          body: payload.notification?.body || payload.data?.body,
+          link: payload.data?.web_link,
+        })
+      })
+    } catch {
+      // ignore if permission not granted
+    }
+  }
+
   return {
     loading,
     error,
@@ -247,5 +298,7 @@ export const useNotificationStore = defineStore('notification', () => {
     loadMoreCategoryNotif,
     fetchReviewNotifications,
     markAsReadLocally,
+    handleRealtimeNotification,
+    registerWebPushAndListen,
   }
 })

@@ -25,6 +25,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useAppStore } from '~/stores/app'
 import { useChatStore } from '~/stores/chat'
 import { useHelpChatStore } from '~/stores/helpChat'
+import { useNotificationStore } from '~/stores/notification'
 import { useAccountDrawer } from '~/composables/useAccountDrawer'
 import { useNotificationDrawer } from '~/composables/useNotificationDrawer'
 import AppHeader from '~/components/layout/AppHeader.vue'
@@ -41,6 +42,7 @@ const authStore = useAuthStore()
 const appStore = useAppStore()
 const chatStore = useChatStore()
 const helpChatStore = useHelpChatStore()
+const notificationStore = useNotificationStore()
 const accountDrawer = useAccountDrawer()
 const notificationDrawer = useNotificationDrawer()
 
@@ -74,6 +76,8 @@ onMounted(() => {
     chatStore.fetchChatBox({ isRefresh: true, isSilent: true })
     chatStore.connectWebSocket()
     helpChatStore.consumePendingHelpPopup()
+    notificationStore.fetchAllAndCategorize()
+    notificationStore.registerWebPushAndListen()
   }
 })
 
@@ -104,6 +108,8 @@ watch(
       chatStore.fetchChatBox({ isRefresh: true, isSilent: true })
       chatStore.connectWebSocket()
       helpChatStore.consumePendingHelpPopup()
+      notificationStore.fetchAllAndCategorize()
+      notificationStore.registerWebPushAndListen()
     } else {
       chatStore.disconnectAll()
       helpChatStore.disconnectAll()

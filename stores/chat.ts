@@ -31,6 +31,7 @@ import type {
   TransactionChatModel,
 } from '~/types/chat'
 import { useAuthStore } from '~/stores/auth'
+import { useNotificationStore } from '~/stores/notification'
 
 const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/
 
@@ -135,7 +136,14 @@ export const useChatStore = defineStore('chat', () => {
           const msg = String(data.message || '')
           const sender = data.sender ? String(data.sender) : ''
 
-          if (msg === 'new message' || msg.includes('JUST OPEN')) {
+          if (msg === 'new notification' || data.event === 'new_notification') {
+            const notifStore = useNotificationStore()
+            notifStore.handleRealtimeNotification({
+              title: data.title ? String(data.title) : undefined,
+              body: data.body ? String(data.body) : undefined,
+              link: data.link ? String(data.link) : undefined,
+            })
+          } else if (msg === 'new message' || msg.includes('JUST OPEN')) {
             fetchChatBox({ isRefresh: true, isSilent: true })
             if (activePartnerId.value) {
               fetchMessages({ resetPage: true, silent: true })
