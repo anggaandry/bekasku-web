@@ -6,6 +6,7 @@ import { SELL_METHOD_NEEDED, SELL_METHOD_SERVICE } from '~/utils/constants'
 import { sanitizeMediaUrl } from '~/utils/media'
 import { useHelpChatStore } from '~/stores/helpChat'
 import BestDealRegisterModal from '~/components/post/bestdeal/BestDealRegisterModal.vue'
+import ProductBestDealBanner from '~/components/product/ProductBestDealBanner.vue'
 
 const route = useRoute()
 const productId = computed(() => extractProductId(route.params.slug as string))
@@ -217,12 +218,20 @@ const showBdBar = computed(() => !!product.value && Number(product.value.bdcd_se
 function startBdTimer() {
   if (bdTimer) clearInterval(bdTimer)
   bdSeconds.value = Number(product.value?.bdcd_second || 0)
-  if (bdSeconds.value <= 0) return
+  if (!import.meta.client || bdSeconds.value <= 0) return
   bdTimer = setInterval(() => {
     bdSeconds.value -= 1
     if (bdSeconds.value <= 0 && bdTimer) clearInterval(bdTimer)
   }, 1000)
 }
+
+watch(
+  () => product.value?.bdcd_second,
+  () => {
+    startBdTimer()
+  },
+  { immediate: true },
+)
 
 const isNeededOrService = computed(() => {
   const p = product.value
@@ -566,8 +575,13 @@ async function onBestDealSuccess() {
           />
 
           <div class="px-4 md:px-0 space-y-5">
-            <!-- Mobile: price & title -->
-            <div v-if="product" class="lg:hidden">
+            <!-- Tablet/Mobile (md..lg): price & title -->
+            <div v-if="product" class="lg:hidden space-y-4">
+              <ProductBestDealBanner
+                v-if="showBdBar"
+                :countdown="bdCountdown"
+                class="hidden md:flex"
+              />
               <ProductMainInfo
                 :product="product"
                 :is-wishlist="inWishlist"
@@ -646,7 +660,11 @@ async function onBestDealSuccess() {
         <!-- Right Column (desktop) -->
         <div class="hidden lg:block lg:col-span-5 space-y-5 lg:sticky lg:top-20">
           <div v-if="product" class="space-y-4">
-            <div class="bg-white p-5 rounded-2xl">
+            <div class="bg-white p-5 rounded-2xl space-y-4">
+              <ProductBestDealBanner
+                v-if="showBdBar"
+                :countdown="bdCountdown"
+              />
               <ProductMainInfo
                 :product="product"
                 :is-wishlist="inWishlist"
