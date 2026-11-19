@@ -7,7 +7,8 @@
     <!-- Top Bar -->
     <header class="max-w-5xl w-full mx-auto flex items-center justify-between z-10">
       <div class="flex items-center gap-3">
-        <img src="/logo_white.png" alt="BekasKu" class="h-8 w-auto object-contain" />
+        <img src="/icon_only.png" alt="BekasKu" class="h-8 w-8 rounded-lg object-contain" />
+        <span class="text-base font-extrabold tracking-tight text-white">BekasKu</span>
         <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#E31B23]/20 text-[#FF5A60] border border-[#E31B23]/30">
           Private Beta Preview
         </span>
