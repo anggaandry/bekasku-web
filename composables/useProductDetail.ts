@@ -424,6 +424,7 @@ export function useProductDetail(initialId?: string) {
         product_id: productId.value,
         discussion: text.trim(),
         comment: text.trim(),
+        safe: true,
       })
       const ok = res?.status === true || Boolean(res?.result) || String(res?.message || '').toLowerCase() === 'success'
       if (ok) {
@@ -466,6 +467,7 @@ export function useProductDetail(initialId?: string) {
       const res = await api.post<any>(API_DISCUSSION_REPLY_SEND, {
         discussion_id: discussionId,
         comment: text.trim(),
+        safe: true,
       })
       const ok = res?.status === true || Boolean(res?.result) || String(res?.message || '').toLowerCase() === 'success'
       if (ok) {
