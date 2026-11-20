@@ -81,7 +81,7 @@ function extractErrorMessage(err: unknown, fallback: string): string {
 export function useBalance() {
   const api = useApi()
 
-  const balance = ref(0)
+  const balance = useState<number>('bekasku_user_balance', () => 0)
   const isBalanceLoading = ref(false)
 
   const historyList = ref<BalanceMutation[]>([])
