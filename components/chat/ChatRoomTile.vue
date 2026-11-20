@@ -119,7 +119,7 @@ const previewState = computed(() => {
     class="w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-border-light transition-colors cursor-pointer"
     :class="[
       active
-        ? 'bg-primary/8 hover:bg-primary/12 border-l-[3px] border-l-primary'
+        ? 'bg-gray-100 hover:bg-gray-100 border-l-[3px] border-l-primary'
         : 'bg-white hover:bg-surface-2/70',
       compact ? 'px-3 py-3' : 'px-4 py-3.5',
     ]"

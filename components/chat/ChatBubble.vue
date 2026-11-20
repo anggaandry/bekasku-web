@@ -272,8 +272,8 @@ const hasTextBubble = computed(() => {
               class="rounded-2xl px-3.5 py-2.5 space-y-2 shadow-2xs"
               :class="
                 isMe
-                  ? 'bg-chip-soft-bg border border-chip-soft-border rounded-br-xs'
-                  : 'bg-surface-2 border border-border-light rounded-bl-xs'
+                  ? 'bg-slate-100 border border-slate-200 rounded-br-xs'
+                  : 'bg-white border border-border-light rounded-bl-xs'
               "
             >
               <!-- Quoted Reply Block -->
