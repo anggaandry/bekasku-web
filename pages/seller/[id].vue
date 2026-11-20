@@ -201,7 +201,7 @@
                   <input
                     v-model="searchQuery"
                     type="search"
-                    :placeholder="`Cari produk di ${seller.name}...`"
+                    placeholder="Cari di toko ini"
                     class="w-full h-10 pl-10 pr-4 bg-surface-2 border border-border rounded-lg text-sm font-outfit text-text placeholder:text-text-subtle focus:bg-white focus:border-primary outline-none transition-all"
                     @input="handleSearch(searchQuery)"
                   />

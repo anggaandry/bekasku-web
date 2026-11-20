@@ -470,7 +470,8 @@ const { data: initialSsrData, pending: ssrPending } = await useAsyncData(
       page: 1,
     })
     return { tab: 'product' as const, products: pRes }
-  }
+  },
+  { lazy: true }
 )
 
 const bdRemainingSeconds = ref(0)
@@ -497,21 +498,28 @@ function startBdCountdown(secs: number) {
   }, 1000)
 }
 
-if (initialSsrData.value?.tab === 'product' && initialSsrData.value.products?.docs) {
-  productList.value = [...initialSsrData.value.products.docs]
-  hasMoreProducts.value = Boolean(
-    initialSsrData.value.products.hasNextPage && productList.value.length < SEARCH_MAX_ITEMS
-  )
-  const initialBdTime = Number(initialSsrData.value.products.bd_time || 0)
-  if (initialBdTime > 0) {
-    bdRemainingSeconds.value = initialBdTime
-  }
-} else if (initialSsrData.value?.tab === 'store' && initialSsrData.value.sellers?.docs) {
-  sellerList.value = [...initialSsrData.value.sellers.docs]
-  hasMoreSellers.value = Boolean(
-    initialSsrData.value.sellers.hasNextPage && sellerList.value.length < SEARCH_MAX_ITEMS
-  )
-}
+watch(
+  initialSsrData,
+  (val) => {
+    if (val?.tab === 'product' && val.products?.docs) {
+      productList.value = [...val.products.docs]
+      hasMoreProducts.value = Boolean(
+        val.products.hasNextPage && productList.value.length < SEARCH_MAX_ITEMS
+      )
+      const initialBdTime = Number(val.products.bd_time || 0)
+      if (initialBdTime > 0) {
+        if (import.meta.client) startBdCountdown(initialBdTime)
+        else bdRemainingSeconds.value = initialBdTime
+      }
+    } else if (val?.tab === 'store' && val.sellers?.docs) {
+      sellerList.value = [...val.sellers.docs]
+      hasMoreSellers.value = Boolean(
+        val.sellers.hasNextPage && sellerList.value.length < SEARCH_MAX_ITEMS
+      )
+    }
+  },
+  { immediate: true }
+)
 
 async function fetchProductsPage(page = 1) {
   const f = currentFilters.value

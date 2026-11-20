@@ -307,6 +307,8 @@ async function handleSubmitUpdateNego(newPrice: number) {
   if (ok) {
     showNegotiateModal.value = false
     activeNegoEdit.value = null
+    scrollToBottom(true)
+    setTimeout(() => scrollToBottom(true), 150)
   }
 }
 
