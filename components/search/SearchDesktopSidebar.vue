@@ -491,8 +491,24 @@ watch(
 
 const locationChips = computed(() => {
   const base = [...DEFAULT_LOCATION_CHIPS.slice(0, 5)]
-  if (props.filters.city && !base.includes(props.filters.city)) {
-    base.unshift(props.filters.city)
+  const hasLoc = (name: string) => base.some((b) => b.toLowerCase() === name.toLowerCase())
+
+  const selected: string[] = []
+  if (props.filters.city) selected.push(props.filters.city)
+  if (props.filters.provinceName) selected.push(props.filters.provinceName)
+  if (Array.isArray(props.filters.cities)) {
+    for (const c of props.filters.cities) {
+      if (c && !selected.some((s) => s.toLowerCase() === c.toLowerCase())) {
+        selected.push(c)
+      }
+    }
+  }
+
+  for (let i = selected.length - 1; i >= 0; i--) {
+    const loc = selected[i]
+    if (loc && !hasLoc(loc)) {
+      base.unshift(loc)
+    }
   }
   return base
 })
@@ -506,11 +522,11 @@ function isLocationActive(loc: string): boolean {
 
 function toggleLocation(loc: string) {
   if (isLocationActive(loc)) {
-    emit('apply', { provinceName: '', city: '', cities: [] })
+    emit('apply', { locationId: '', provinceName: '', city: '', cities: [] })
   } else if (loc.toLowerCase() === 'dki jakarta') {
-    emit('apply', { provinceName: 'DKI Jakarta', city: '', cities: [] })
+    emit('apply', { locationId: '', provinceName: 'DKI Jakarta', city: '', cities: [] })
   } else {
-    emit('apply', { provinceName: '', city: loc, cities: [loc] })
+    emit('apply', { locationId: '', provinceName: '', city: loc, cities: [loc] })
   }
 }
 
