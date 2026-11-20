@@ -68,11 +68,13 @@ export function useApi() {
    * Dapatkan token aktif (dari cookie/useState SSR-safe atau request baru)
    */
   async function getToken(): Promise<string | null> {
-    if (tokenState.value && !isJwtExpired(tokenState.value)) return tokenState.value
     if (tokenCookie.value && !isJwtExpired(tokenCookie.value)) {
-      tokenState.value = tokenCookie.value
+      if (tokenState.value !== tokenCookie.value) {
+        tokenState.value = tokenCookie.value
+      }
       return tokenCookie.value
     }
+    if (tokenState.value && !isJwtExpired(tokenState.value)) return tokenState.value
     return await fetchGuestToken()
   }
 
