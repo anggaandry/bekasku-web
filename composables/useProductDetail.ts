@@ -12,6 +12,8 @@ import {
   API_WISHLIST_UPDATE,
   API_PRODUCT_DISCUSSION,
   API_DISCUSSION_SEND,
+  API_DISCUSSION_REPLY_LIST,
+  API_DISCUSSION_REPLY_SEND,
   API_CART_ADD,
   API_NEGOTIATE_PRODUCT,
   API_POST_SELLED,
@@ -423,12 +425,12 @@ export function useProductDetail(initialId?: string) {
         discussion: text.trim(),
         comment: text.trim(),
       })
-      const ok = res?.status === true || res?.result === true || String(res?.message || '').toLowerCase() === 'success'
+      const ok = res?.status === true || Boolean(res?.result) || String(res?.message || '').toLowerCase() === 'success'
       if (ok) {
-        await fetchDiscussions(productId.value, 3)
-        if (allDiscussions.value.length > 0) {
-          await fetchDiscussions(productId.value, 50)
-        }
+        await Promise.all([
+          fetchDiscussions(productId.value, 3),
+          fetchDiscussions(productId.value, 50),
+        ])
         return true
       }
       return false
@@ -436,6 +438,49 @@ export function useProductDetail(initialId?: string) {
       return false
     } finally {
       discussionSending.value = false
+    }
+  }
+
+  const discussionReplies = ref<any[]>([])
+  const repliesLoading = ref(false)
+  const replySending = ref(false)
+
+  async function fetchDiscussionReplies(discussionId: string) {
+    if (!discussionId) return
+    repliesLoading.value = true
+    try {
+      const res = await api.post<any>(API_DISCUSSION_REPLY_LIST, { id: discussionId })
+      const list = Array.isArray(res?.result) ? res.result : Array.isArray(res) ? res : []
+      discussionReplies.value = list
+    } catch {
+      discussionReplies.value = []
+    } finally {
+      repliesLoading.value = false
+    }
+  }
+
+  async function sendDiscussionReply(discussionId: string, text: string) {
+    if (!discussionId || !text.trim() || replySending.value) return false
+    replySending.value = true
+    try {
+      const res = await api.post<any>(API_DISCUSSION_REPLY_SEND, {
+        discussion_id: discussionId,
+        comment: text.trim(),
+      })
+      const ok = res?.status === true || Boolean(res?.result) || String(res?.message || '').toLowerCase() === 'success'
+      if (ok) {
+        await Promise.all([
+          fetchDiscussionReplies(discussionId),
+          fetchDiscussions(productId.value, 3),
+          fetchDiscussions(productId.value, 50),
+        ])
+        return true
+      }
+      return false
+    } catch {
+      return false
+    } finally {
+      replySending.value = false
     }
   }
 
@@ -686,6 +731,9 @@ export function useProductDetail(initialId?: string) {
     discussionLoading,
     discussionSending,
     allDiscussionLoading,
+    discussionReplies,
+    repliesLoading,
+    replySending,
     recommendations,
     recLoading,
     recPage,
@@ -717,6 +765,8 @@ export function useProductDetail(initialId?: string) {
     toggleWishlist,
     fetchDiscussions,
     sendDiscussion,
+    fetchDiscussionReplies,
+    sendDiscussionReply,
     fetchRecommendations,
     fetchShippingEstimates,
     addToCart,

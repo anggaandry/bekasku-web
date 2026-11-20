@@ -23,9 +23,14 @@ const {
   inWishlist,
   totalFavorite,
   discussions,
+  allDiscussions,
   totalDiscussions,
   discussionLoading,
   discussionSending,
+  allDiscussionLoading,
+  discussionReplies,
+  repliesLoading,
+  replySending,
   recommendations,
   recLoading,
   isBekaskuPlus,
@@ -50,6 +55,8 @@ const {
   toggleWishlist,
   fetchDiscussions,
   sendDiscussion,
+  fetchDiscussionReplies,
+  sendDiscussionReply,
   fetchRecommendations,
   addToCart,
   submitNegotiation,
@@ -330,6 +337,22 @@ async function handleSendDiscussion(text: string) {
   if (!requireAuth('Diskusi Produk')) return
   const ok = await sendDiscussion(text)
   showToast(ok ? 'Pertanyaan Anda berhasil dikirim!' : 'Gagal mengirim pertanyaan.', ok ? 'success' : 'error')
+}
+
+async function handleOpenAllDiscussions() {
+  if (productId.value) {
+    await fetchDiscussions(productId.value, 50)
+  }
+}
+
+async function handleOpenSubDiscussion(discussionId: string) {
+  await fetchDiscussionReplies(discussionId)
+}
+
+async function handleSendReply(payload: { discussionId: string; text: string }) {
+  if (!requireAuth('Balas Diskusi')) return
+  const ok = await sendDiscussionReply(payload.discussionId, payload.text)
+  showToast(ok ? 'Balasan berhasil dikirim!' : 'Gagal mengirim balasan.', ok ? 'success' : 'error')
 }
 
 function handleChat() {
@@ -632,12 +655,20 @@ async function onBestDealSuccess() {
 
             <ProductDiscussionPreview
               :discussions="discussions"
+              :all-discussions="allDiscussions"
               :total-discussion="totalDiscussions"
               :is-loading="discussionLoading"
+              :is-all-loading="allDiscussionLoading"
               :is-sending="discussionSending"
+              :replies="discussionReplies"
+              :replies-loading="repliesLoading"
+              :reply-sending="replySending"
               :is-mine="product?.mine"
               :is-logged-in="authStore.isLoggedIn"
               @send-discussion="handleSendDiscussion"
+              @open-all="handleOpenAllDiscussions"
+              @open-sub-discussion="handleOpenSubDiscussion"
+              @send-reply="handleSendReply"
               @require-auth="requireAuth('Diskusi Produk')"
             />
 
