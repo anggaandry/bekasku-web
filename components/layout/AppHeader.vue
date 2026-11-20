@@ -25,6 +25,7 @@
             variant="header-desktop"
             input-id="desktop-search-input"
             placeholder="Cari di BekasKu..."
+            :loading="searchSuggestLoading"
             :category-id="selectedCategoryId"
             :category-name="selectedCategoryName || ''"
             @focus="openSearchDropdown"
@@ -97,6 +98,7 @@
             class="absolute left-0 right-0 top-full mt-2 z-50"
             @close="isSearchDropdownOpen = false"
             @fill-query="searchQuery = $event"
+            @update:loading="searchSuggestLoading = $event"
           />
         </div>
 
@@ -520,6 +522,7 @@ const selectedCategoryId = ref('')
 const selectedCategoryName = ref<string | null>(null)
 const isCategoryMenuOpen = ref(false)
 const isSearchDropdownOpen = ref(false)
+const searchSuggestLoading = ref(false)
 
 const openSearchDropdown = () => {
   isCategoryMenuOpen.value = false

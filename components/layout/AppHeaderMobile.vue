@@ -8,6 +8,7 @@
           variant="header-mobile"
           input-id="mobile-search-input"
           placeholder="Cari di BekasKu..."
+          :loading="searchSuggestLoading"
           @focus="isSearchDropdownOpen = true"
           @update:model-value="isSearchDropdownOpen = true"
           @submit="handleSearch"
@@ -77,6 +78,7 @@
       class="absolute left-2.5 right-2.5 top-full mt-1.5 z-50"
       @close="isSearchDropdownOpen = false"
       @fill-query="searchQuery = $event"
+      @update:loading="searchSuggestLoading = $event"
     />
   </header>
 </template>
@@ -104,6 +106,7 @@ const { t } = useLocale()
 
 const searchQuery = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const isSearchDropdownOpen = ref(false)
+const searchSuggestLoading = ref(false)
 
 watch(
   () => route.query.q,

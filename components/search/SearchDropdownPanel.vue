@@ -137,6 +137,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   close: []
   fillQuery: [keyword: string]
+  'update:loading': [loading: boolean]
 }>()
 
 const authStore = useAuthStore()
@@ -214,17 +215,27 @@ function handleGuestLogin() {
 }
 
 watch(
+  suggestLoading,
+  (val) => {
+    emit('update:loading', val)
+  },
+  { immediate: true }
+)
+
+watch(
   () => props.open,
   (isOpen) => {
-    if (isOpen) {
-      fetchEmptyLanding()
-      if (props.query.trim()) {
-        debouncedSuggest({
-          query: props.query,
-          categoryId: props.categoryId,
-          type: props.searchType,
-        })
-      }
+    if (!isOpen) {
+      emit('update:loading', false)
+      return
+    }
+    fetchEmptyLanding()
+    if (props.query.trim()) {
+      debouncedSuggest({
+        query: props.query,
+        categoryId: props.categoryId,
+        type: props.searchType,
+      })
     }
   }
 )

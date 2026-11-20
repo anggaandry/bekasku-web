@@ -29,8 +29,12 @@
             @input="onInput"
           />
 
+          <Loader2
+            v-if="loading"
+            class="w-3.5 h-3.5 text-primary animate-spin shrink-0 mr-1"
+          />
           <button
-            v-if="modelValue"
+            v-else-if="modelValue"
             type="button"
             class="p-1 text-text-subtle hover:text-text-muted rounded-full cursor-pointer mr-0.5"
             aria-label="Bersihkan kata kunci"
@@ -79,8 +83,12 @@
           @input="onInput"
         />
 
+        <Loader2
+          v-if="loading"
+          class="w-4 h-4 text-primary animate-spin shrink-0 ml-1"
+        />
         <button
-          v-if="modelValue && !readonly"
+          v-else-if="modelValue && !readonly"
           type="button"
           class="p-1 text-text-subtle hover:text-text-muted shrink-0 cursor-pointer"
           aria-label="Bersihkan"
