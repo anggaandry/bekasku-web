@@ -59,6 +59,16 @@ onMounted(() => {
 })
 
 watch(
+  () => helpChatStore.isFloatingOpen,
+  (isOpen) => {
+    if (isOpen) {
+      scrollToBottom(false)
+      setTimeout(() => scrollToBottom(false), 120)
+    }
+  },
+)
+
+watch(
   () => helpChatStore.loadingMessages,
   (loading) => {
     if (!loading && helpChatStore.page <= 2) {

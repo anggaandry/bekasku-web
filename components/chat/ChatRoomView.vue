@@ -91,15 +91,37 @@ const latestContextProduct = computed<ProductChatModel | null>(() => {
 
 function scrollToBottom(smooth = false) {
   if (!import.meta.client) return
-  nextTick(() => {
+  const performScroll = () => {
     const el = scrollContainerRef.value
     if (!el) return
     el.scrollTo({
       top: el.scrollHeight,
       behavior: smooth ? 'smooth' : 'auto',
     })
+  }
+  nextTick(() => {
+    performScroll()
+    requestAnimationFrame(performScroll)
+    if (!smooth) {
+      setTimeout(performScroll, 120)
+    }
   })
 }
+
+onMounted(() => {
+  if (chatStore.messages.length > 0) {
+    scrollToBottom(false)
+  }
+})
+
+watch(
+  () => chatStore.isFloatingOpen,
+  (isOpen) => {
+    if (isOpen) {
+      scrollToBottom(false)
+    }
+  },
+)
 
 watch(
   () => chatStore.activePartnerId,

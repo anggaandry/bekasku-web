@@ -32,22 +32,30 @@ watch(
   { immediate: true }
 )
 
+function formatThousandDots(val: number): string {
+  if (!val || val <= 0) return ''
+  return val.toLocaleString('id-ID')
+}
+
 function handleInput(e: Event) {
   const target = e.target as HTMLInputElement
   const raw = target.value.replace(/\D/g, '')
   if (!raw) {
     offerPrice.value = 0
+    target.value = ''
     errorMsg.value = ''
     return
   }
   const parsed = parseInt(raw, 10)
-  // Mirror NegotiateController.changeInput: cap at oriPrice
-  if (parsed > props.currentPrice) {
+  if (props.currentPrice > 0 && parsed > props.currentPrice) {
     offerPrice.value = props.currentPrice
+    target.value = formatThousandDots(props.currentPrice)
+    errorMsg.value = `Maksimal tawaran adalah ${formatRupiah(props.currentPrice)}`
   } else {
     offerPrice.value = parsed
+    target.value = formatThousandDots(parsed)
+    errorMsg.value = ''
   }
-  errorMsg.value = ''
 }
 
 function submitOffer() {
