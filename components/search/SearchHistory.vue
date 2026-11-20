@@ -8,7 +8,7 @@
       <button
         type="button"
         class="font-outfit text-sm text-primary hover:text-primary-dark font-normal cursor-pointer transition-colors"
-        @click="showClearAllConfirm = true"
+        @click.stop="emit('clearAll')"
       >
         Hapus semua
       </button>
@@ -36,7 +36,7 @@
           type="button"
           class="p-1 text-text-subtle hover:text-text-muted shrink-0 cursor-pointer ml-2"
           :aria-label="`Hapus riwayat ${item.keyword}`"
-          @click.stop="promptDeleteOne(item.keyword)"
+          @click.stop="emit('delete', item.keyword)"
         >
           <X class="w-4 h-4" />
         </button>
@@ -53,70 +53,12 @@
         {{ showAll ? 'Sembunyikan' : 'Lihat semua' }}
       </button>
     </div>
-
-    <!-- Confirmation Modal for Single Item Delete -->
-    <AppModal
-      v-model="showSingleConfirm"
-      title="Hapus Riwayat Pencarian"
-    >
-      <p class="text-xs sm:text-sm text-text-muted leading-relaxed">
-        Apakah Anda yakin ingin menghapus kata kunci
-        <span class="font-semibold text-text">"{{ pendingKeyword }}"</span> dari riwayat pencarian?
-      </p>
-      <template #footer>
-        <div class="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            class="px-4 py-2 rounded-xl border border-border text-xs font-semibold text-text hover:bg-surface-2 cursor-pointer"
-            @click="showSingleConfirm = false"
-          >
-            Batal
-          </button>
-          <button
-            type="button"
-            class="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold cursor-pointer"
-            @click="confirmDeleteOne"
-          >
-            Hapus
-          </button>
-        </div>
-      </template>
-    </AppModal>
-
-    <!-- Confirmation Modal for Clear All -->
-    <AppModal
-      v-model="showClearAllConfirm"
-      title="Hapus Semua Riwayat"
-    >
-      <p class="text-xs sm:text-sm text-text-muted leading-relaxed">
-        Apakah Anda yakin ingin menghapus seluruh riwayat pencarian Anda?
-      </p>
-      <template #footer>
-        <div class="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            class="px-4 py-2 rounded-xl border border-border text-xs font-semibold text-text hover:bg-surface-2 cursor-pointer"
-            @click="showClearAllConfirm = false"
-          >
-            Batal
-          </button>
-          <button
-            type="button"
-            class="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold cursor-pointer"
-            @click="confirmClearAll"
-          >
-            Hapus Semua
-          </button>
-        </div>
-      </template>
-    </AppModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { History, X } from 'lucide-vue-next'
 import type { SearchHistoryItem } from '~/types/search'
-import AppModal from '~/components/shared/AppModal.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -135,31 +77,10 @@ const emit = defineEmits<{
 }>()
 
 const showAll = ref(false)
-const showSingleConfirm = ref(false)
-const showClearAllConfirm = ref(false)
-const pendingKeyword = ref('')
 
 const displayedItems = computed(() => {
   if (showAll.value) return props.items.slice(0, 50)
   return props.items.slice(0, props.initialLimit)
 })
-
-function promptDeleteOne(keyword: string) {
-  pendingKeyword.value = keyword
-  showSingleConfirm.value = true
-}
-
-function confirmDeleteOne() {
-  if (pendingKeyword.value) {
-    emit('delete', pendingKeyword.value)
-  }
-  showSingleConfirm.value = false
-  pendingKeyword.value = ''
-}
-
-function confirmClearAll() {
-  emit('clearAll')
-  showClearAllConfirm.value = false
-}
 </script>
 

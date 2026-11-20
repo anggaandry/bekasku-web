@@ -15,7 +15,11 @@
         </NuxtLink>
 
         <!-- Center: Modern Squircle Search Bar with Integrated Kategori Dropdown (Uses shared SearchBar.vue) -->
-        <div class="flex-1 min-w-0 max-w-2xl">
+        <div
+          class="flex-1 min-w-0 max-w-2xl relative"
+          @click.stop
+          @keydown.escape="isSearchDropdownOpen = false"
+        >
           <SearchBar
             v-model="searchQuery"
             variant="header-desktop"
@@ -23,6 +27,8 @@
             placeholder="Cari di BekasKu..."
             :category-id="selectedCategoryId"
             :category-name="selectedCategoryName || ''"
+            @focus="openSearchDropdown"
+            @update:model-value="onSearchInput"
             @submit="handleSearch"
           >
             <template #prepend>
@@ -81,6 +87,17 @@
               <div class="h-6 w-px bg-gray-200 mx-1 shrink-0" />
             </template>
           </SearchBar>
+
+          <!-- Floating Search Dropdown (History, Last Viewed, Categories, Live Suggestions) -->
+          <SearchDropdownPanel
+            :open="isSearchDropdownOpen"
+            :query="searchQuery"
+            :category-id="selectedCategoryId"
+            :category-name="selectedCategoryName || ''"
+            class="absolute left-0 right-0 top-full mt-2 z-50"
+            @close="isSearchDropdownOpen = false"
+            @fill-query="searchQuery = $event"
+          />
         </div>
 
         <!-- Right: Action Icons & User / Login State -->
@@ -381,6 +398,7 @@ import { useCategories, type Category } from '~/composables/useCategories'
 import { useAddress } from '~/composables/useAddress'
 import { useLocale } from '~/composables/useLocale'
 import SearchBar from '~/components/search/SearchBar.vue'
+import SearchDropdownPanel from '~/components/search/SearchDropdownPanel.vue'
 import AppModal from '~/components/shared/AppModal.vue'
 import AppAddressModal from '~/components/shared/AppAddressModal.vue'
 import AccountLanguageModal from '~/components/account/AccountLanguageModal.vue'
@@ -501,6 +519,17 @@ const searchQuery = ref('')
 const selectedCategoryId = ref('')
 const selectedCategoryName = ref<string | null>(null)
 const isCategoryMenuOpen = ref(false)
+const isSearchDropdownOpen = ref(false)
+
+const openSearchDropdown = () => {
+  isCategoryMenuOpen.value = false
+  isSearchDropdownOpen.value = true
+}
+
+const onSearchInput = () => {
+  isCategoryMenuOpen.value = false
+  isSearchDropdownOpen.value = true
+}
 const isUserMenuOpen = accountDrawer.isOpen
 const isAddressModalOpen = ref(false)
 const avatarLoadError = ref(false)
@@ -766,6 +795,7 @@ const selectCategory = (cat: Category | null) => {
 }
 
 const handleSearch = () => {
+  isSearchDropdownOpen.value = false
   const query: Record<string, string> = {}
   if (route.path.startsWith('/search')) {
     for (const [k, v] of Object.entries(route.query)) {
@@ -841,6 +871,7 @@ onMounted(async () => {
   if (import.meta.client) {
     window.addEventListener('click', () => {
       isCategoryMenuOpen.value = false
+      isSearchDropdownOpen.value = false
     })
   }
 })

@@ -1,15 +1,15 @@
 <template>
-  <header class="w-full bg-primary text-white sticky top-0 z-50 px-3 py-2.5 shadow-xs">
+  <header class="w-full bg-primary text-white sticky top-0 z-50 px-3 py-2.5 shadow-xs relative">
     <!-- Single Top Bar: Shared SearchBar (left) + Action Icons (right) -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 relative z-50" @click.stop>
       <div class="flex-1 min-w-0">
         <SearchBar
           v-model="searchQuery"
           variant="header-mobile"
           input-id="mobile-search-input"
           placeholder="Cari di BekasKu..."
-          readonly
-          @click-input="navigateTo('/search')"
+          @focus="isSearchDropdownOpen = true"
+          @update:model-value="isSearchDropdownOpen = true"
           @submit="handleSearch"
         />
       </div>
@@ -62,6 +62,22 @@
         </button>
       </div>
     </div>
+
+    <!-- Backdrop for mobile floating search dropdown -->
+    <div
+      v-if="isSearchDropdownOpen"
+      class="fixed inset-0 top-[56px] bg-black/35 z-40"
+      @click="isSearchDropdownOpen = false"
+    />
+
+    <!-- Floating Search Dropdown Card -->
+    <SearchDropdownPanel
+      :open="isSearchDropdownOpen"
+      :query="searchQuery"
+      class="absolute left-2.5 right-2.5 top-full mt-1.5 z-50"
+      @close="isSearchDropdownOpen = false"
+      @fill-query="searchQuery = $event"
+    />
   </header>
 </template>
 
@@ -75,7 +91,9 @@ import { useNotificationDrawer } from '~/composables/useNotificationDrawer'
 import { useAuthModal } from '~/composables/useAuthModal'
 import { useLocale } from '~/composables/useLocale'
 import SearchBar from '~/components/search/SearchBar.vue'
+import SearchDropdownPanel from '~/components/search/SearchDropdownPanel.vue'
 
+const route = useRoute()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const chatStore = useChatStore()
@@ -84,14 +102,23 @@ const notificationDrawer = useNotificationDrawer()
 const authModal = useAuthModal()
 const { t } = useLocale()
 
-const searchQuery = ref('')
+const searchQuery = ref(typeof route.query.q === 'string' ? route.query.q : '')
+const isSearchDropdownOpen = ref(false)
+
+watch(
+  () => route.query.q,
+  (qVal) => {
+    searchQuery.value = typeof qVal === 'string' ? qVal : ''
+  }
+)
 
 function handleSearch(val?: string) {
   const q = (val !== undefined ? val : searchQuery.value).trim()
   if (!q) {
-    navigateTo('/search')
+    isSearchDropdownOpen.value = true
     return
   }
+  isSearchDropdownOpen.value = false
   navigateTo({
     path: '/search/result',
     query: { q },

@@ -669,11 +669,14 @@ function onSelectProduct(product: ProductCard) {
 }
 
 function goToSearchLanding() {
-  const query: Record<string, string> = {}
-  if (currentFilters.value.q) query.q = currentFilters.value.q
-  if (currentFilters.value.categoryId) query.category_id = currentFilters.value.categoryId
-  if (currentFilters.value.categoryName) query.category_name = currentFilters.value.categoryName
-  navigateTo({ path: '/search', query })
+  if (import.meta.client) {
+    const input = document.getElementById('mobile-search-input') || document.getElementById('desktop-search-input')
+    if (input) {
+      input.focus()
+      return
+    }
+  }
+  navigateTo('/')
 }
 
 function handleOpenNotifications() {
@@ -696,7 +699,7 @@ function handleBack() {
   if (import.meta.client && window.history.length > 1) {
     router.back()
   } else {
-    navigateTo('/search')
+    navigateTo('/')
   }
 }
 

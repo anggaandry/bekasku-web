@@ -450,14 +450,7 @@ function onDesktopCategorySearch() {
 }
 
 function goToCategorySearch() {
-  navigateTo({
-    path: '/search',
-    query: {
-      category_id: activeCategoryId.value,
-      category_name: activeCategoryName.value,
-      ...(selectedSubcategoryId.value ? { subcategory_id: selectedSubcategoryId.value } : {}),
-    },
-  })
+  goToFullCategoryCatalog()
 }
 
 function goToFullCategoryCatalog() {

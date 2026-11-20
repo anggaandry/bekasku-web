@@ -23,7 +23,7 @@ function goBack() {
 }
 
 function goSearch() {
-  router.push('/search')
+  router.push('/search/result')
 }
 
 async function handleShare() {
