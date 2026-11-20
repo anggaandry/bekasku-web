@@ -74,18 +74,48 @@
             </div>
           </div>
 
-          <!-- Best Deal Countdown Highlight Banner (When type=2, matching SearchResultsView L613) -->
+          <!-- Best Deal Countdown Highlight Banner (When type=2, matching Promo page) -->
           <div
             v-if="currentFilters.type === SEARCH_TYPE_BEST_DEAL && activeTab === 'product' && productList.length > 0"
-            class="bg-primary/8 border-b border-primary/20 px-4 py-2.5 mb-2 flex items-center justify-between lg:rounded-xl"
+            class="bg-gradient-to-r from-primary to-primary-dark text-white px-4 sm:px-5 py-3.5 mb-3 md:rounded-2xl flex items-center justify-between gap-4 shadow-xs"
           >
-            <div class="flex items-center gap-2 text-primary font-outfit font-semibold text-sm">
-              <Clock class="w-5 h-5" />
-              <span>Best Deal BekasKu</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span class="font-outfit font-bold text-base sm:text-lg tracking-tight">
+                  Best Deal BekasKu
+                </span>
+                <ClientOnly>
+                  <div
+                    v-if="bdRemainingSeconds > 0"
+                    class="bg-white/15 backdrop-blur-xs text-white text-xs font-bold font-mono px-2.5 py-1 rounded-md flex items-center gap-1 tracking-wider"
+                  >
+                    <Clock class="w-3.5 h-3.5 mr-0.5 shrink-0" />
+                    <span>{{ formatBdDigit(bdHours) }}</span>
+                    <span class="text-white/80">:</span>
+                    <span>{{ formatBdDigit(bdMinutes) }}</span>
+                    <span class="text-white/80">:</span>
+                    <span>{{ formatBdDigit(bdSeconds) }}</span>
+                  </div>
+                  <span
+                    v-else
+                    class="px-2.5 py-0.5 rounded-md bg-white/15 text-white font-outfit font-bold text-xs"
+                  >
+                    Promo Aktif
+                  </span>
+                </ClientOnly>
+              </div>
+              <p class="font-outfit text-xs sm:text-sm text-white/90 mt-1">
+                Semua promo hanya untuk kamu!
+              </p>
             </div>
-            <span class="px-2.5 py-1 rounded-md bg-primary text-white font-outfit font-bold text-xs">
-              Promo Aktif
-            </span>
+
+            <img
+              src="/images/discounttag.png"
+              alt="Best Deal BekasKu"
+              width="76"
+              height="64"
+              class="w-16 h-14 sm:w-20 sm:h-16 object-contain shrink-0 select-none"
+            />
           </div>
 
           <!-- Shimmer Skeleton Loading State (initial load & filter/sort/tab transitions) -->
@@ -443,11 +473,39 @@ const { data: initialSsrData, pending: ssrPending } = await useAsyncData(
   }
 )
 
+const bdRemainingSeconds = ref(0)
+let bdCountdownTimer: ReturnType<typeof setInterval> | null = null
+
+const bdHours = computed(() => Math.floor(bdRemainingSeconds.value / 3600))
+const bdMinutes = computed(() => Math.floor((bdRemainingSeconds.value % 3600) / 60))
+const bdSeconds = computed(() => bdRemainingSeconds.value % 60)
+
+function formatBdDigit(val: number): string {
+  return String(Math.max(0, val)).padStart(2, '0')
+}
+
+function startBdCountdown(secs: number) {
+  if (bdCountdownTimer) clearInterval(bdCountdownTimer)
+  bdRemainingSeconds.value = Math.max(0, Math.floor(secs))
+  if (!import.meta.client || bdRemainingSeconds.value <= 0) return
+  bdCountdownTimer = setInterval(() => {
+    if (bdRemainingSeconds.value > 0) {
+      bdRemainingSeconds.value -= 1
+    } else if (bdCountdownTimer) {
+      clearInterval(bdCountdownTimer)
+    }
+  }, 1000)
+}
+
 if (initialSsrData.value?.tab === 'product' && initialSsrData.value.products?.docs) {
   productList.value = [...initialSsrData.value.products.docs]
   hasMoreProducts.value = Boolean(
     initialSsrData.value.products.hasNextPage && productList.value.length < SEARCH_MAX_ITEMS
   )
+  const initialBdTime = Number(initialSsrData.value.products.bd_time || 0)
+  if (initialBdTime > 0) {
+    bdRemainingSeconds.value = initialBdTime
+  }
 } else if (initialSsrData.value?.tab === 'store' && initialSsrData.value.sellers?.docs) {
   sellerList.value = [...initialSsrData.value.sellers.docs]
   hasMoreSellers.value = Boolean(
@@ -505,6 +563,10 @@ async function fetchProductsPage(page = 1) {
 
   if (page === 1) {
     productList.value = res.docs
+    const nextBdTime = Number(res.bd_time || 0)
+    if (nextBdTime > 0) {
+      startBdCountdown(nextBdTime)
+    }
     if (f.q) {
       fetchFirstSellerWithProducts({
         filter: f.q,
@@ -714,6 +776,9 @@ watch(
 onMounted(() => {
   locationStore.initFromStorage()
   fetchFilterCategories()
+  if (bdRemainingSeconds.value > 0) {
+    startBdCountdown(bdRemainingSeconds.value)
+  }
 
   if (activeTab.value === 'store') {
     fetchSellersPage(1)
@@ -734,5 +799,9 @@ onMounted(() => {
       vip: currentFilters.value.vip,
     })
   }
+})
+
+onUnmounted(() => {
+  if (bdCountdownTimer) clearInterval(bdCountdownTimer)
 })
 </script>
