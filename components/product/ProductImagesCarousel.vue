@@ -7,7 +7,7 @@ import {
   X,
   ZoomIn,
   ZoomOut,
-  RotateCcw,
+  RotateCw,
 } from 'lucide-vue-next'
 
 const props = defineProps<{
@@ -23,8 +23,9 @@ const emit = defineEmits<{
 const activeIndex = ref(0)
 const isLightboxOpen = ref(false)
 
-// Zoom & Pan state for Photo Viewer
+// Zoom, Rotation & Pan state for Photo Viewer
 const scale = ref(1)
+const rotation = ref(0)
 const translateX = ref(0)
 const translateY = ref(0)
 const isDragging = ref(false)
@@ -101,8 +102,13 @@ function zoomOut() {
 
 function resetZoom() {
   scale.value = 1
+  rotation.value = 0
   translateX.value = 0
   translateY.value = 0
+}
+
+function rotateImage() {
+  rotation.value = (rotation.value + 90) % 360
 }
 
 function handleWheel(e: WheelEvent) {
@@ -354,11 +360,21 @@ onUnmounted(() => {
             </button>
             <button
               type="button"
-              @click="resetZoom"
-              class="hidden sm:flex p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer text-white"
-              title="Reset Zoom (0)"
+              @click="rotateImage"
+              class="flex p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer text-white"
+              title="Putar Foto 90°"
+              aria-label="Putar Foto 90 derajat"
             >
-              <RotateCcw class="w-4 h-4" />
+              <RotateCw class="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              v-if="scale > 1 || rotation !== 0"
+              type="button"
+              @click="resetZoom"
+              class="hidden sm:flex px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-[11px] font-semibold transition-colors cursor-pointer text-white"
+              title="Reset Zoom & Rotasi (0)"
+            >
+              Reset
             </button>
             <button
               type="button"
@@ -390,7 +406,7 @@ onUnmounted(() => {
             :alt="title || 'Fullscreen Preview'"
             class="max-w-full max-h-[82vh] object-contain transition-transform duration-75 origin-center pointer-events-none select-none rounded-lg"
             :style="{
-              transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+              transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotation}deg)`,
             }"
             draggable="false"
           />
