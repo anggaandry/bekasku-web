@@ -31,6 +31,16 @@ const isHiddenRoute = computed(() => {
 })
 
 watch(
+  [() => authStore.isLoggedIn, () => authStore.userId],
+  ([loggedIn], [, prevUserId]) => {
+    if (!loggedIn || (prevUserId && authStore.userId !== prevUserId)) {
+      helpChatStore.dismissFloatingWidget()
+      helpChatStore.messages = []
+    }
+  },
+)
+
+watch(
   () => helpChatStore.isFloatingOpen,
   async (open) => {
     if (open && authStore.isLoggedIn) {

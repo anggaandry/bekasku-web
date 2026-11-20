@@ -24,6 +24,7 @@ const authModal = useAuthModal()
 const chatStore = useChatStore()
 
 const isHiddenRoute = computed(() => {
+  if (!authStore.isLoggedIn) return true
   const path = route.path || ''
   return (
     path.startsWith('/chat') ||
@@ -33,6 +34,18 @@ const isHiddenRoute = computed(() => {
     path.startsWith('/checkout')
   )
 })
+
+watch(
+  [() => authStore.isLoggedIn, () => authStore.userId],
+  ([loggedIn], [, prevUserId]) => {
+    if (!loggedIn || (prevUserId && authStore.userId !== prevUserId)) {
+      chatStore.dismissFloatingWidget()
+      chatStore.activePartnerId = null
+      chatStore.messages = []
+      chatStore.rooms = []
+    }
+  },
+)
 
 watch(
   () => chatStore.isFloatingOpen,
