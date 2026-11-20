@@ -139,7 +139,12 @@ export function useApi() {
       const status = err?.response?.status || err?.statusCode
       const errMsg = err?.data?.message?.toString()?.toLowerCase() || ''
       const isTokenError =
-        status === 403 ||
+        (status === 403 &&
+          (!errMsg ||
+            errMsg.includes('access denied') ||
+            errMsg.includes('wrong token') ||
+            errMsg.includes('token') ||
+            errMsg.includes('jwt'))) ||
         errMsg.includes('jwt-expired') ||
         errMsg.includes('token needed') ||
         errMsg.includes('key needed') ||
