@@ -137,15 +137,19 @@ const isFormValid = computed(() => {
   )
 })
 
-// Identity check
+// Identity check (support both new selfie_identity and legacy ktp/identity fields)
 const isKycVerified = computed(() =>
-  Boolean(identityInfo.value?.identity_number)
+  Boolean(identityInfo.value?.identity_number || identityInfo.value?.identity)
 )
 const isSelfieVerified = computed(() =>
-  Boolean(identityInfo.value?.selfie_identity)
+  Boolean(
+    identityInfo.value?.selfie_identity ||
+      identityInfo.value?.identity ||
+      identityInfo.value?.ktp
+  )
 )
 const verifiedKtpName = computed(
-  () => identityInfo.value?.identity_name || ''
+  () => identityInfo.value?.identity_name || identityInfo.value?.ktp_name || ''
 )
 
 function handleInitiateWithdraw() {
