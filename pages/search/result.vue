@@ -31,7 +31,7 @@
     </div>
 
     <!-- Main Content Area (Mobile Full-Width, Desktop 12-Col with Left Filter/Sort/Tab Sidebar on md+) -->
-    <main class="flex-1 w-full max-w-[1400px] mx-auto pb-10 md:pb-12">
+    <main class="flex-1 w-full max-w-[1400px] min-h-[70vh] mx-auto pb-10 md:pb-12">
       <div class="md:grid md:grid-cols-12 md:gap-5 lg:gap-6 md:px-4 lg:px-6 md:pt-5">
         <!-- Desktop Permanent Left Sidebar: Tab (Produk | Toko) + Sort + Filter (md+) -->
         <div class="hidden md:block md:col-span-4 lg:col-span-3">
@@ -88,21 +88,38 @@
             </span>
           </div>
 
-          <!-- Centered Transition Loading State (Shown in middle of right column on any filter/sort/type/tab/category change) -->
-          <div
-            v-if="isTransitionLoading"
-            class="min-h-[420px] bg-white md:rounded-2xl md:border md:border-border flex flex-col items-center justify-center py-16 px-4 text-center"
-            role="status"
-            aria-live="polite"
-          >
-            <Loader2 class="w-10 h-10 text-primary animate-spin mb-3" />
-            <p class="font-outfit font-semibold text-sm text-text">
-              {{ activeTab === 'store' ? 'Memuat daftar toko...' : 'Memuat hasil pencarian...' }}
-            </p>
-            <p class="font-outfit text-xs text-text-muted mt-1">
-              Mohon tunggu sebentar
-            </p>
-          </div>
+          <!-- Shimmer Skeleton Loading State (initial load & filter/sort/tab transitions) -->
+          <template v-if="isInitialResultsLoading">
+            <div v-if="activeTab === 'product'" class="px-3 sm:px-4 md:px-0 pt-3 md:pt-0">
+              <ProductGrid
+                :products="[]"
+                :loading="true"
+                :columns="4"
+                :skeleton-count="12"
+              />
+            </div>
+
+            <div v-else class="p-4 md:p-0 space-y-4">
+              <div
+                v-for="n in 4"
+                :key="`store-trans-skel-${n}`"
+                class="bg-white rounded-xl border border-border p-4 space-y-3 animate-shimmer"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-full bg-border" />
+                  <div class="flex-1 space-y-2">
+                    <div class="h-4 bg-border rounded w-1/3" />
+                    <div class="h-3 bg-surface-2 rounded w-1/4" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2.5 pt-2">
+                  <div class="aspect-square rounded-xl bg-border" />
+                  <div class="aspect-square rounded-xl bg-border" />
+                  <div class="aspect-square rounded-xl bg-border" />
+                </div>
+              </div>
+            </div>
+          </template>
 
           <!-- TAB 1: PRODUK -->
           <template v-else-if="activeTab === 'product'">
@@ -227,7 +244,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { Crown, Clock, Loader2 } from 'lucide-vue-next'
+import { Crown, Clock } from 'lucide-vue-next'
 import {
   SEARCH_TYPE_BEST_DEAL,
   SEARCH_TYPE_BEKASKU_PLUS,
@@ -297,6 +314,14 @@ const showGuestModal = ref(false)
 const isTransitionLoading = ref(false)
 
 const isProductLoading = computed(() => productSearchLoading.value || visualLoading.value)
+
+const isInitialResultsLoading = computed(() => {
+  if (isTransitionLoading.value) return true
+  if (activeTab.value === 'product') {
+    return (ssrPending.value || isProductLoading.value) && productList.value.length === 0
+  }
+  return (ssrPending.value || sellerLoading.value) && sellerList.value.length === 0
+})
 
 const displayQueryText = computed(() => {
   if (isVisualMode.value) return 'Hasil Pencarian Foto'
@@ -368,7 +393,7 @@ useHead(() => ({
 }))
 
 const ssrKey = computed(() => `search-ssr-${JSON.stringify(route.query)}`)
-const { data: initialSsrData } = await useAsyncData(
+const { data: initialSsrData, pending: ssrPending } = await useAsyncData(
   ssrKey.value,
   async () => {
     const f = parseFiltersFromRoute()
