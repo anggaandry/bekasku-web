@@ -2,6 +2,7 @@
 import { Check, ArrowLeft, TrendingUp } from 'lucide-vue-next'
 import type { PromotionDraft } from '~/types/promotion'
 import { formatRupiah } from '~/utils/format'
+import { sanitizeMediaUrl } from '~/utils/media'
 
 const props = defineProps<{
   draft: PromotionDraft | null
@@ -9,9 +10,8 @@ const props = defineProps<{
 }>()
 
 function getProductImage(img?: string[] | string): string {
-  if (Array.isArray(img) && img.length > 0) return img[0]
-  if (typeof img === 'string' && img.length > 0) return img
-  return '/images/empty-product.png'
+  const raw = Array.isArray(img) && img.length > 0 ? img[0] : typeof img === 'string' ? img : ''
+  return sanitizeMediaUrl(raw, '/images/empty-product.png')
 }
 </script>
 

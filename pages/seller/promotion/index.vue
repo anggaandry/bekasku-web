@@ -34,7 +34,7 @@ onMounted(async () => {
 })
 
 function onSelectProduct(p: PromotionTargetProduct) {
-  selectedProductId.value = p._id
+  selectedProductId.value = p._id || (p as any).id || ''
 }
 
 function onSearchProduct(keyword: string) {
