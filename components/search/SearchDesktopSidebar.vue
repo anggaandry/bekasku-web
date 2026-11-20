@@ -207,7 +207,7 @@
           "
           @click="emit('apply', { freeOngkir: filters.freeOngkir === 1 ? 0 : 1 })"
         >
-          Gratis Ongkir
+          Instan
         </button>
         <button
           type="button"
