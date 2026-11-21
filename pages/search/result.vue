@@ -125,7 +125,7 @@
                 :products="[]"
                 :loading="true"
                 :columns="4"
-                :skeleton-count="12"
+                :skeleton-count="20"
               />
             </div>
 
@@ -181,7 +181,7 @@
                 :loading="isProductLoading"
                 :has-more="hasMoreProducts"
                 :columns="4"
-                :skeleton-count="12"
+                :skeleton-count="20"
                 @load-more="loadMoreProducts"
                 @select="onSelectProduct"
               />

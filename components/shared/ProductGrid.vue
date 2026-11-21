@@ -42,7 +42,7 @@
         <!-- Incremental Load More Shimmer -->
         <template v-if="loading && products.length > 0">
           <div
-            v-for="n in 8"
+            v-for="n in (loadMoreSkeletonCount ?? skeletonCount)"
             :key="`pg-skel-more-${n}`"
             class="bg-white rounded-xl border border-border overflow-hidden shadow-2xs animate-shimmer flex flex-col justify-between"
           >
@@ -84,6 +84,7 @@ withDefaults(
     hasMore?: boolean
     columns?: 4 | 5
     skeletonCount?: number
+    loadMoreSkeletonCount?: number
     preventNavigation?: boolean
   }>(),
   {
@@ -91,7 +92,8 @@ withDefaults(
     loading: false,
     hasMore: false,
     columns: 5,
-    skeletonCount: 12,
+    skeletonCount: 25,
+    loadMoreSkeletonCount: undefined,
     preventNavigation: false,
   }
 )
