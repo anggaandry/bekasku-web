@@ -57,7 +57,7 @@ const {
 } = useComplain()
 
 const activeTxId = computed(() => {
-  return props.transactionId || props.detail?.id || props.detail?._id || ''
+  return props.transactionId || props.detail?.transaction_id || props.detail?.id || props.detail?._id || ''
 })
 
 const mode = ref<'select' | 'form' | 'detail' | 'waybill'>('detail')

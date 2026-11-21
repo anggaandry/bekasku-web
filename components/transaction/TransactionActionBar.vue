@@ -120,7 +120,7 @@ function handleChat() {
       partnerName: targetName || 'Pengguna BekasKu',
       partnerAvatar: targetAvatar || '',
       transaction: {
-        id: String(props.detail?.id || props.detail?._id || ''),
+        id: String(props.detail?.transaction_id || props.detail?.id || props.detail?._id || ''),
         invoice: props.detail?.invoice || '',
         title: firstProd?.product_name || firstProd?.name || 'Pesanan BekasKu',
         image: firstProd?.product_image || firstProd?.image || '',
