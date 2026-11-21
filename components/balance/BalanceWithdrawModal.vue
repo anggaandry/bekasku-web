@@ -142,11 +142,7 @@ const isKycVerified = computed(() =>
   Boolean(identityInfo.value?.identity_number || identityInfo.value?.identity)
 )
 const isSelfieVerified = computed(() =>
-  Boolean(
-    identityInfo.value?.selfie_identity ||
-      identityInfo.value?.identity ||
-      identityInfo.value?.ktp
-  )
+  Boolean(identityInfo.value?.selfie_identity || identityInfo.value?.has_selfie_identity)
 )
 const verifiedKtpName = computed(
   () => identityInfo.value?.identity_name || identityInfo.value?.ktp_name || ''
@@ -155,26 +151,24 @@ const verifiedKtpName = computed(
 function handleInitiateWithdraw() {
   if (!isFormValid.value) return
 
+  const kycModal = useIdentityKycModal()
+
   // Check identity
   if (!isKycVerified.value) {
-    showNotification({
-      type: 'warning',
-      message:
-        'Silakan verifikasi kartu identitas (KTP/SIM) terlebih dahulu di Pengaturan Akun.',
-    })
     close()
-    navigateTo('/account?tab=identity')
+    kycModal.open({
+      reason: 'withdraw',
+      featureName: 'Tarik Saldo',
+    })
     return
   }
 
   if (!isSelfieVerified.value) {
-    showNotification({
-      type: 'warning',
-      message:
-        'Silakan lengkapi verifikasi selfie identitas terlebih dahulu di Pengaturan Akun.',
-    })
     close()
-    navigateTo('/account?tab=identity')
+    kycModal.openSelfie({
+      reason: 'withdraw',
+      featureName: 'Tarik Saldo',
+    })
     return
   }
 

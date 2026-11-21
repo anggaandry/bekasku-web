@@ -5,11 +5,13 @@ import type {
   MlVisionResult,
   IdentityUploadPayload,
   KycModalOptions,
+  SelfieVerifyResult,
 } from '~/types/identity'
 import {
   API_IDENTITY_INFO,
   API_IDENTITY_ML_VISION,
   API_IDENTITY_UPLOAD,
+  API_SELFIE_VERIFY,
 } from '~/utils/constants'
 import { useAuthStore } from '~/stores/auth'
 
@@ -33,6 +35,13 @@ export function useIdentityKyc() {
     )
   })
 
+  const isSelfieVerified = computed(() => {
+    return Boolean(
+      identityInfo.value?.selfie_identity ||
+      identityInfo.value?.has_selfie_identity
+    )
+  })
+
   async function ensureIdentityInfo(): Promise<boolean> {
     if (!authStore.isLoggedIn) return false
     if (identityInfo.value !== null) {
@@ -45,6 +54,21 @@ export function useIdentityKyc() {
     return Boolean(
       res?.identity_number ||
       res?.identity
+    )
+  }
+
+  async function ensureSelfieInfo(): Promise<boolean> {
+    if (!authStore.isLoggedIn) return false
+    if (identityInfo.value !== null) {
+      return Boolean(
+        identityInfo.value?.selfie_identity ||
+        identityInfo.value?.has_selfie_identity
+      )
+    }
+    const res = await fetchIdentityInfo()
+    return Boolean(
+      res?.selfie_identity ||
+      res?.has_selfie_identity
     )
   }
 
@@ -158,20 +182,94 @@ export function useIdentityKyc() {
     }
   }
 
+  async function verifySelfie(
+    base64Image: string
+  ): Promise<{ success: boolean; data?: SelfieVerifyResult; message: string }> {
+    try {
+      const cleanBase64 = base64Image.replace(/^data:image\/[^;]+;base64,/i, '')
+      const res = await api.post<{
+        message?: string
+        result?: Partial<SelfieVerifyResult>
+      }>(
+        API_SELFIE_VERIFY,
+        {
+          selfie_image: cleanBase64,
+          image: cleanBase64,
+        },
+        { useAuthToken: true },
+      )
+
+      const result = res?.result || {}
+      const matched = result.is_match === true
+      const reason = result.reason?.toString() || ''
+      const verifyData: SelfieVerifyResult = {
+        is_match: matched,
+        confidence_score: typeof result.confidence_score === 'number' ? result.confidence_score : 0,
+        reason,
+        spoof_type: result.spoof_type?.toString() || 'none',
+      }
+
+      if (matched) {
+        await fetchIdentityInfo()
+        return {
+          success: true,
+          data: verifyData,
+          message: res?.message || 'Verifikasi selfie berhasil!',
+        }
+      }
+
+      const fallbackMsg =
+        reason && reason.toLowerCase() !== 'success'
+          ? reason
+          : res?.message && res.message.toLowerCase() !== 'success'
+            ? res.message
+            : 'Fisik kartu identitas tidak terdeteksi atau wajah belum cocok. Silakan coba lagi.'
+
+      return {
+        success: false,
+        data: verifyData,
+        message: fallbackMsg,
+      }
+    } catch (err: unknown) {
+      const errObj = err as {
+        data?: { message?: string; result?: Partial<SelfieVerifyResult> }
+        message?: string
+      }
+      const errResult = errObj?.data?.result
+      const errReason = errResult?.reason?.toString() || errObj?.data?.message || errObj?.message
+      return {
+        success: false,
+        data: errResult
+          ? {
+              is_match: false,
+              confidence_score:
+                typeof errResult.confidence_score === 'number' ? errResult.confidence_score : 0,
+              reason: errResult.reason?.toString() || '',
+              spoof_type: errResult.spoof_type?.toString() || 'none',
+            }
+          : undefined,
+        message: errReason || 'Gagal memproses verifikasi selfie. Silakan coba lagi.',
+      }
+    }
+  }
+
   return {
     identityInfo,
     isLoading,
     errorMessage,
     isVerified,
+    isSelfieVerified,
     ensureIdentityInfo,
+    ensureSelfieInfo,
     fetchIdentityInfo,
     checkMlVision,
     uploadIdentity,
+    verifySelfie,
   }
 }
 
 export function useIdentityKycModal() {
-  const { uploadIdentity, checkMlVision } = useIdentityKyc()
+  const { uploadIdentity, checkMlVision, verifySelfie } = useIdentityKyc()
   const { showNotification } = useNotification()
   const authStore = useAuthStore()
 
@@ -187,6 +285,10 @@ export function useIdentityKycModal() {
   const isOcrLoading = useState<boolean>('kyc_modal_ocr_loading', () => false)
   const isSubmitting = useState<boolean>('kyc_modal_submitting', () => false)
   const errorMessage = useState<string>('kyc_modal_error_message', () => '')
+
+  const selfieImage = useState<string>('kyc_modal_selfie_image', () => '')
+  const isSelfieVerifying = useState<boolean>('kyc_modal_selfie_verifying', () => false)
+  const selfieResult = useState<SelfieVerifyResult | null>('kyc_modal_selfie_result', () => null)
 
   function open(options?: KycModalOptions) {
     if (options?.onSuccess) {
@@ -278,8 +380,9 @@ export function useIdentityKycModal() {
       return
     }
 
-    const name = identityName.value.trim()
+    const name = identityName.value.replace(/[<>]/g, '').trim()
     const num = identityNumber.value.trim()
+    identityName.value = name
 
     if (!num) {
       errorMessage.value =
@@ -335,6 +438,67 @@ export function useIdentityKycModal() {
     }
   }
 
+  function openSelfie(options?: KycModalOptions) {
+    if (options?.onSuccess) {
+      pendingSuccessCallback = options.onSuccess
+    } else {
+      pendingSuccessCallback = null
+    }
+    featureReason.value = options?.reason || 'withdraw'
+    featureName.value = options?.featureName || 'Tarik Saldo'
+    step.value = 'selfie_intro'
+    selfieImage.value = ''
+    isSelfieVerifying.value = false
+    selfieResult.value = null
+    errorMessage.value = ''
+    isOpen.value = true
+  }
+
+  function captureSelfieImage(base64Image: string) {
+    selfieImage.value = base64Image
+    errorMessage.value = ''
+    step.value = 'selfie_preview'
+  }
+
+  async function submitSelfie() {
+    if (!selfieImage.value) {
+      errorMessage.value = 'Silakan ambil foto selfie terlebih dahulu'
+      return
+    }
+
+    isSelfieVerifying.value = true
+    selfieResult.value = null
+    errorMessage.value = ''
+    step.value = 'selfie_result'
+
+    try {
+      const res = await verifySelfie(selfieImage.value)
+      selfieResult.value = res.data || {
+        is_match: res.success,
+        confidence_score: 0,
+        reason: res.message,
+        spoof_type: 'none',
+      }
+
+      if (res.success) {
+        showNotification({
+          type: 'success',
+          message: 'Verifikasi selfie berhasil!',
+        })
+        if (pendingSuccessCallback) {
+          pendingSuccessCallback()
+          pendingSuccessCallback = null
+        }
+      } else {
+        errorMessage.value = res.message
+      }
+    } catch {
+      errorMessage.value = 'Gagal memverifikasi foto selfie. Silakan coba lagi.'
+    } finally {
+      isSelfieVerifying.value = false
+    }
+  }
+
   return {
     isOpen,
     step,
@@ -347,12 +511,18 @@ export function useIdentityKycModal() {
     isOcrLoading,
     isSubmitting,
     errorMessage,
+    selfieImage,
+    isSelfieVerifying,
+    selfieResult,
     open,
+    openSelfie,
     close,
     setStep,
     setDocType,
     processCapturedImage,
     submitKyc,
+    captureSelfieImage,
+    submitSelfie,
   }
 }
 

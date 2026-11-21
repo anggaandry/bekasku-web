@@ -7,6 +7,17 @@ export type KycModalStep =
   | 'capture'
   | 'review'
   | 'success'
+  | 'selfie_intro'
+  | 'selfie_capture'
+  | 'selfie_preview'
+  | 'selfie_result'
+
+export interface SelfieVerifyResult {
+  is_match: boolean
+  confidence_score: number
+  reason: string
+  spoof_type: string
+}
 
 export interface IdentityInfoData {
   identity?: string

@@ -7,16 +7,29 @@ import KycStepGuide from '~/components/identity/KycStepGuide.vue'
 import KycStepCapture from '~/components/identity/KycStepCapture.vue'
 import KycStepReview from '~/components/identity/KycStepReview.vue'
 import KycStepSuccess from '~/components/identity/KycStepSuccess.vue'
+import KycStepSelfieIntro from '~/components/identity/KycStepSelfieIntro.vue'
+import KycStepSelfieCapture from '~/components/identity/KycStepSelfieCapture.vue'
+import KycStepSelfiePreview from '~/components/identity/KycStepSelfiePreview.vue'
+import KycStepSelfieResult from '~/components/identity/KycStepSelfieResult.vue'
 import type { KycModalStep } from '~/types/identity'
 
 const kycModal = useIdentityKycModal()
 
-const isDark = computed(() => kycModal.step.value === 'capture')
-const title = computed(() =>
-  kycModal.step.value === 'capture' ? 'Foto Kartu Identitas' : 'Verifikasi Identitas',
+const isDark = computed(
+  () => kycModal.step.value === 'capture' || kycModal.step.value === 'selfie_capture',
 )
+const title = computed(() => {
+  if (kycModal.step.value === 'capture') return 'Foto Kartu Identitas'
+  if (kycModal.step.value === 'selfie_capture') return 'Foto Selfie dengan KTP'
+  if (kycModal.step.value.startsWith('selfie_')) return 'Verifikasi Selfie'
+  return 'Verifikasi Identitas'
+})
 const showBack = computed(
-  () => kycModal.step.value !== 'intro' && kycModal.step.value !== 'success',
+  () =>
+    kycModal.step.value !== 'intro' &&
+    kycModal.step.value !== 'success' &&
+    kycModal.step.value !== 'selfie_intro' &&
+    kycModal.step.value !== 'selfie_result',
 )
 
 const previousStep: Partial<Record<KycModalStep, KycModalStep>> = {
@@ -24,6 +37,8 @@ const previousStep: Partial<Record<KycModalStep, KycModalStep>> = {
   guide: 'choose',
   capture: 'guide',
   review: 'capture',
+  selfie_capture: 'selfie_intro',
+  selfie_preview: 'selfie_capture',
 }
 
 function handleBack() {
@@ -164,6 +179,35 @@ onBeforeUnmount(() => {
 
             <KycStepSuccess
               v-else-if="kycModal.step.value === 'success'"
+              @done="kycModal.close"
+            />
+
+            <KycStepSelfieIntro
+              v-else-if="kycModal.step.value === 'selfie_intro'"
+              @start="kycModal.setStep('selfie_capture')"
+              @skip="kycModal.close"
+            />
+
+            <KycStepSelfieCapture
+              v-else-if="kycModal.step.value === 'selfie_capture'"
+              :error-message="kycModal.errorMessage.value"
+              @captured="kycModal.captureSelfieImage"
+              @error="handleCaptureError"
+            />
+
+            <KycStepSelfiePreview
+              v-else-if="kycModal.step.value === 'selfie_preview'"
+              :selfie-image="kycModal.selfieImage.value"
+              @retake="kycModal.setStep('selfie_capture')"
+              @submit="kycModal.submitSelfie"
+            />
+
+            <KycStepSelfieResult
+              v-else-if="kycModal.step.value === 'selfie_result'"
+              :is-verifying="kycModal.isSelfieVerifying.value"
+              :result="kycModal.selfieResult.value"
+              :error-message="kycModal.errorMessage.value"
+              @retake="kycModal.setStep('selfie_capture')"
               @done="kycModal.close"
             />
           </div>

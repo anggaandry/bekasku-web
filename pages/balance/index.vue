@@ -60,6 +60,9 @@ const helpChatStore = useHelpChatStore()
 const isUserVerified = computed(() =>
   Boolean(identityInfo.value?.identity_number || identityInfo.value?.identity)
 )
+const isSelfieVerified = computed(() =>
+  Boolean(identityInfo.value?.selfie_identity || identityInfo.value?.has_selfie_identity)
+)
 
 // Withdraw Modal visibility (Wide 2-column on desktop, bottom-sheet on mobile)
 const showWithdrawModal = ref(false)
@@ -73,6 +76,26 @@ const showDetailModal = ref(false)
 function handleOpenWithdraw() {
   if (!isUserVerified.value) {
     kycModal.open({
+      reason: 'withdraw',
+      featureName: 'Tarik Saldo',
+      onSuccess: () => {
+        if (!isSelfieVerified.value) {
+          kycModal.openSelfie({
+            reason: 'withdraw',
+            featureName: 'Tarik Saldo',
+            onSuccess: () => {
+              showWithdrawModal.value = true
+            },
+          })
+          return
+        }
+        showWithdrawModal.value = true
+      },
+    })
+    return
+  }
+  if (!isSelfieVerified.value) {
+    kycModal.openSelfie({
       reason: 'withdraw',
       featureName: 'Tarik Saldo',
       onSuccess: () => {

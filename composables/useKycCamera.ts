@@ -3,12 +3,16 @@ const JPEG_QUALITY = 0.85
 
 export type KycCameraFacing = 'environment' | 'user'
 
-export function useKycCamera(onCaptured: (base64: string) => void, onError: (message: string) => void) {
+export function useKycCamera(
+  onCaptured: (base64: string) => void,
+  onError: (message: string) => void,
+  initialFacing: KycCameraFacing = 'environment',
+) {
   const videoRef = ref<HTMLVideoElement | null>(null)
   const canvasRef = ref<HTMLCanvasElement | null>(null)
   const fileInputRef = ref<HTMLInputElement | null>(null)
   const mediaStream = ref<MediaStream | null>(null)
-  const facing = ref<KycCameraFacing>('environment')
+  const facing = ref<KycCameraFacing>(initialFacing)
   const isActive = ref(false)
   const cameraError = ref('')
 

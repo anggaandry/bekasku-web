@@ -23,6 +23,9 @@ const kycModal = useIdentityKycModal()
 const isVerified = computed(() => {
   return Boolean(props.identityInfo?.identity_number || props.identityInfo?.identity)
 })
+const isSelfieVerified = computed(() => {
+  return Boolean(props.identityInfo?.selfie_identity || props.identityInfo?.has_selfie_identity)
+})
 
 // Privacy & Masking states (matching IdentityInfoController V3)
 const isMasked = ref(true)
@@ -222,6 +225,31 @@ function toggleMask() {
             <EyeOff v-if="!isMasked" class="w-4 h-4" />
             <Eye v-else class="w-4 h-4" />
           </button>
+        </div>
+
+        <!-- Status Verifikasi Selfie (Penarikan Saldo) -->
+        <div class="px-5 sm:px-6 py-4 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs text-text-muted font-medium">Verifikasi Selfie dengan KTP</p>
+            <p class="text-xs font-semibold mt-0.5" :class="isSelfieVerified ? 'text-success-text' : 'text-warning'">
+              {{ isSelfieVerified ? 'Wajah sudah terverifikasi' : 'Diperlukan untuk penarikan saldo' }}
+            </p>
+          </div>
+          <button
+            v-if="!isSelfieVerified"
+            type="button"
+            class="px-3.5 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
+            @click="kycModal.openSelfie({ reason: 'account' })"
+          >
+            Verifikasi Selfie
+          </button>
+          <span
+            v-else
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-success-soft text-success-text border border-success-border shrink-0"
+          >
+            <CheckCircle2 class="w-3.5 h-3.5" />
+            <span>Terverifikasi</span>
+          </span>
         </div>
       </div>
 
