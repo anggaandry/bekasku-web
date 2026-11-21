@@ -86,10 +86,14 @@ export function useIdentityKyc() {
       const res = await api.post<{
         message?: string
         result?: { name?: string; number?: string }
-      }>(API_IDENTITY_ML_VISION, {
-        identity_type: docType,
-        identity: cleanBase64,
-      })
+      }>(
+        API_IDENTITY_ML_VISION,
+        {
+          identity_type: docType,
+          identity: cleanBase64,
+        },
+        { useAuthToken: true },
+      )
 
       if (res?.result) {
         return {
@@ -131,7 +135,8 @@ export function useIdentityKyc() {
           identity_number: payload.identity_number,
           identity_type: payload.identity_type,
           identity: cleanBase64,
-        }
+        },
+        { useAuthToken: true },
       )
 
       if (res?.message === 'Success' || res?.result) {

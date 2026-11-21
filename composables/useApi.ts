@@ -2,6 +2,7 @@ import {
   DEFAULT_API_BASE,
   TOKEN_REQ,
   TOKEN_DEF,
+  TOKEN_AUTH,
   TOKEN_PAYMENT,
   JWT_SECRET_DEF,
   API_REQUEST_TOKEN,
@@ -19,6 +20,7 @@ interface ApiOptions {
   headers?: Record<string, string>
   params?: Record<string, any>
   skipAuthRefresh?: boolean
+  useAuthToken?: boolean
   usePaymentToken?: boolean
 }
 
@@ -114,7 +116,11 @@ export function useApi() {
       ? { lang: activeLang, ...options.body }
       : options.body
 
-    const authToken = options.usePaymentToken ? TOKEN_PAYMENT : TOKEN_DEF
+    const authToken = options.usePaymentToken
+      ? TOKEN_PAYMENT
+      : options.useAuthToken
+        ? TOKEN_AUTH
+        : TOKEN_DEF
     const buildHeaders = (t: string | null) => ({
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       'Accept-Language': activeLang,
