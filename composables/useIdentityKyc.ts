@@ -273,18 +273,18 @@ export function useIdentityKycModal() {
   }
 
   async function submitKyc() {
-    const name = identityName.value.trim()
-    const num = identityNumber.value.trim()
-
-    if (!name) {
-      errorMessage.value = 'Nama identitas wajib diisi'
+    if (!capturedImage.value) {
+      errorMessage.value = 'Silakan ambil foto terlebih dahulu'
       return
     }
+
+    const name = identityName.value.trim()
+    const num = identityNumber.value.trim()
 
     if (!num) {
       errorMessage.value =
         docType.value === 'KTP'
-          ? 'NIK wajib diisi (16 digit)'
+          ? 'NIK wajib diisi'
           : 'Nomor SIM wajib diisi'
       return
     }
@@ -297,8 +297,8 @@ export function useIdentityKycModal() {
       }
     }
 
-    if (!capturedImage.value) {
-      errorMessage.value = 'Foto kartu identitas wajib diambil'
+    if (!name) {
+      errorMessage.value = 'Nama wajib diisi'
       return
     }
 
