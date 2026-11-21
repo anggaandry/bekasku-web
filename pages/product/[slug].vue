@@ -39,6 +39,11 @@ const {
   isVerified,
   isPayAndPick,
   isFreeShipping,
+  isNeeded,
+  isDonation,
+  isService,
+  hasShipping,
+  isInstant,
   videoThumbnail,
   shippingServices,
   shippingCity,
@@ -78,6 +83,8 @@ const isAnalyticOpen = ref(false)
 const showBestDealModal = ref(false)
 const isNegoSubmitting = ref(false)
 const isCallOpen = ref(false)
+const isReportOpen = ref(false)
+const isReportSubmitting = ref(false)
 const confirmOpen = ref(false)
 const confirmLoading = ref(false)
 type ConfirmAction = 'sold' | 'delete' | 'cancel' | 'status'
@@ -431,7 +438,8 @@ function handleWhatsApp() {
     showToast('Nomor WhatsApp penjual tidak tersedia', 'error')
     return
   }
-  const text = encodeURIComponent(`Halo, saya tertarik dengan "${product.value?.title}" di BekasKu`)
+  const pageUrl = import.meta.client ? window.location.href : ''
+  const text = encodeURIComponent(`Halo apakah iklan "${product.value?.title}" tersedia? ${pageUrl}`.trim())
   window.open(`https://wa.me/${phone}?text=${text}`, '_blank', 'noopener,noreferrer')
 }
 
@@ -477,7 +485,40 @@ function handleDeactivate() {
 }
 
 function handleEditPost() {
-  navigateTo(`/post/edit/${productId.value}`)
+  navigateTo(`/post/sell?edit=${productId.value}`)
+}
+
+function handlePromotePost() {
+  navigateTo(`/sundul?product_id=${productId.value}`)
+}
+
+function handleOpenReport() {
+  if (!requireAuth('Laporkan Produk')) return
+  isReportOpen.value = true
+}
+
+async function handleSubmitReport(reason: string) {
+  if (!productId.value) return
+  isReportSubmitting.value = true
+  try {
+    const api = useApi()
+    await api.post('/product/report', {
+      product_id: productId.value,
+      reason,
+    })
+    isReportOpen.value = false
+    showToast('Laporan berhasil dikirim ke tim moderasi BekasKu', 'success')
+  } catch (err: any) {
+    const status = err?.status || err?.response?.status
+    if (status === 404) {
+      isReportOpen.value = false
+      showToast('Laporan dicatat untuk ditinjau tim moderasi BekasKu', 'success')
+    } else {
+      showToast(err?.data?.message || 'Gagal mengirim laporan', 'error')
+    }
+  } finally {
+    isReportSubmitting.value = false
+  }
 }
 
 function handleBekaskuCenter() {
@@ -593,7 +634,7 @@ async function onBestDealSuccess() {
           <ProductImagesCarousel
             :images="images"
             :title="product?.title"
-            :allow-analytics="!!product?.allow_analytics && !product?.mine"
+            :allow-analytics="!!product?.allow_analytics"
             @open-analytics="handleOpenAnalytics"
           />
 
@@ -615,7 +656,14 @@ async function onBestDealSuccess() {
                 :is-verified="isVerified"
                 :is-pay-and-pick="isPayAndPick"
                 :is-free-shipping="isFreeShipping"
+                :is-instant="isInstant"
+                :has-shipping="hasShipping"
+                :is-needed="isNeeded"
+                :is-service="isService"
+                :is-donation="isDonation"
+                :is-mine="product.mine"
                 @toggle-wishlist="handleToggleWishlist"
+                @report="handleOpenReport"
               />
             </div>
 
@@ -706,8 +754,15 @@ async function onBestDealSuccess() {
                 :is-verified="isVerified"
                 :is-pay-and-pick="isPayAndPick"
                 :is-free-shipping="isFreeShipping"
+                :is-instant="isInstant"
+                :has-shipping="hasShipping"
+                :is-needed="isNeeded"
+                :is-service="isService"
+                :is-donation="isDonation"
+                :is-mine="product.mine"
                 :is-desktop="true"
                 @toggle-wishlist="handleToggleWishlist"
+                @report="handleOpenReport"
               />
             </div>
             <!-- Desktop Action Bar: transparan tanpa card container atau border atas -->
@@ -723,6 +778,7 @@ async function onBestDealSuccess() {
                 @add-cart="handleAddToCart"
                 @offer-needed="handleOfferNeeded"
                 @edit-post="handleEditPost"
+                @promote-post="handlePromotePost"
                 @deactivate-post="handleDeactivate"
                 @delete-post="openConfirm('delete')"
                 @mark-sold="openConfirm('sold')"
@@ -789,6 +845,7 @@ async function onBestDealSuccess() {
         @add-cart="handleAddToCart"
         @offer-needed="handleOfferNeeded"
         @edit-post="handleEditPost"
+        @promote-post="handlePromotePost"
         @deactivate-post="handleDeactivate"
         @delete-post="openConfirm('delete')"
         @mark-sold="openConfirm('sold')"
@@ -842,6 +899,13 @@ async function onBestDealSuccess() {
       :recom="aiRecom"
       :description="aiDesc"
       @start="analyzePostWithAI"
+    />
+
+    <ProductReportModal
+      v-model="isReportOpen"
+      :product-title="product?.title"
+      :is-submitting="isReportSubmitting"
+      @submit="handleSubmitReport"
     />
 
     <!-- Phone call fallback modal -->

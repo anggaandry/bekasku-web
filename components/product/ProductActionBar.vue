@@ -7,6 +7,7 @@ import {
   Trash2,
   Headset,
   PackageX,
+  TrendingUp,
 } from 'lucide-vue-next'
 import type { ProductDetail, ProductSeller } from '~/types/product'
 
@@ -24,6 +25,7 @@ const emit = defineEmits<{
   (e: 'add-cart'): void
   (e: 'offer-needed'): void
   (e: 'edit-post'): void
+  (e: 'promote-post'): void
   (e: 'deactivate-post'): void
   (e: 'delete-post'): void
   (e: 'mark-sold'): void
@@ -59,9 +61,11 @@ const bdComing = computed(() => String(props.product.bd_coming || '').trim())
 const discount = computed(() => Number(props.product.discount || 0))
 
 const isSoldOrUnavailable = computed(() => {
+  const outOfStock = Number(props.product.stock ?? 1) <= 0 && !isNeeded.value && !isService.value
   return (
     onSale.value ||
     step.value === 2 ||
+    outOfStock ||
     onExpired.value ||
     (!onAir.value && !onVerify.value)
   )
@@ -208,18 +212,22 @@ const activeMode = computed(() => {
         </button>
       </div>
 
-      <!-- 2D. BUYER SERVICE (Jasa & Lowongan Kerja): [Hubungi Phone Outlined] | [Chat Pengiklan Filled White Text] -->
+      <!-- 2D. BUYER SERVICE (Jasa & Lowongan Kerja): [Hubungi Phone] | [WhatsApp] | [Chat Pengiklan] -->
       <div
         v-else-if="activeMode === 'buyer_service'"
-        class="w-full h-12 flex items-center gap-3"
+        class="w-full h-12 flex items-center gap-2"
       >
+        <ProductActionIconButton label="Hubungi Telepon" title="Hubungi Telepon" @click="emit('call')">
+          <Phone class="w-[20px] h-[20px]" />
+        </ProductActionIconButton>
+
         <button
           type="button"
-          @click="emit('call')"
-          class="flex-1 h-full px-3 rounded-xl border border-primary bg-white text-primary hover:bg-primary/8 font-semibold text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          @click="emit('whatsapp')"
+          class="flex-1 h-full px-3 rounded-xl border border-emerald-600 bg-white text-emerald-700 hover:bg-emerald-50 font-semibold text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
         >
-          <Phone class="w-[18px] h-[18px] shrink-0" />
-          <span>Hubungi</span>
+          <MessageCircle class="w-[18px] h-[18px] shrink-0" />
+          <span>WhatsApp</span>
         </button>
 
         <button
@@ -259,13 +267,17 @@ const activeMode = computed(() => {
         </button>
       </div>
 
-      <!-- 3A. SELLER DEFAULT / ON-SALE: [Pencil Icon] | [PowerOff Icon] | [Trash2 Icon] | [Tandai Terjual / Ditemukan Filled] -->
+      <!-- 3A. SELLER DEFAULT / ON-SALE: [Pencil Icon] | [Promosikan Icon] | [PowerOff Icon] | [Trash2 Icon] | [Tandai Terjual / Ditemukan Filled] -->
       <div
         v-else-if="activeMode === 'seller_default' || activeMode === 'seller_on_sale'"
         class="w-full h-12 flex items-center gap-2"
       >
         <ProductActionIconButton label="Edit Iklan" title="Edit Iklan" @click="emit('edit-post')">
           <Pencil class="w-[20px] h-[20px]" />
+        </ProductActionIconButton>
+
+        <ProductActionIconButton label="Promosikan" title="Promosikan & Sundul" @click="emit('promote-post')">
+          <TrendingUp class="w-[20px] h-[20px]" />
         </ProductActionIconButton>
 
         <ProductActionIconButton label="Nonaktifkan Postingan" title="Nonaktifkan / Aktifkan Iklan" @click="emit('deactivate-post')">

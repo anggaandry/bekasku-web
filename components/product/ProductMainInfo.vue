@@ -14,6 +14,7 @@ import {
   Briefcase,
   CircleAlert,
   HeartHandshake,
+  Flag,
 } from 'lucide-vue-next'
 import type { ProductDetail } from '~/types/product'
 import { formatRupiah } from '~/utils/format'
@@ -34,10 +35,12 @@ const props = defineProps<{
   isService?: boolean
   isDonation?: boolean
   isDesktop?: boolean
+  isMine?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'toggle-wishlist'): void
+  (e: 'report'): void
 }>()
 
 const rate = computed(() => {
@@ -57,20 +60,32 @@ const totalView = computed(() => Number(props.product.total_view || 0))
         <h1 class="font-outfit font-bold text-lg sm:text-xl text-text leading-snug">
           {{ product.title }}
         </h1>
-        <button
-          type="button"
-          @click="emit('toggle-wishlist')"
-          class="p-2 rounded-full hover:bg-surface-2 transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 border border-border-light shadow-2xs"
-          :aria-label="isWishlist ? 'Hapus dari Favorit' : 'Simpan ke Favorit'"
-        >
-          <Heart
-            class="w-5 h-5 transition-colors"
-            :class="isWishlist ? 'fill-primary text-primary' : 'text-text-muted hover:text-primary'"
-          />
-          <span v-if="totalFavorite && totalFavorite > 0" class="font-outfit text-xs font-semibold text-text">
-            {{ totalFavorite }}
-          </span>
-        </button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            @click="emit('toggle-wishlist')"
+            class="p-2 rounded-full hover:bg-surface-2 transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 border border-border-light shadow-2xs"
+            :aria-label="isWishlist ? 'Hapus dari Favorit' : 'Simpan ke Favorit'"
+          >
+            <Heart
+              class="w-5 h-5 transition-colors"
+              :class="isWishlist ? 'fill-primary text-primary' : 'text-text-muted hover:text-primary'"
+            />
+            <span v-if="totalFavorite && totalFavorite > 0" class="font-outfit text-xs font-semibold text-text">
+              {{ totalFavorite }}
+            </span>
+          </button>
+          <button
+            v-if="!isMine"
+            type="button"
+            @click="emit('report')"
+            class="p-2 rounded-full hover:bg-red-50 text-text-muted hover:text-danger transition-colors cursor-pointer shrink-0 border border-border-light shadow-2xs"
+            title="Laporkan Produk"
+            aria-label="Laporkan Produk"
+          >
+            <Flag class="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <!-- Row 2: Rating, Views & Location Meta -->
@@ -227,20 +242,32 @@ const totalView = computed(() => Number(props.product.total_view || 0))
           </span>
         </div>
 
-        <button
-          type="button"
-          @click="emit('toggle-wishlist')"
-          class="p-1.5 rounded-full hover:bg-surface-2 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
-          :aria-label="isWishlist ? 'Hapus dari Favorit' : 'Simpan ke Favorit'"
-        >
-          <Heart
-            class="w-5 h-5 transition-colors"
-            :class="isWishlist ? 'fill-text text-text' : 'text-text'"
-          />
-          <span v-if="totalFavorite && totalFavorite > 0" class="font-outfit text-xs font-medium text-text-muted">
-            {{ totalFavorite }}
-          </span>
-        </button>
+        <div class="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            @click="emit('toggle-wishlist')"
+            class="p-1.5 rounded-full hover:bg-surface-2 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+            :aria-label="isWishlist ? 'Hapus dari Favorit' : 'Simpan ke Favorit'"
+          >
+            <Heart
+              class="w-5 h-5 transition-colors"
+              :class="isWishlist ? 'fill-text text-text' : 'text-text'"
+            />
+            <span v-if="totalFavorite && totalFavorite > 0" class="font-outfit text-xs font-medium text-text-muted">
+              {{ totalFavorite }}
+            </span>
+          </button>
+          <button
+            v-if="!isMine"
+            type="button"
+            @click="emit('report')"
+            class="p-1.5 rounded-full hover:bg-red-50 text-text-muted hover:text-danger transition-colors cursor-pointer shrink-0"
+            title="Laporkan Produk"
+            aria-label="Laporkan Produk"
+          >
+            <Flag class="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <!-- Row 2: Badges -->
