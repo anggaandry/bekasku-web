@@ -64,8 +64,7 @@ watch(
 function handleLogout() {
   chatStore.disconnectAll()
   helpChatStore.disconnectAll()
-  authStore.clearSession()
-  navigateTo('/')
+  authModal.logoutWithReload(route.path)
 }
 
 const showGlobalHeader = computed(() => {

@@ -82,7 +82,7 @@ export function useIdentityKyc() {
   ): Promise<{ success: boolean; data?: MlVisionResult; message?: string }> {
     try {
       // Strip data:image/...;base64, prefix if present
-      const cleanBase64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, '')
+      const cleanBase64 = base64Image.replace(/^data:image\/[^;]+;base64,/i, '')
       const res = await api.post<{
         message?: string
         result?: { name?: string; number?: string }
@@ -121,7 +121,7 @@ export function useIdentityKyc() {
   ): Promise<{ success: boolean; message: string }> {
     try {
       const cleanBase64 = payload.identity.replace(
-        /^data:image\/[a-z]+;base64,/,
+        /^data:image\/[^;]+;base64,/i,
         ''
       )
       const res = await api.post<{ message?: string; result?: unknown }>(
@@ -199,7 +199,7 @@ export function useIdentityKycModal() {
     step.value = 'intro'
     docType.value = 'KTP'
     capturedImage.value = ''
-    identityName.value = authStore.user?.name || ''
+    identityName.value = ''
     identityNumber.value = ''
     errorMessage.value = ''
     isOpen.value = true
@@ -229,19 +229,45 @@ export function useIdentityKycModal() {
 
     try {
       const mlRes = await checkMlVision(docType.value, base64Image)
-      if (mlRes.success && mlRes.data) {
-        if (mlRes.data.name) {
-          identityName.value = mlRes.data.name
-        }
-        if (mlRes.data.number) {
-          identityNumber.value = mlRes.data.number
-        }
+      if (!mlRes.success || !mlRes.data) {
+        capturedImage.value = ''
+        errorMessage.value =
+          mlRes.message ||
+          'Identitas tidak terbaca. Pastikan foto jelas, tidak buram, dan kartu pas di dalam bingkai.'
+        return
       }
+
+      const nameStr = mlRes.data.name.trim()
+      const numStr = mlRes.data.number.trim()
+
+      if (!nameStr || !numStr) {
+        capturedImage.value = ''
+        errorMessage.value =
+          'Identitas tidak terbaca. Pastikan foto jelas, tidak buram, dan kartu pas di dalam bingkai.'
+        return
+      }
+
+      if (docType.value === 'KTP') {
+        const cleanNik = numStr.replace(/\D/g, '')
+        if (cleanNik.length !== 16) {
+          capturedImage.value = ''
+          errorMessage.value =
+            'NIK tidak terbaca lengkap (harus 16 digit). Silakan foto ulang dengan posisi kartu yang jelas.'
+          return
+        }
+        identityNumber.value = cleanNik
+      } else {
+        identityNumber.value = numStr
+      }
+
+      identityName.value = nameStr
+      step.value = 'review'
     } catch {
-      // OCR fail soft fallback: proceed to review screen so user can verify/fill
+      capturedImage.value = ''
+      errorMessage.value =
+        'Identitas tidak terbaca atau koneksi bermasalah. Silakan coba lagi.'
     } finally {
       isOcrLoading.value = false
-      step.value = 'review'
     }
   }
 

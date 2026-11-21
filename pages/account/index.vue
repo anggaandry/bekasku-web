@@ -281,8 +281,7 @@ function handleLogout() {
   showLogoutConfirmModal.value = false
   chatStore.disconnectAll()
   helpChatStore.disconnectAll()
-  authStore.clearSession()
-  navigateTo('/')
+  useAuthModal().logoutWithReload(route.path)
 }
 
 async function loadIdentityData() {

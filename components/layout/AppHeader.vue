@@ -555,27 +555,7 @@ const promptLogout = () => {
 
 const confirmLogout = () => {
   showLogoutConfirm.value = false
-  authStore.clearSession()
-  const protectedPrefixes = [
-    '/profile',
-    '/account',
-    '/transactions',
-    '/cart',
-    '/balance',
-    '/sundul',
-    '/catalog',
-    '/favorite',
-    '/chat',
-    '/notifications',
-    '/post',
-    '/phone/verify',
-  ]
-  const isProtectedRoute = protectedPrefixes.some((prefix) => route.path.startsWith(prefix))
-  authModal.triggerAuthReload(
-    'Sedang Keluar...',
-    'Mengakhiri sesi akun Anda...',
-    isProtectedRoute ? '/' : undefined,
-  )
+  authModal.logoutWithReload(route.path)
 }
 
 const isCheckingKyc = ref(false)

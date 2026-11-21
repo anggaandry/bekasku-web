@@ -104,9 +104,43 @@ export function useNotificationRouter() {
       return
     }
 
-    // Default Fallback
-    if (item.type === 2) {
-      navigateTo('/best-deal')
+    // Moderasi Iklan & Pengelolaan Katalog
+    if (
+      title.includes('iklan') ||
+      desc.includes('iklan') ||
+      desc.includes('ditayangkan') ||
+      desc.includes('menunggu verifikasi') ||
+      desc.includes('verifikasi') ||
+      desc.includes('ditolak') ||
+      title.includes('katalog')
+    ) {
+      navigateTo('/catalog')
+      return
+    }
+
+    // Langganan VIP & Pengajuan BekasKu+
+    if (
+      title.includes('langganan') ||
+      desc.includes('langganan') ||
+      title.includes('vip') ||
+      desc.includes('vip')
+    ) {
+      navigateTo('/subscribe/vip')
+      return
+    }
+    if (
+      title.includes('bekasku+') ||
+      desc.includes('bekasku+') ||
+      title.includes('bekas ku+') ||
+      desc.includes('bekas ku+')
+    ) {
+      navigateTo('/bekasku-plus/status')
+      return
+    }
+
+    // Default Fallback (Promo BekasKu / Diskon / Penawaran)
+    if (item.type === 2 || title.includes('promo') || desc.includes('promo')) {
+      navigateTo('/promo')
       return
     }
 

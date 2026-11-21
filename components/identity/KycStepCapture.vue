@@ -93,9 +93,14 @@ onMounted(() => {
     <p class="text-xs sm:text-sm text-white/80 text-center font-medium mt-4">
       Letakkan bagian depan kartu identitas di dalam frame
     </p>
-    <p v-if="errorMessage" class="text-xs text-warning text-center mt-2" role="alert">
-      {{ errorMessage }}
-    </p>
+    <div
+      v-if="errorMessage"
+      class="w-full max-w-sm mt-3 px-3.5 py-2.5 rounded-xl bg-red-500/15 border border-red-400/40 text-red-200 text-xs flex items-start gap-2"
+      role="alert"
+    >
+      <AlertCircle class="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+      <span>{{ errorMessage }}</span>
+    </div>
     <div class="h-4" />
 
     <div class="w-full flex items-center justify-around pt-2 pb-1">

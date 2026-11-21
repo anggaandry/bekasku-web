@@ -116,7 +116,7 @@ export function useAddress() {
         location: formatFullAddress(addr) || addr.city,
         city: addr.city,
         province: addr.province || locationStore.province,
-      }).catch(() => {})
+      }).catch(() => { })
     }
   }
 

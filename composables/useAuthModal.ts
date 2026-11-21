@@ -285,6 +285,40 @@ export function useAuthModal() {
     }
   }
 
+  const PROTECTED_LOGOUT_PREFIXES = [
+    '/profile',
+    '/account',
+    '/transactions',
+    '/transaction',
+    '/cart',
+    '/checkout',
+    '/address',
+    '/balance',
+    '/sundul',
+    '/catalog',
+    '/favorite',
+    '/wishlist',
+    '/chat',
+    '/notifications',
+    '/post',
+    '/phone/verify',
+    '/bekasku-plus/apply',
+    '/bekasku-plus/status',
+    '/seller/promotion',
+    '/seller/catalog',
+  ]
+
+  function logoutWithReload(currentPath?: string) {
+    authStore.clearSession()
+    const path = currentPath || (import.meta.client ? window.location.pathname : '')
+    const isProtectedRoute = PROTECTED_LOGOUT_PREFIXES.some((prefix) => path.startsWith(prefix))
+    triggerAuthReload(
+      'Sedang Keluar...',
+      'Mengakhiri sesi akun Anda...',
+      isProtectedRoute ? '/' : undefined,
+    )
+  }
+
   function triggerAuthReload(title: string, subtitle: string, targetUrl?: string) {
     const safeUrl = sanitizeRedirectPath(targetUrl)
     closeModal()
@@ -1151,7 +1185,7 @@ export function useAuthModal() {
         finalizeSuccessNavigation()
       } else {
         closeModal()
-        await refreshNuxtData().catch(() => {})
+        await refreshNuxtData().catch(() => { })
       }
     } finally {
       isSubmitting.value = false
@@ -1171,6 +1205,7 @@ export function useAuthModal() {
     reloadingTitle,
     reloadingSubtitle,
     triggerAuthReload,
+    logoutWithReload,
     otpOrigin,
     otpMethods,
     loginDraft,

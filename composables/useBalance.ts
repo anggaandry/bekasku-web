@@ -245,7 +245,7 @@ export function useBalance() {
       const res = await api.post<{
         message?: string
         result?: unknown
-      }>(API_BALANCE_WITHDRAW, payload)
+      }>(API_BALANCE_WITHDRAW, payload, { usePaymentToken: true })
 
       if (res?.message === 'Success') {
         // Refresh balance and history after successful withdraw
