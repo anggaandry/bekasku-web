@@ -31,10 +31,10 @@ export function useCheckout() {
   // Draft checkout state
   const draft = useState<CheckoutDraft | null>('checkout-draft', () => null)
 
-  // Orders per seller
-  const sellers = ref<CheckoutDraftSeller[]>([])
-  const address = ref<CheckoutAddress | null>(null)
-  const serviceFee = ref<number>(1000)
+  // Orders per seller (shared across /checkout and /checkout/payment)
+  const sellers = useState<CheckoutDraftSeller[]>('checkout-sellers', () => [])
+  const address = useState<CheckoutAddress | null>('checkout-address', () => null)
+  const serviceFee = useState<number>('checkout-service-fee', () => 1000)
   const loading = ref<boolean>(false)
   const error = ref<string>('')
 
@@ -48,7 +48,7 @@ export function useCheckout() {
   const paymentFee = ref<number>(0)
 
   // Inisialisasi Sellers dari Draft
-  function initFromDraft() {
+  function initFromDraft(preserveSelections = false) {
     if (!draft.value || !draft.value.items || draft.value.items.length === 0) {
       // Fallback: jika draft kosong tapi cartStore punya checked products
       if (cartStore.checkedProducts.length > 0) {
@@ -60,6 +60,10 @@ export function useCheckout() {
       } else {
         return false
       }
+    }
+
+    if (preserveSelections && sellers.value.length > 0) {
+      return true
     }
 
     // Kelompokkan item per seller

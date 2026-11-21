@@ -68,7 +68,7 @@ onMounted(async () => {
     return
   }
 
-  const hasDraft = initFromDraft()
+  const hasDraft = initFromDraft(true)
   if (!hasDraft) {
     navigateTo('/cart')
     return
