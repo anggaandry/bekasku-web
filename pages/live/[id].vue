@@ -365,6 +365,12 @@ function openLoginGate() {
 
 onMounted(async () => {
   authStore.initFromStorage()
+  const livePlayer = useLivePlayer()
+  if (liveId) {
+    livePlayer.openLive(liveId, getInitialHost())
+    navigateTo('/live', { replace: true })
+    return
+  }
   if (authStore.isLoggedIn) {
     await joinRoom(getInitialHost())
   }

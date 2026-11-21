@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="modelValue"
-      class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs transition-opacity"
+      class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs transition-opacity"
       @click.self="$emit('update:modelValue', false)"
     >
       <div
@@ -86,15 +86,14 @@
             </div>
 
             <!-- CTA Beli / Lihat -->
-            <NuxtLink
-              :to="`/product/${item._id}`"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="px-4 py-2 rounded-xl bg-primary hover:bg-red-700 text-white font-bold text-xs transition-transform active:scale-95 shrink-0 shadow-xs flex items-center gap-1.5"
+            <button
+              type="button"
+              class="px-4 py-2 rounded-xl bg-primary hover:bg-red-700 text-white font-bold text-xs transition-transform active:scale-95 shrink-0 shadow-xs flex items-center gap-1.5 cursor-pointer"
+              @click="$emit('select-product', item._id)"
             >
               <span>Beli</span>
               <ExternalLink class="w-3 h-3" />
-            </NuxtLink>
+            </button>
           </div>
         </div>
       </div>
@@ -115,6 +114,7 @@ defineProps<{
 
 defineEmits<{
   'update:modelValue': [val: boolean]
+  'select-product': [productId: string]
 }>()
 
 function formatRupiah(num: number): string {

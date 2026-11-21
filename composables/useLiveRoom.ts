@@ -8,11 +8,14 @@ import {
 } from '~/utils/constants'
 import type { LiveProductItem, LiveChatMessage } from '~/types/live'
 import { useAuthStore } from '~/stores/auth'
+import { useLiveShopping } from '~/composables/useLiveShopping'
 
-export function useLiveRoom(liveId: string) {
+export function useLiveRoom(initialLiveId = '') {
   const api = useApi()
   const authStore = useAuthStore()
   const config = useRuntimeConfig()
+  const { removeLiveSession } = useLiveShopping()
+  let activeRoomId = initialLiveId
 
   const host = ref<{
     id: string
@@ -51,13 +54,61 @@ export function useLiveRoom(liveId: string) {
   // 1. LiveKit Video Attachment Ref
   const videoElementRef = ref<HTMLVideoElement | null>(null)
 
-  async function joinRoom(initialHost?: {
-    id: string
-    name: string
-    avatar: string
-    rating?: number
-    title?: string
-  }) {
+  function markLiveEnded() {
+    isLiveEnded.value = true
+    isConnected.value = false
+    if (activeRoomId) {
+      removeLiveSession(activeRoomId)
+    }
+  }
+
+  async function checkSessionStillAlive(): Promise<boolean> {
+    if (!activeRoomId) return false
+    try {
+      const validateRes = await api.post<{
+        status?: boolean
+        result?: {
+          status?: 'living' | 'ended'
+        }
+      }>(API_LIVE_VALIDATE, { live_id: activeRoomId })
+      if (validateRes?.result?.status === 'ended') {
+        markLiveEnded()
+        return false
+      }
+      return true
+    } catch (valErr: any) {
+      const status = valErr?.statusCode || valErr?.status || valErr?.response?.status
+      if (status === 404 || valErr?.data?.status === false) {
+        markLiveEnded()
+        return false
+      }
+      return true
+    }
+  }
+
+  async function joinRoom(
+    initialHost?: {
+      id: string
+      name: string
+      avatar: string
+      rating?: number
+      title?: string
+    },
+    overrideLiveId?: string,
+  ) {
+    if (overrideLiveId && overrideLiveId !== activeRoomId) {
+      await leaveRoom()
+      activeRoomId = overrideLiveId
+    }
+    const liveId = activeRoomId
+    if (!liveId) return
+
+    isLiveEnded.value = false
+    messages.value = []
+    pinnedProduct.value = null
+    hostProducts.value = []
+    viewers.value = 0
+
     if (initialHost) {
       host.value = {
         id: initialHost.id,
@@ -95,7 +146,7 @@ export function useLiveRoom(liveId: string) {
 
         if (validateRes?.result) {
           if (validateRes.result.status === 'ended') {
-            isLiveEnded.value = true
+            markLiveEnded()
             isConnecting.value = false
             return
           }
@@ -114,7 +165,7 @@ export function useLiveRoom(liveId: string) {
       } catch (valErr: any) {
         const status = valErr?.statusCode || valErr?.status || valErr?.response?.status
         if (status === 404 || valErr?.data?.status === false) {
-          isLiveEnded.value = true
+          markLiveEnded()
           isConnecting.value = false
           return
         }
@@ -152,8 +203,13 @@ export function useLiveRoom(liveId: string) {
             }
           })
 
+          livekitRoom.on(RoomEvent.ParticipantDisconnected, () => {
+            checkSessionStillAlive()
+          })
+
           livekitRoom.on(RoomEvent.Disconnected, () => {
             isConnected.value = false
+            checkSessionStillAlive()
           })
 
           await livekitRoom.connect(LIVEKIT_WS_URL, livekitToken)
@@ -228,6 +284,13 @@ export function useLiveRoom(liveId: string) {
         break
 
       case 'chat':
+        if (
+          payload.sender === 'Sistem' &&
+          typeof payload.message === 'string' &&
+          payload.message.toLowerCase().includes('berakhir')
+        ) {
+          markLiveEnded()
+        }
         messages.value.push({
           id: `chat_${Date.now()}_${Math.random()}`,
           user_id: payload.user_id || '',
@@ -259,7 +322,7 @@ export function useLiveRoom(liveId: string) {
         break
 
       case 'live_ended':
-        isLiveEnded.value = true
+        markLiveEnded()
         break
     }
   }
@@ -268,11 +331,13 @@ export function useLiveRoom(liveId: string) {
     const clean = text.trim()
     if (!clean) return
 
+    const senderName = authStore.displayName || authStore.user?.name || 'Penonton'
+
     // Optimistic UI insert
     messages.value.push({
       id: `chat_${Date.now()}_${Math.random()}`,
       user_id: authStore.userId || '',
-      user_name: authStore.userName || 'Saya',
+      user_name: senderName,
       user_avatar: authStore.userAvatar,
       message: clean,
       is_join: false,
@@ -285,7 +350,7 @@ export function useLiveRoom(liveId: string) {
           command: 'chat',
           message: clean,
           senderID: authStore.userId || '',
-          senderName: authStore.userName || 'Penonton',
+          senderName,
           senderAvatar: authStore.userAvatar || '',
           isHost: false,
         })

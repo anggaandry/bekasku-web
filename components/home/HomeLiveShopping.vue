@@ -581,7 +581,8 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
 })
 
-const { liveSessions, fetchLiveSessions } = useLiveShopping()
+const { liveSessions, fetchLiveSessions, refreshActiveLivesOnly } = useLiveShopping()
+const livePlayer = useLivePlayer()
 const { fetchComments, postComment, toggleLike: apiToggleLike } = useVideoFeed()
 const authStore = useAuthStore()
 const authModal = useAuthModal()
@@ -606,13 +607,38 @@ const feedVideos = computed<VideoFeedItem[]>(() => {
   }))
 })
 
+let livePollTimer: ReturnType<typeof setInterval> | null = null
+
+function handleVisibilityRefresh() {
+  if (typeof document !== 'undefined' && !document.hidden) {
+    refreshActiveLivesOnly()
+  }
+}
+
 onMounted(async () => {
   if (feedVideos.value.length === 0) {
     await fetchLiveSessions()
+  } else {
+    await refreshActiveLivesOnly()
+  }
+  if (import.meta.client) {
+    livePollTimer = setInterval(() => {
+      if (!document.hidden) {
+        refreshActiveLivesOnly()
+      }
+    }, 10000)
+    document.addEventListener('visibilitychange', handleVisibilityRefresh)
   }
 })
 
 onBeforeUnmount(() => {
+  if (livePollTimer) {
+    clearInterval(livePollTimer)
+    livePollTimer = null
+  }
+  if (import.meta.client) {
+    document.removeEventListener('visibilitychange', handleVisibilityRefresh)
+  }
   if (hoverTimer) {
     clearTimeout(hoverTimer)
     hoverTimer = null
@@ -735,7 +761,12 @@ const isSubmittingModalComment = ref(false)
 
 function onCardClick(item: VideoFeedItem) {
   if (item.is_live) {
-    navigateTo(`/live/${item.live_id || item.id}`)
+    livePlayer.openLive(item.live_id || item.id, {
+      id: item.user_id || '',
+      name: item.user_name || 'Host BekasKu',
+      avatar: item.user_avatar || item.thumbnail || '',
+      title: item.title || 'Sesi Jualan Live',
+    })
   } else {
     openVideoModal(item)
   }

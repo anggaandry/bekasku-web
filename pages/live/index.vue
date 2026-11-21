@@ -52,11 +52,12 @@
         v-else-if="activeLives.length > 0"
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4"
       >
-        <NuxtLink
+        <button
           v-for="item in activeLives"
           :key="item.id"
-          :to="`/live/${item.live_id || item.id}`"
-          class="relative rounded-2xl overflow-hidden aspect-[9/13.5] shadow-md group cursor-pointer transition-all duration-300 hover:shadow-xl p-[2px] bg-gradient-to-tr from-[#FF2D20] via-[#FF7332] to-[#FF2D20] block"
+          type="button"
+          class="relative rounded-2xl overflow-hidden aspect-[9/13.5] shadow-md group cursor-pointer transition-all duration-300 hover:shadow-xl p-[2px] bg-gradient-to-tr from-[#FF2D20] via-[#FF7332] to-[#FF2D20] block text-left"
+          @click="openLiveRoom(item)"
         >
           <div class="relative w-full h-full rounded-[14px] overflow-hidden bg-gradient-to-br from-[#2B0A0D] via-black to-[#1E232C] flex flex-col justify-between">
             <img
@@ -109,7 +110,7 @@
               </div>
             </div>
           </div>
-        </NuxtLink>
+        </button>
       </div>
 
       <!-- Empty State -->
@@ -156,10 +157,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { Radio, Plus, Eye, PlaySquare } from 'lucide-vue-next'
 import AppDownloadModal from '~/components/shared/AppDownloadModal.vue'
-import { useLiveShopping } from '~/composables/useLiveShopping'
+import { useLiveShopping, type VideoFeedItem } from '~/composables/useLiveShopping'
+import { useLivePlayer } from '~/composables/useLivePlayer'
 import { sanitizeMediaUrl } from '~/utils/media'
 
 useHead({
@@ -174,15 +176,54 @@ useHead({
   ],
 })
 
-const { fetchLiveSessions } = useLiveShopping()
+const { liveSessions, fetchLiveSessions, refreshActiveLivesOnly } = useLiveShopping()
+const livePlayer = useLivePlayer()
 const showDownloadModal = ref(false)
 const avatarErrMap = reactive<Record<string, boolean>>({})
 
-const { data: allFeed, pending } = await useAsyncData('live-directory-feed', () => fetchLiveSessions())
+const { pending } = await useAsyncData('live-directory-feed', () => fetchLiveSessions())
 
 const activeLives = computed(() => {
-  return (allFeed.value || []).filter((item) => item.is_live)
+  return liveSessions.value.filter((item) => item.is_live)
 })
+
+let livePollTimer: ReturnType<typeof setInterval> | null = null
+
+function handleVisibilityRefresh() {
+  if (typeof document !== 'undefined' && !document.hidden) {
+    refreshActiveLivesOnly()
+  }
+}
+
+onMounted(() => {
+  if (import.meta.client) {
+    livePollTimer = setInterval(() => {
+      if (!document.hidden) {
+        refreshActiveLivesOnly()
+      }
+    }, 10000)
+    document.addEventListener('visibilitychange', handleVisibilityRefresh)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (livePollTimer) {
+    clearInterval(livePollTimer)
+    livePollTimer = null
+  }
+  if (import.meta.client) {
+    document.removeEventListener('visibilitychange', handleVisibilityRefresh)
+  }
+})
+
+function openLiveRoom(item: VideoFeedItem) {
+  livePlayer.openLive(item.live_id || item.id, {
+    id: item.user_id || '',
+    name: item.user_name || 'Host BekasKu',
+    avatar: item.user_avatar || item.thumbnail || '',
+    title: item.title || 'Sesi Jualan Live',
+  })
+}
 
 function formatCompact(num: number): string {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'

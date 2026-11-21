@@ -6,9 +6,48 @@ export type { VideoFeedItem }
 
 export function useLiveShopping() {
   const api = useApi()
-  const liveSessions = ref<VideoFeedItem[]>([])
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const liveSessions = useState<VideoFeedItem[]>('live_shopping_sessions', () => [])
+  const loading = useState<boolean>('live_shopping_loading', () => false)
+  const error = useState<string | null>('live_shopping_error', () => null)
+
+  function mapLiveDocs(rawLives: LiveSession[]): VideoFeedItem[] {
+    return rawLives.map((l: any) => ({
+      id: l.live_id || l._id || String(Math.random()),
+      _id: l._id || l.live_id,
+      live_id: l.live_id,
+      user_id: l.user_id,
+      user_name: l.user_name || 'Host',
+      user_avatar: l.user_avatar || '',
+      thumbnail: l.thumbnail || l.user_avatar || '',
+      video_url: '',
+      title: l.title || 'Sesi Jualan Live',
+      content: l.title || 'Sesi Jualan Live',
+      viewers: l.viewer_count || 0,
+      likes: 0,
+      comments: 0,
+      city: l.city || 'Indonesia',
+      is_live: true,
+    }))
+  }
+
+  async function refreshActiveLivesOnly(): Promise<VideoFeedItem[]> {
+    try {
+      const liveRes = await api.post<{ result?: LiveSession[] }>(API_LIVE_LIST, {})
+      const mappedLives = mapLiveDocs(liveRes?.result || [])
+      const existingVideos = liveSessions.value.filter((item) => !item.is_live)
+      liveSessions.value = [...mappedLives, ...existingVideos]
+      return mappedLives
+    } catch {
+      return liveSessions.value.filter((item) => item.is_live)
+    }
+  }
+
+  function removeLiveSession(liveId: string) {
+    if (!liveId) return
+    liveSessions.value = liveSessions.value.filter(
+      (item) => !(item.is_live && (item.live_id === liveId || item.id === liveId)),
+    )
+  }
 
   async function fetchLiveSessions(): Promise<VideoFeedItem[]> {
     loading.value = true
@@ -18,25 +57,8 @@ export function useLiveShopping() {
       let liveList: VideoFeedItem[] = []
       try {
         const liveRes = await api.post<{ result?: LiveSession[] }>(API_LIVE_LIST, {})
-        const rawLives = liveRes?.result || []
-        liveList = rawLives.map((l: any) => ({
-          id: l.live_id || l._id || String(Math.random()),
-          _id: l._id || l.live_id,
-          live_id: l.live_id,
-          user_id: l.user_id,
-          user_name: l.user_name || 'Host',
-          user_avatar: l.user_avatar || '',
-          thumbnail: l.thumbnail || l.user_avatar || '',
-          video_url: '',
-          title: l.title || 'Sesi Jualan Live',
-          content: l.title || 'Sesi Jualan Live',
-          viewers: l.viewer_count || 0,
-          likes: 0,
-          comments: 0,
-          city: l.city || 'Indonesia',
-          is_live: true,
-        }))
-      } catch (err) {
+        liveList = mapLiveDocs(liveRes?.result || [])
+      } catch {
         // silent fail on live list, continue to video list
       }
 
@@ -67,20 +89,21 @@ export function useLiveShopping() {
           music: 'Original sound',
           is_live: false,
           product_id: v.product_id,
-          product: v.product || (v.product_id
-            ? {
-                _id: v.product_id,
-                title: v.product_title || 'Produk BekasKu',
-                price: Number(v.product_price || 0),
-                image: v.product_image || '',
-              }
-            : null),
+          product:
+            v.product ||
+            (v.product_id
+              ? {
+                  _id: v.product_id,
+                  title: v.product_title || 'Produk BekasKu',
+                  price: Number(v.product_price || 0),
+                  image: v.product_image || '',
+                }
+              : null),
         }))
-      } catch (err) {
+      } catch {
         // silent fail
       }
 
-      // Combined: Live items first, then video items
       const combined = [...liveList, ...videoList]
       liveSessions.value = combined
       return combined
@@ -98,5 +121,7 @@ export function useLiveShopping() {
     loading,
     error,
     fetchLiveSessions,
+    refreshActiveLivesOnly,
+    removeLiveSession,
   }
 }
