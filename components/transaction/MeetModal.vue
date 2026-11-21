@@ -26,7 +26,7 @@ const showCancelConfirmModal = ref(false)
 const cancelReason = ref('Barang tidak sesuai')
 const actionErrorMessage = ref<string | null>(null)
 
-const transactionId = computed(() => props.detail?._id || props.detail?.id || '')
+const transactionId = computed(() => props.detail?.transaction_id || props.detail?._id || props.detail?.id || '')
 
 const {
   loading: verifyLoading,
