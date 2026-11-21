@@ -230,36 +230,36 @@ function handleSubmitReply() {
       Mulai diskusi
     </button>
 
-    <!-- All Discussions & Sub-Discussion Modal (Responsive Mobile Bottom Sheet + Desktop Dialog) -->
+    <!-- All Discussions & Sub-Discussion Modal (Full-screen on Mobile Web 1:1 V3, Dialog on Desktop) -->
     <Teleport to="body">
       <div
         v-if="isAllModalOpen"
-        class="fixed inset-0 z-[80] bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 font-outfit overscroll-contain"
+        class="fixed inset-0 z-[80] bg-black/60 sm:backdrop-blur-xs flex items-stretch sm:items-center justify-center p-0 sm:p-4 font-outfit overscroll-contain"
         @click="closeModal"
       >
         <div
-          class="bg-white text-text w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl flex flex-col shadow-xl max-h-[85vh]"
+          class="bg-white text-text w-full h-[100dvh] sm:h-auto sm:max-w-lg sm:max-h-[85vh] rounded-none sm:rounded-2xl flex flex-col shadow-xl"
           @click.stop
         >
           <!-- Modal Header -->
-          <div class="flex items-center justify-between p-4 border-b border-border shrink-0">
-            <div class="flex items-center gap-2 min-w-0">
+          <div class="flex items-center justify-between px-4 py-3.5 border-b border-border/70 shrink-0 bg-white">
+            <div class="flex items-center gap-3 min-w-0">
               <button
-                v-if="activeSubDiscussion"
                 type="button"
-                class="p-1 -ml-1 text-text-muted hover:text-text rounded-lg cursor-pointer"
-                aria-label="Kembali ke daftar diskusi"
-                @click="activeSubDiscussion = null"
+                class="p-1 -ml-1 text-text hover:text-primary rounded-lg cursor-pointer transition-colors"
+                :class="activeSubDiscussion ? 'inline-flex' : 'inline-flex sm:hidden'"
+                :aria-label="activeSubDiscussion ? 'Kembali ke daftar diskusi' : 'Tutup diskusi'"
+                @click="activeSubDiscussion ? (activeSubDiscussion = null) : closeModal()"
               >
                 <ArrowLeft class="w-5 h-5" />
               </button>
-              <h3 class="text-base font-bold text-text truncate">
-                {{ activeSubDiscussion ? 'Sub-Diskusi' : `Diskusi Produk (${countLabel})` }}
+              <h3 class="text-base sm:text-lg font-bold text-text truncate">
+                {{ activeSubDiscussion ? 'Balasan Diskusi' : 'Diskusi Barang' }}
               </h3>
             </div>
             <button
               type="button"
-              class="text-text-muted hover:text-text p-1 rounded-lg cursor-pointer shrink-0"
+              class="hidden sm:inline-flex text-text-muted hover:text-text p-1 rounded-lg cursor-pointer shrink-0"
               aria-label="Tutup modal"
               @click="closeModal"
             >
@@ -267,108 +267,123 @@ function handleSubmitReply() {
             </button>
           </div>
 
-          <!-- VIEW 1: Sub-Diskusi (Replies Thread) -->
+          <!-- VIEW 1: Balasan Diskusi (Replies Thread) -->
           <template v-if="activeSubDiscussion">
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
-              <!-- Parent Question -->
-              <div class="p-3 rounded-xl bg-surface-2/70 border border-border/60 text-xs space-y-1.5">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <span class="font-bold text-text truncate">{{ activeSubDiscussion.user_name }}</span>
-                    <span
-                      v-if="activeSubDiscussion.seller"
-                      class="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary text-[10px] font-bold shrink-0"
-                    >
-                      Penjual
-                    </span>
-                  </div>
-                  <span class="text-[11px] text-text-muted shrink-0">{{ getDateText(activeSubDiscussion) }}</span>
+            <div class="flex-1 overflow-y-auto bg-white">
+              <!-- Parent Question (Pinned at top with divider) -->
+              <div class="px-4 py-3.5 border-b border-border/60 flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-surface-2 text-primary font-bold flex items-center justify-center shrink-0 overflow-hidden text-xs">
+                  <img
+                    v-if="activeSubDiscussion.user_avatar"
+                    :src="sanitizeMediaUrl(activeSubDiscussion.user_avatar, '')"
+                    :alt="activeSubDiscussion.user_name"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else>{{ getInitials(activeSubDiscussion.user_name) }}</span>
                 </div>
-                <p class="text-text/90 leading-relaxed">{{ getCommentText(activeSubDiscussion) }}</p>
-              </div>
-
-              <!-- Replies Loading Shimmer -->
-              <div v-if="repliesLoading" class="space-y-3">
-                <div v-for="n in 3" :key="`rep-skel-${n}`" class="h-12 rounded-xl bg-surface-2 animate-shimmer" />
-              </div>
-
-              <!-- Replies List -->
-              <div v-else-if="replies && replies.length > 0" class="space-y-3 pl-3 border-l-2 border-border">
-                <div
-                  v-for="(rep, rIdx) in replies"
-                  :key="rep._id || rep.id || rIdx"
-                  class="flex items-start gap-2.5 text-xs"
-                >
-                  <div class="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 overflow-hidden text-[10px]">
-                    <img
-                      v-if="rep.user_avatar"
-                      :src="sanitizeMediaUrl(rep.user_avatar, '')"
-                      :alt="rep.user_name"
-                      class="w-full h-full object-cover"
-                    />
-                    <span v-else>{{ getInitials(rep.user_name) }}</span>
-                  </div>
-                  <div class="flex-1 min-w-0 space-y-0.5">
-                    <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-1.5 min-w-0">
-                        <span class="font-semibold text-text truncate">{{ rep.user_name }}</span>
-                        <span
-                          v-if="rep.seller"
-                          class="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary text-[9px] font-bold shrink-0"
-                        >
-                          Penjual
-                        </span>
-                      </div>
-                      <span class="text-[10px] text-text-muted shrink-0">{{ rep.time || getDateText(rep) }}</span>
+                <div class="flex-1 min-w-0 space-y-1">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <span class="text-sm font-bold text-text truncate">{{ activeSubDiscussion.user_name }}</span>
+                      <span
+                        v-if="activeSubDiscussion.seller"
+                        class="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary text-[10px] font-bold shrink-0"
+                      >
+                        Penjual
+                      </span>
                     </div>
-                    <p class="text-text/85 leading-relaxed">{{ rep.comment || rep.discussion }}</p>
+                    <span class="text-[11px] text-text-muted shrink-0">{{ getDateText(activeSubDiscussion) }}</span>
                   </div>
+                  <p class="text-xs sm:text-sm text-text/85 leading-relaxed">{{ getCommentText(activeSubDiscussion) }}</p>
                 </div>
               </div>
 
-              <div v-else class="text-center py-6 text-xs text-text-muted">
-                Belum ada balasan pada diskusi ini.
+              <div class="p-4 space-y-4">
+                <!-- Replies Loading Shimmer -->
+                <div v-if="repliesLoading" class="space-y-3">
+                  <div v-for="n in 3" :key="`rep-skel-${n}`" class="h-12 rounded-xl bg-surface-2 animate-shimmer" />
+                </div>
+
+                <!-- Replies List -->
+                <div v-else-if="replies && replies.length > 0" class="space-y-4">
+                  <div
+                    v-for="(rep, rIdx) in replies"
+                    :key="rep._id || rep.id || rIdx"
+                    class="flex items-start gap-3 text-xs"
+                  >
+                    <div class="w-9 h-9 rounded-full bg-surface-2 text-primary font-bold flex items-center justify-center shrink-0 overflow-hidden text-[11px]">
+                      <img
+                        v-if="rep.user_avatar"
+                        :src="sanitizeMediaUrl(rep.user_avatar, '')"
+                        :alt="rep.user_name"
+                        class="w-full h-full object-cover"
+                      />
+                      <span v-else>{{ getInitials(rep.user_name) }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-0.5">
+                      <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                          <span class="text-xs sm:text-sm font-bold text-text truncate">{{ rep.user_name }}</span>
+                          <span
+                            v-if="rep.seller"
+                            class="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary text-[9px] font-bold shrink-0"
+                          >
+                            Penjual
+                          </span>
+                        </div>
+                        <span class="text-[11px] text-text-muted shrink-0">{{ rep.time || getDateText(rep) }}</span>
+                      </div>
+                      <p class="text-xs sm:text-sm text-text/85 leading-relaxed">{{ rep.comment || rep.discussion }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else class="text-center py-8 text-xs text-text-muted">
+                  Belum ada balasan pada diskusi ini.
+                </div>
               </div>
             </div>
 
             <!-- Send Reply Form -->
             <form
-              class="p-3.5 border-t border-border flex items-center gap-2 bg-surface/50 rounded-b-2xl shrink-0"
+              class="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-border/70 flex items-center gap-2.5 bg-white sm:rounded-b-2xl shrink-0"
               @submit.prevent="handleSubmitReply"
             >
               <input
                 v-model="newReply"
                 type="text"
-                placeholder="Tulis balasan diskusi..."
-                class="flex-1 px-3.5 py-2.5 text-xs rounded-xl bg-white border border-border focus:border-primary outline-hidden transition-colors"
+                placeholder="Ketik pesan kamu..."
+                class="flex-1 h-11 px-3.5 text-xs sm:text-sm rounded-xl bg-white border border-border focus:border-primary outline-hidden transition-colors"
               />
               <button
                 type="submit"
                 :disabled="!newReply.trim() || replySending"
-                class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                aria-label="Kirim balasan"
+                class="w-11 h-11 rounded-xl bg-primary hover:bg-primary-dark text-white flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
               >
-                <Loader2 v-if="replySending" class="w-3.5 h-3.5 animate-spin" />
-                <Send v-else class="w-3.5 h-3.5" />
-                <span>{{ replySending ? 'Mengirim...' : 'Balas' }}</span>
+                <Loader2 v-if="replySending" class="w-4 h-4 animate-spin" />
+                <Send v-else class="w-4 h-4" />
               </button>
             </form>
           </template>
 
-          <!-- VIEW 2: Full Discussion List -->
+          <!-- VIEW 2: Diskusi Barang (Full Thread List) -->
           <template v-else>
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
-              <div v-if="isAllLoading && modalDiscussions.length === 0" class="space-y-3">
+            <div class="flex-1 overflow-y-auto bg-white divide-y divide-border/50">
+              <div v-if="isAllLoading && modalDiscussions.length === 0" class="p-4 space-y-3">
                 <div v-for="n in 3" :key="`disc-skel-${n}`" class="h-16 rounded-xl bg-surface-2 animate-shimmer" />
               </div>
 
-              <div v-else-if="modalDiscussions.length > 0" class="space-y-4">
+              <template v-else-if="modalDiscussions.length > 0">
                 <div
                   v-for="item in modalDiscussions"
                   :key="item._id || item.id"
-                  class="space-y-2 pb-3 border-b border-border/60 last:border-b-0 text-xs"
+                  class="px-4 py-3.5 hover:bg-surface-2/40 transition-colors cursor-pointer space-y-3"
+                  @click="openSubDiscussion(item)"
                 >
-                  <div class="flex items-start gap-2.5">
-                    <div class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 overflow-hidden text-[11px]">
+                  <!-- Parent Question -->
+                  <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-surface-2 text-primary font-bold flex items-center justify-center shrink-0 overflow-hidden text-xs">
                       <img
                         v-if="item.user_avatar"
                         :src="sanitizeMediaUrl(item.user_avatar, '')"
@@ -377,10 +392,10 @@ function handleSubmitReply() {
                       />
                       <span v-else>{{ getInitials(item.user_name) }}</span>
                     </div>
-                    <div class="flex-1 min-w-0 space-y-1">
+                    <div class="flex-1 min-w-0 space-y-0.5">
                       <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-1.5 min-w-0">
-                          <span class="font-semibold text-text truncate">{{ item.user_name }}</span>
+                          <span class="text-sm font-bold text-text truncate">{{ item.user_name }}</span>
                           <span
                             v-if="item.seller"
                             class="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary text-[10px] font-bold shrink-0"
@@ -390,20 +405,42 @@ function handleSubmitReply() {
                         </div>
                         <span class="text-[11px] text-text-muted shrink-0">{{ getDateText(item) }}</span>
                       </div>
-                      <p class="text-text/85 leading-relaxed">{{ getCommentText(item) }}</p>
-                      <button
-                        type="button"
-                        class="text-[11px] font-semibold text-primary hover:underline cursor-pointer pt-0.5"
-                        @click="openSubDiscussion(item)"
+                      <p class="text-xs sm:text-sm text-text/85 leading-relaxed">{{ getCommentText(item) }}</p>
+                    </div>
+                  </div>
+
+                  <!-- First Reply Preview (Indented like Mobile V3) -->
+                  <div
+                    v-if="item.reply && item.reply.length > 0"
+                    class="ml-12 flex items-start gap-2.5"
+                  >
+                    <div class="w-8 h-8 rounded-full bg-surface-2 text-primary font-bold flex items-center justify-center shrink-0 overflow-hidden text-[10px]">
+                      <img
+                        v-if="item.reply[0].user_avatar"
+                        :src="sanitizeMediaUrl(item.reply[0].user_avatar, '')"
+                        :alt="item.reply[0].user_name"
+                        class="w-full h-full object-cover"
+                      />
+                      <span v-else>{{ getInitials(item.reply[0].user_name) }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-0.5">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs font-bold text-text truncate">{{ item.reply[0].user_name }}</span>
+                        <span class="text-[11px] text-text-muted shrink-0">{{ item.reply[0].time || getDateText(item.reply[0]) }}</span>
+                      </div>
+                      <p class="text-xs text-text/85 leading-relaxed">{{ item.reply[0].comment || item.reply[0].discussion }}</p>
+                      <span
+                        v-if="item.reply.length > 1"
+                        class="inline-block text-[11px] font-semibold text-primary pt-0.5"
                       >
-                        {{ item.reply && item.reply.length > 0 ? `Lihat ${item.reply.length} balasan` : 'Balas diskusi' }}
-                      </button>
+                        Lihat semua {{ item.reply.length }} balasan
+                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </template>
 
-              <div v-else class="text-center py-10 text-xs text-text-muted space-y-1">
+              <div v-else class="text-center py-12 px-4 text-xs text-text-muted space-y-1">
                 <MessageSquare class="w-8 h-8 mx-auto text-text-muted/40 mb-2" />
                 <p class="font-semibold text-text">Belum ada diskusi</p>
                 <p>Tanyakan ketersediaan stok atau kondisi barang kepada penjual.</p>
@@ -413,23 +450,23 @@ function handleSubmitReply() {
             <!-- Modal Footer: Send Comment Form -->
             <form
               v-if="!isMine"
-              class="p-3.5 border-t border-border flex items-center gap-2 bg-surface/50 rounded-b-2xl shrink-0"
+              class="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-border/70 flex items-center gap-2.5 bg-white sm:rounded-b-2xl shrink-0"
               @submit.prevent="handleSubmit"
             >
               <input
                 v-model="newComment"
                 type="text"
-                placeholder="Tulis pertanyaan seputar produk..."
-                class="flex-1 px-3.5 py-2.5 text-xs rounded-xl bg-white border border-border focus:border-primary outline-hidden transition-colors"
+                placeholder="Ketik pesan kamu..."
+                class="flex-1 h-11 px-3.5 text-xs sm:text-sm rounded-xl bg-white border border-border focus:border-primary outline-hidden transition-colors"
               />
               <button
                 type="submit"
                 :disabled="!newComment.trim() || isSending"
-                class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                aria-label="Kirim pesan"
+                class="w-11 h-11 rounded-xl bg-primary hover:bg-primary-dark text-white flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
               >
-                <Loader2 v-if="isSending" class="w-3.5 h-3.5 animate-spin" />
-                <Send v-else class="w-3.5 h-3.5" />
-                <span>{{ isSending ? 'Mengirim...' : 'Kirim' }}</span>
+                <Loader2 v-if="isSending" class="w-4 h-4 animate-spin" />
+                <Send v-else class="w-4 h-4" />
               </button>
             </form>
           </template>

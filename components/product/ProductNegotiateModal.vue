@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { X, Image as ImageIcon, AlertCircle } from 'lucide-vue-next'
 import { formatRupiah } from '~/utils/format'
 
@@ -20,6 +20,10 @@ const emit = defineEmits<{
 
 const offerPrice = ref<number>(0)
 const errorMsg = ref('')
+
+const minOfferPrice = computed(() =>
+  props.currentPrice > 0 ? Math.ceil(props.currentPrice * 0.5) : 0,
+)
 
 watch(
   () => props.modelValue,
@@ -61,6 +65,14 @@ function handleInput(e: Event) {
 function submitOffer() {
   if (offerPrice.value <= 0) {
     errorMsg.value = 'Masukkan nominal tawaran Anda'
+    return
+  }
+  if (props.currentPrice > 0 && offerPrice.value < minOfferPrice.value) {
+    errorMsg.value = `Minimal penawaran wajar adalah 50% dari harga awal (${formatRupiah(minOfferPrice.value)})`
+    return
+  }
+  if (props.currentPrice > 0 && offerPrice.value > props.currentPrice) {
+    errorMsg.value = `Maksimal tawaran adalah ${formatRupiah(props.currentPrice)}`
     return
   }
   emit('submit', offerPrice.value)
