@@ -593,11 +593,12 @@ const { t } = useLocale()
 const avatarErrMap = reactive<Record<string, boolean>>({})
 const modalAvatarErr = ref(false)
 
-// Feed video list: prioritize props or composable, sanitize media URLs
+// Feed video list: prioritize live reactive store state once hydrated, fallback to SSR props
 const feedVideos = computed<VideoFeedItem[]>(() => {
-  const rawList = (props.sessions && props.sessions.length > 0)
-    ? props.sessions
-    : liveSessions.value
+  const rawList =
+    liveSessions.value.length > 0
+      ? liveSessions.value
+      : props.sessions || []
 
   return rawList.map(item => ({
     ...item,
@@ -616,7 +617,10 @@ function handleVisibilityRefresh() {
 }
 
 onMounted(async () => {
-  if (feedVideos.value.length === 0) {
+  if (props.sessions && props.sessions.length > 0 && liveSessions.value.length === 0) {
+    liveSessions.value = [...props.sessions]
+  }
+  if (liveSessions.value.length === 0) {
     await fetchLiveSessions()
   } else {
     await refreshActiveLivesOnly()
@@ -626,7 +630,7 @@ onMounted(async () => {
       if (!document.hidden) {
         refreshActiveLivesOnly()
       }
-    }, 10000)
+    }, 4000)
     document.addEventListener('visibilitychange', handleVisibilityRefresh)
   }
 })
