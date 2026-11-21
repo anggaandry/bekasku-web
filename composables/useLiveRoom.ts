@@ -4,6 +4,7 @@ import {
   API_LIVE_VALIDATE,
   API_LIVE_TOKEN,
   API_SELLER_PRODUCT,
+  API_USER_FOLLOW,
   LIVEKIT_WS_URL,
 } from '~/utils/constants'
 import type { LiveProductItem, LiveChatMessage } from '~/types/live'
@@ -42,7 +43,9 @@ export function useLiveRoom(initialLiveId = '') {
   const isLiveEnded = ref(false)
   const isConnecting = ref(false)
   const isConnected = ref(false)
+  const wsConnected = ref(false)
   const isMuted = ref(false)
+  const isFollowLoading = ref(false)
   const error = ref<string | null>(null)
 
   let livekitRoom: Room | null = null
@@ -243,18 +246,23 @@ export function useLiveRoom(initialLiveId = '') {
       socket = new WebSocket(wsUrl)
 
       socket.onopen = () => {
-        // Connection open, backend automatically triggers viewer_joined & audience_update
+        wsConnected.value = true
       }
 
       socket.onmessage = (event) => {
+        wsConnected.value = true
         try {
           const data = JSON.parse(event.data)
           handleSocketMessage(data)
         } catch {}
       }
 
-      socket.onerror = () => {}
-      socket.onclose = () => {}
+      socket.onerror = () => {
+        wsConnected.value = false
+      }
+      socket.onclose = () => {
+        wsConnected.value = false
+      }
     } catch {}
   }
 
@@ -291,13 +299,20 @@ export function useLiveRoom(initialLiveId = '') {
         ) {
           markLiveEnded()
         }
+        const senderId = String(payload.senderID || payload.user_id || '')
+        const isHostMsg = Boolean(
+          payload.isHost === true ||
+            payload.isHost === 'true' ||
+            (senderId && host.value.id && senderId === host.value.id),
+        )
         messages.value.push({
           id: `chat_${Date.now()}_${Math.random()}`,
-          user_id: payload.user_id || '',
+          user_id: senderId,
           user_name: payload.sender || payload.user_name || 'Penonton',
           user_avatar: payload.avatar || payload.user_avatar || '',
           message: payload.message || '',
           is_join: false,
+          is_host: isHostMsg,
           timestamp: payload.timestamp || Date.now(),
         })
         break
@@ -423,7 +438,30 @@ export function useLiveRoom(initialLiveId = '') {
     }
   }
 
+  async function toggleFollowHost(): Promise<boolean> {
+    if (!host.value.id || isFollowLoading.value) return false
+    const prev = Boolean(host.value.is_followed)
+    host.value.is_followed = !prev
+    isFollowLoading.value = true
+    try {
+      const res = await api.post<{ result?: boolean }>(API_USER_FOLLOW, {
+        following_id: host.value.id,
+      })
+      if (res?.result === false) {
+        host.value.is_followed = prev
+        return false
+      }
+      return true
+    } catch {
+      host.value.is_followed = prev
+      return false
+    } finally {
+      isFollowLoading.value = false
+    }
+  }
+
   async function leaveRoom() {
+    wsConnected.value = false
     heartTimers.forEach((t) => clearTimeout(t))
     heartTimers.clear()
 
@@ -460,13 +498,16 @@ export function useLiveRoom(initialLiveId = '') {
     isLiveEnded,
     isConnecting,
     isConnected,
+    wsConnected,
     isMuted,
+    isFollowLoading,
     error,
     videoElementRef,
     joinRoom,
     sendChatMessage,
     sendLikeReaction,
     toggleMute,
+    toggleFollowHost,
     fetchHostProducts,
     leaveRoom,
   }

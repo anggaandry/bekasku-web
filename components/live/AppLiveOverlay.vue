@@ -135,17 +135,43 @@
               </div>
 
               <div class="min-w-0 pr-1">
-                <p class="text-xs font-bold text-white truncate max-w-[110px] leading-tight">
+                <p class="text-xs font-bold text-white truncate max-w-[96px] leading-tight">
                   {{ host.name }}
                 </p>
                 <div class="flex items-center gap-1 text-[10px] text-amber-300 font-medium">
                   <Star class="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
-                  <span>{{ host.rating.toFixed(1) }} Rating</span>
+                  <span>{{ host.rating.toFixed(1) }}</span>
                 </div>
               </div>
+
+              <button
+                v-if="host.id && host.id !== authStore.userId"
+                type="button"
+                :disabled="isFollowLoading"
+                class="px-2.5 py-1 rounded-full text-[10px] font-bold transition-colors cursor-pointer shrink-0 disabled:opacity-60"
+                :class="
+                  host.is_followed
+                    ? 'bg-white/20 text-white hover:bg-white/30'
+                    : 'bg-primary text-white hover:bg-red-700'
+                "
+                @click.stop="handleFollowClick"
+              >
+                {{ host.is_followed ? 'Mengikuti' : 'Follow' }}
+              </button>
             </div>
 
             <div class="pointer-events-auto flex items-center gap-1.5">
+              <!-- Preview Viewer Avatars -->
+              <div v-if="previewAvatars.length > 0" class="hidden sm:flex -space-x-2 mr-0.5">
+                <img
+                  v-for="(ava, idx) in previewAvatars.slice(0, 3)"
+                  :key="`ava-${idx}`"
+                  :src="sanitizeMediaUrl(ava, '')"
+                  alt="Penonton"
+                  class="w-6 h-6 rounded-full object-cover ring-1.5 ring-black bg-gray-800"
+                />
+              </div>
+
               <div class="flex items-center gap-1.5 bg-black/45 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-white/10 text-white text-xs font-semibold shadow-lg">
                 <Users class="w-3.5 h-3.5 text-white/80" />
                 <span>{{ viewers }}</span>
@@ -233,10 +259,24 @@
                   v-else
                   class="inline-flex items-baseline gap-1.5 bg-black/40 backdrop-blur-xs px-3 py-1.5 rounded-2xl max-w-[85%] self-start border border-white/5 text-xs"
                 >
+                  <span
+                    v-if="msg.is_host"
+                    class="px-1.5 py-0.5 rounded bg-primary text-white text-[9px] font-black uppercase tracking-wider shrink-0"
+                  >
+                    Host
+                  </span>
                   <span class="font-bold text-amber-300 shrink-0">{{ msg.user_name }}:</span>
                   <span class="text-white break-words leading-relaxed">{{ msg.message }}</span>
                 </div>
               </template>
+            </div>
+
+            <!-- WS Disconnected Banner -->
+            <div
+              v-if="isConnected && !wsConnected && !isLiveEnded"
+              class="pointer-events-auto px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[11px] font-medium text-center"
+            >
+              Koneksi chat terputus, mencoba menghubungkan ulang...
             </div>
 
             <!-- Bottom Action Row -->
@@ -277,7 +317,7 @@
                 type="button"
                 class="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/15 text-red-500 hover:text-red-400 flex items-center justify-center transition-transform active:scale-125 cursor-pointer shadow-md shrink-0"
                 title="Kirim Reaksi Love"
-                @click="sendLikeReaction()"
+                @click="handleLikeClick"
               >
                 <Heart class="w-5 h-5 fill-red-500" />
               </button>
@@ -372,18 +412,22 @@ const livePlayer = useLivePlayer()
 const {
   host,
   viewers,
+  previewAvatars,
   messages,
   pinnedProduct,
   hostProducts,
   floatingHearts,
   isLiveEnded,
   isConnected,
+  wsConnected,
   isMuted,
+  isFollowLoading,
   videoElementRef,
   joinRoom,
   sendChatMessage,
   sendLikeReaction,
   toggleMute,
+  toggleFollowHost,
   leaveRoom,
 } = useLiveRoom()
 
@@ -427,7 +471,24 @@ function openLoginGate() {
 }
 
 function onViewportTap() {
+  if (!authStore.isLoggedIn) return
   sendLikeReaction()
+}
+
+function handleLikeClick() {
+  if (!authStore.isLoggedIn) {
+    openLoginGate()
+    return
+  }
+  sendLikeReaction()
+}
+
+function handleFollowClick() {
+  if (!authStore.isLoggedIn) {
+    openLoginGate()
+    return
+  }
+  toggleFollowHost()
 }
 
 function handleSendChat() {

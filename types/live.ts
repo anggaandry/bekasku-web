@@ -35,4 +35,5 @@ export interface LiveChatMessage {
   message: string
   timestamp?: number
   is_join?: boolean
+  is_host?: boolean
 }
