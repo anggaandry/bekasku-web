@@ -28,7 +28,6 @@ export function useIdentityKyc() {
 
   const isVerified = computed(() => {
     return Boolean(
-      authStore.user?.is_verified ||
       identityInfo.value?.identity_number ||
       identityInfo.value?.identity
     )
@@ -36,19 +35,16 @@ export function useIdentityKyc() {
 
   async function ensureIdentityInfo(): Promise<boolean> {
     if (!authStore.isLoggedIn) return false
-    if (authStore.user?.is_verified) return true
     if (identityInfo.value !== null) {
       return Boolean(
         identityInfo.value?.identity_number ||
-        identityInfo.value?.identity ||
-        authStore.user?.is_verified
+        identityInfo.value?.identity
       )
     }
     const res = await fetchIdentityInfo()
     return Boolean(
       res?.identity_number ||
-      res?.identity ||
-      authStore.user?.is_verified
+      res?.identity
     )
   }
 

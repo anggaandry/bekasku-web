@@ -293,6 +293,8 @@ import AppAddressModal from '~/components/shared/AppAddressModal.vue'
 const route = useRoute()
 const router = useRouter()
 const { showNotification } = useNotification()
+const kyc = useIdentityKyc()
+const kycModal = useIdentityKycModal()
 
 const showPostTypeModal = ref(false)
 const showCategoryModal = ref(false)
@@ -471,6 +473,17 @@ onMounted(async () => {
   applyMethodFromQuery()
   await fetchCategories()
 
+  if (!isEditMode.value) {
+    const kycVerified = await kyc.ensureIdentityInfo()
+    if (!kycVerified) {
+      kycModal.open({
+        reason: 'sell',
+        featureName: 'Jual Barang',
+      })
+      return
+    }
+  }
+
   if (route.query.ai === '1' && pendingAiPostData.value) {
     const data = pendingAiPostData.value
     pendingAiPostData.value = null
@@ -584,6 +597,18 @@ function onAddressSelect(addr: UserAddress | null) {
 }
 
 async function handleSubmit() {
+  const kycVerified = await kyc.ensureIdentityInfo()
+  if (!kycVerified) {
+    kycModal.open({
+      reason: 'sell',
+      featureName: 'Jual Barang',
+      onSuccess: () => {
+        handleSubmit()
+      },
+    })
+    return
+  }
+
   if (!isFormValid.value) {
     validateForm()
     const firstError = Object.values(errors.value)[0]
