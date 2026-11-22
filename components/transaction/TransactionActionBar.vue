@@ -190,6 +190,17 @@ function handlePrimaryClick() {
       Chat
     </button>
 
+    <!-- Cancel / Reject Button (Buyer step 1, Seller step 1/2 before shipped) -->
+    <button
+      v-if="canCancel && !isMeet && !isFinish && !isComplainState"
+      type="button"
+      :disabled="isActionLoading"
+      class="flex-1 h-11 sm:h-12 rounded-xl border border-red-500 text-red-600 font-outfit font-semibold text-xs sm:text-sm hover:bg-red-50 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer disabled:opacity-50"
+      @click="emit('cancel')"
+    >
+      {{ isSeller ? 'Tolak Pesanan' : 'Batalkan' }}
+    </button>
+
     <!-- Extra Action Button for Arrived state: Pengembalian -->
     <button
       v-if="isArrived && !isSeller"
