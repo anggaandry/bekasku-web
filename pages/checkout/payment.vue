@@ -132,7 +132,7 @@ async function executeCheckout(password?: string) {
   const res = await submitCheckout(password)
   submitting.value = false
 
-  if (res.success && res.result) {
+  if (res.success && res.result && res.result !== 'FAILED') {
     // Navigasi ke halaman sukses / gateway
     if (res.result === 'DIRECT') {
       navigateTo('/checkout/success')
@@ -140,7 +140,9 @@ async function executeCheckout(password?: string) {
       navigateTo(`/payment/${res.result}?source=checkout`)
     }
   } else {
-    submitError.value = res.message || 'Gagal memproses pembayaran.'
+    submitError.value = res.message && res.message !== 'PAYMENT FAILED'
+      ? res.message
+      : 'Gagal memproses pembayaran melalui gateway. Silakan coba metode lain atau hubungi CS.'
   }
 }
 </script>
