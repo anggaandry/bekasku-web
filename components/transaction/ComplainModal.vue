@@ -289,6 +289,8 @@ watch(
         code === 'packed_complaining' ||
         code === 'returned' ||
         code === 'onship_return' ||
+        code === 'return_onship' ||
+        code === 'return_arrived' ||
         Boolean(props.detail?.complain_date)
 
       if (props.initialMode) {
@@ -1350,8 +1352,8 @@ onBeforeUnmount(() => {
             </button>
           </template>
 
-          <!-- Seller Action: Finish Return when onship_return -->
-          <template v-else-if="isSeller && activeComplain.statusCode === 'onship_return'">
+          <!-- Seller Action: Finish Return when return shipping / arrived -->
+          <template v-else-if="isSeller && (activeComplain.statusCode === 'onship_return' || activeComplain.statusCode === 'return_onship' || activeComplain.statusCode === 'return_arrived')">
             <button
               type="button"
               :disabled="isSubmitting"

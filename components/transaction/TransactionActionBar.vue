@@ -53,6 +53,10 @@ const isArrived = computed(() => {
   return statusCode.value === 'arrived' || props.canFinish
 })
 
+const isReturnShipping = computed(() =>
+  ['onship_return', 'return_onship', 'return_arrived'].includes(statusCode.value)
+)
+
 const isComplainState = computed(() => {
   const c = statusCode.value
   const name = (typeof props.detail?.status === 'object' ? props.detail.status?.name : String(props.detail?.status || '')).toLowerCase()
@@ -61,7 +65,7 @@ const isComplainState = computed(() => {
     c === 'oncomplain' ||
     c === 'packed_complaining' ||
     c === 'returned' ||
-    c === 'onship_return' ||
+    isReturnShipping.value ||
     name.includes('komplain') ||
     name.includes('pengembalian') ||
     Boolean(props.detail?.complain_date)
@@ -79,7 +83,7 @@ const primaryActionLabel = computed(() => {
     if (statusCode.value === 'packed_complaining' && !props.isSeller) {
       return 'Input Resi Pengembalian'
     }
-    if (statusCode.value === 'onship_return' && props.isSeller) {
+    if (isReturnShipping.value && props.isSeller) {
       return 'Selesaikan Pengembalian'
     }
     return 'Detail Pengembalian'
@@ -141,7 +145,7 @@ function handlePrimaryClick() {
       emit('waybill')
       return
     }
-    if (statusCode.value === 'onship_return' && props.isSeller) {
+    if (isReturnShipping.value && props.isSeller) {
       emit('finishReturn')
       emit('finish-return')
       return
