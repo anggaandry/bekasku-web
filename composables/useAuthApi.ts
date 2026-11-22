@@ -15,6 +15,7 @@ import {
   API_ACCOUNT_AVAILABILITY,
   API_REGISTER,
   API_PHONE_VERIFY,
+  API_PHONE_CHANGE,
   API_AVATAR,
   API_LOCATION,
 } from '~/utils/constants'
@@ -234,10 +235,26 @@ export function useAuthApi() {
     user_id: string
     phone: string
   }): Promise<AuthApiResponse> {
-    return safeAuthPost(API_PHONE_VERIFY, {
-      user_id: payload.user_id,
-      phone: payload.phone,
-    })
+    try {
+      const raw = await api.post<any>(API_PHONE_CHANGE, {
+        phone: payload.phone,
+      })
+      const isSuccess =
+        raw?.message === 'Success' ||
+        raw?.status === true ||
+        (raw?.result !== undefined && raw?.message !== 'Failed')
+      return {
+        status: Boolean(isSuccess),
+        message: raw?.message || (isSuccess ? 'Success' : 'Gagal mengubah nomor HP.'),
+        result: raw?.result,
+      }
+    } catch (err: any) {
+      const data = err?.data || err?.response?._data || {}
+      return {
+        status: false,
+        message: data?.message || err?.statusMessage || 'Gagal mengubah nomor HP.',
+      }
+    }
   }
 
   async function requestForgotOtp(payload: {

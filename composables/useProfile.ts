@@ -100,7 +100,7 @@ export function useProfile() {
       formData.append('user_id', authStore.userId)
       formData.append('avatar', file)
 
-      const res = await api.post<{ message?: string; result?: any }>(API_AVATAR, formData)
+      const res = await api.post<{ message?: string; result?: any }>(API_AVATAR, formData, { useAuthToken: true })
       const newAvatarUrl = res?.result?.avatar || ''
       if (newAvatarUrl) {
         authStore.updateAvatar(newAvatarUrl)
