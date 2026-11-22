@@ -1051,9 +1051,10 @@ async function handleComplainCompleted() {
     <PickupInfoModal
       v-if="detail"
       v-model="showPickupModal"
-      :courier-name="detail.courier_name"
-      :courier-logo="detail.courier_logo"
-      :service-name="detail.waybill_service"
+      :courier-name="detail.courier_name || detail.order?.shipping?.name || detail.waybill_service"
+      :courier-logo="detail.courier_logo || detail.order?.shipping?.logo"
+      :service-name="detail.order?.shipping?.service_name || detail.waybill_service"
+      :payment-category="detail.payment_method || 'Cashless (Non Tunai)'"
       :loading="isActionLoading"
       @confirm="handlePickupConfirm"
     />
@@ -1062,9 +1063,9 @@ async function handleComplainCompleted() {
     <DropoffInfoModal
       v-if="detail"
       v-model="showDropoffModal"
-      :courier-name="detail.courier_name"
-      :courier-logo="detail.courier_logo"
-      :service-name="detail.waybill_service"
+      :courier-name="detail.courier_name || detail.order?.shipping?.name || detail.waybill_service"
+      :courier-logo="detail.courier_logo || detail.order?.shipping?.logo"
+      :service-name="detail.order?.shipping?.service_name || detail.waybill_service"
       :waybill="detail.waybill"
       :loading="isActionLoading"
       @confirm="handleDropoffConfirm"
