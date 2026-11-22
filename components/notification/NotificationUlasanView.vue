@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Star, Package, User, ChevronRight, RefreshCw } from 'lucide-vue-next'
+import { Star, Package, User, ChevronRight, RefreshCw, Play, X } from 'lucide-vue-next'
 import { useNotificationStore } from '~/stores/notification'
 import { useAuthStore } from '~/stores/auth'
 import { useFormat } from '~/composables/useFormat'
@@ -18,16 +18,22 @@ const { formatPrice, formatDate } = useFormat()
 
 const activeTab = ref<'rating' | 'ulasan_saya'>('ulasan_saya')
 const brokenImages = ref<Record<string, boolean>>({})
+const previewMedia = ref<{ type: 'image' | 'video'; url: string } | null>(null)
 
 function markBroken(key: string) {
   brokenImages.value[key] = true
 }
 
 function getWaitingProductImage(item: NotificationWaitingReviewItem, idx: number): string {
-  const key = `wait-${item.id || item._id || idx}`
+  const key = `wait-${item.transaction_id || item.id || item._id || idx}`
   if (brokenImages.value[key]) return ''
-  const raw = item.product_image || item.product_id?.[0]?.product_image
+  const raw = item.products?.[0]?.image || item.product_image || item.product_id?.[0]?.product_image
   return raw ? sanitizeMediaUrl(raw, '') : ''
+}
+
+function getReviewMediaImages(rev: NotificationMyReviewItem): string[] {
+  if (!Array.isArray(rev.images)) return []
+  return rev.images.map((u) => sanitizeMediaUrl(u, '')).filter(Boolean)
 }
 
 function getMyReviewProductImage(rev: NotificationMyReviewItem, idx: number): string {
@@ -144,7 +150,7 @@ function handleGoProduct(productId?: string) {
 
         <div
           v-for="(item, idx) in notifStore.waitingReviews"
-          :key="item._id || item.id || idx"
+          :key="item.transaction_id || item._id || item.id || idx"
           class="bg-white rounded-2xl border border-border-light p-4 space-y-3 shadow-2xs"
         >
           <div class="flex items-center gap-3">
@@ -152,25 +158,28 @@ function handleGoProduct(productId?: string) {
               <img
                 v-if="getWaitingProductImage(item, idx)"
                 :src="getWaitingProductImage(item, idx)"
-                :alt="item.product_name || item.product_id?.[0]?.product_title || 'Produk'"
+                :alt="item.products?.[0]?.title || item.product_name || item.product_id?.[0]?.product_title || 'Produk'"
                 width="56"
                 height="56"
                 loading="lazy"
                 class="w-full h-full object-cover"
-                @error="markBroken(`wait-${item.id || item._id || idx}`)"
+                @error="markBroken(`wait-${item.transaction_id || item.id || item._id || idx}`)"
               />
               <Package v-else class="w-6 h-6 text-text-subtle" aria-hidden="true" />
             </div>
 
             <div class="flex-1 min-w-0">
+              <p v-if="item.name" class="font-outfit text-[11px] font-medium text-text-muted truncate">
+                {{ item.name }}
+              </p>
               <h4 class="font-outfit font-semibold text-sm text-text truncate">
-                {{ item.product_name || item.product_id?.[0]?.product_title || 'Produk Pesanan' }}
+                {{ item.products?.[0]?.title || item.product_name || item.product_id?.[0]?.product_title || 'Produk Pesanan' }}
               </h4>
               <p class="font-outfit text-xs text-text-muted mt-0.5">
-                {{ formatDate(item.transaction_time || item.createdAt) }}
+                {{ item.time || formatDate(item.transaction_time || item.createdAt) }}
               </p>
               <p class="font-outfit font-bold text-xs text-primary mt-1">
-                {{ formatPrice(item.total_price || item.product_id?.[0]?.total_price || 0) }}
+                {{ formatPrice(item.products?.[0]?.price || item.total_price || item.product_id?.[0]?.total_price || 0) }}
               </p>
             </div>
           </div>
@@ -178,7 +187,7 @@ function handleGoProduct(productId?: string) {
           <div class="pt-2 border-t border-border-light flex items-center justify-end">
             <button
               type="button"
-              @click="handleGoReview(item.id || item._id)"
+              @click="handleGoReview(item.transaction_id || item.id || item._id)"
               class="px-4 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-outfit font-semibold shadow-xs transition-colors cursor-pointer"
             >
               Beri Ulasan
@@ -286,10 +295,84 @@ function handleGoProduct(productId?: string) {
               >
                 {{ rev.review || rev.review_text || rev.comment }}
               </p>
+
+              <!-- Attached Media Thumbnails (Photos & Video) -->
+              <div
+                v-if="getReviewMediaImages(rev).length > 0 || rev.video"
+                class="flex items-center gap-2 flex-wrap pt-2"
+              >
+                <button
+                  v-for="(imgUrl, imgIdx) in getReviewMediaImages(rev)"
+                  :key="imgIdx"
+                  type="button"
+                  aria-label="Lihat Foto Ulasan"
+                  @click="previewMedia = { type: 'image', url: imgUrl }"
+                  class="w-14 h-14 rounded-lg overflow-hidden border border-border-light bg-surface-2 hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  <img
+                    :src="imgUrl"
+                    alt="Foto Ulasan"
+                    width="56"
+                    height="56"
+                    loading="lazy"
+                    class="w-full h-full object-cover"
+                  />
+                </button>
+
+                <button
+                  v-if="rev.video"
+                  type="button"
+                  aria-label="Putar Video Ulasan"
+                  @click="previewMedia = { type: 'video', url: sanitizeMediaUrl(rev.video, '') }"
+                  class="relative w-14 h-14 rounded-lg overflow-hidden border border-border-light bg-black flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  <img
+                    v-if="rev.video_thumbnail"
+                    :src="sanitizeMediaUrl(rev.video_thumbnail, '')"
+                    alt="Video Ulasan"
+                    width="56"
+                    height="56"
+                    class="w-full h-full object-cover opacity-80"
+                  />
+                  <span class="absolute inset-0 flex items-center justify-center bg-black/30 text-white">
+                    <Play class="w-5 h-5 fill-white" aria-hidden="true" />
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Fullscreen Media Preview Modal -->
+    <div
+      v-if="previewMedia"
+      class="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center p-4"
+      @click.self="previewMedia = null"
+    >
+      <button
+        type="button"
+        aria-label="Tutup pratinjau"
+        @click="previewMedia = null"
+        class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center cursor-pointer transition-colors"
+      >
+        <X class="w-5 h-5" />
+      </button>
+      <img
+        v-if="previewMedia.type === 'image'"
+        :src="previewMedia.url"
+        alt="Pratinjau Foto Ulasan"
+        class="max-w-full max-h-[85vh] rounded-xl object-contain"
+      />
+      <video
+        v-else
+        :src="previewMedia.url"
+        controls
+        autoplay
+        playsinline
+        class="max-w-full max-h-[85vh] rounded-xl"
+      />
     </div>
   </div>
 </template>

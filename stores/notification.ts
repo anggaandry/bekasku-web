@@ -188,10 +188,10 @@ export const useNotificationStore = defineStore('notification', () => {
     try {
       const [waitingRes, myReviewRes] = await Promise.all([
         api.post<NotificationReviewListResponse<NotificationWaitingReviewItem>>(
-          API_REVIEW_CREATE_INIT,
+          API_MYREVIEW_LIST,
           {
             page: 1,
-            type: 'unreview',
+            type: 'waiting',
             lang: 'id',
           },
         ),

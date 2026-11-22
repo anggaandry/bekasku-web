@@ -83,11 +83,15 @@ export interface NotificationReviewProductRef {
 export interface NotificationWaitingReviewItem {
   id?: string
   _id?: string
+  transaction_id?: string
+  name?: string
+  time?: string
   product_name?: string
   product_image?: string
   transaction_time?: string
   createdAt?: string
   total_price?: number
+  products?: NotificationReviewProductRef[]
   product_id?: NotificationReviewProductRef[]
 }
 
@@ -116,6 +120,9 @@ export interface NotificationMyReviewItem {
   review?: string
   review_text?: string
   comment?: string
+  images?: string[]
+  video?: string
+  video_thumbnail?: string
 }
 
 export interface NotificationReviewListResponse<T> {
