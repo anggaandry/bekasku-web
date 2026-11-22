@@ -98,7 +98,10 @@ export function useTransactionDetail(transactionId: MaybeRefOrGetter<string>) {
       )
 
       if (res?.result) {
-        detail.value = res.result
+        detail.value = {
+          ...res.result,
+          transaction_id: res.result.transaction_id || res.result._id || res.result.id || id.value,
+        }
       } else {
         errorMessage.value = res?.message || 'Transaksi tidak ditemukan'
       }
