@@ -55,13 +55,19 @@ interface ExistingProductDetail {
   width?: number | ''
   height?: number | ''
   take_method?: number
+  direct?: boolean
+  via_courrier?: boolean
+  sell_method?: number
   free_delivery?: boolean
   total_free_delivery?: number | string
   address_data?: PostAddressData
   image?: string[]
   video?: string
+  category?: string
+  sub_category?: string
   category_id?: string
   subcategory_id?: string
+  sub_category_id?: string
   type_category_id?: string
 }
 
@@ -548,6 +554,30 @@ export function usePostSell(
     })
   }
 
+  async function applyDefaultAddress() {
+    if (address.value) return
+    await addressComposable.fetchAddresses()
+    if (addressComposable.currentAddress.value) {
+      const a = addressComposable.currentAddress.value
+      address.value = {
+        id: a._id || a.id,
+        _id: a._id || a.id,
+        address_name: a.address_name || 'Rumah',
+        address: a.address || '',
+        city: a.city || '',
+        province: a.province || '',
+        postal: a.postal || a.postal_code || '',
+        subdistrict: a.subdistrict || '',
+        subdistrict_id: String(a.subdistrict_id || ''),
+        city_id: String(a.city_id || ''),
+        lon: Number(a.lon ?? a.lng ?? a.location?.coordinates?.[0] ?? 0),
+        lat: Number(a.lat ?? a.location?.coordinates?.[1] ?? 0),
+        contact_name: a.contact_name || authStore.user?.name || '',
+        contact_phone: a.contact_phone || authStore.user?.phone || '',
+      }
+    }
+  }
+
   // Pre-fill Edit Mode
   async function loadExistingProduct(prodId: string) {
     loading.value = true
@@ -557,6 +587,17 @@ export function usePostSell(
       if (!prod) throw new Error('Produk tidak ditemukan')
 
       productId.value = prodId
+      if (typeof prod.sell_method === 'number') {
+        const prevMethod = sellMethod.value
+        sellMethod.value = prod.sell_method
+        if (sellMethod.value === SELL_METHOD_SERVICE && prevMethod !== SELL_METHOD_SERVICE) {
+          await fetchCategories()
+        }
+      }
+      if (categories.value.length === 0) {
+        await fetchCategories()
+      }
+
       title.value = prod.title || ''
       description.value = prod.description || ''
       price.value = Number(prod.price) || 0
@@ -566,14 +607,21 @@ export function usePostSell(
       width.value = prod.width || ''
       height.value = prod.height || ''
 
-      directMeet.value = prod.take_method === 0 || prod.take_method === 1
-      deliveryCourrier.value = prod.take_method === 0 || prod.take_method === 2
+      if (typeof prod.take_method === 'number') {
+        directMeet.value = prod.take_method === 0 || prod.take_method === 1
+        deliveryCourrier.value = prod.take_method === 0 || prod.take_method === 2
+      } else {
+        directMeet.value = prod.direct !== false
+        deliveryCourrier.value = prod.via_courrier !== false
+      }
       freeDelivery.value = Boolean(prod.free_delivery)
       totalFreeDelivery.value = Number(prod.total_free_delivery) || 0
 
       // Address
       if (prod.address_data) {
         address.value = prod.address_data
+      } else {
+        await applyDefaultAddress()
       }
 
       // Images
@@ -592,18 +640,28 @@ export function usePostSell(
       }
 
       // Categories
-      if (prod.category_id) {
-        const cat = categories.value.find(c => String(c._id) === String(prod.category_id))
-        if (cat) selectedCategory.value = cat
-        await fetchSubcategories(prod.category_id)
-      }
-      if (prod.subcategory_id) {
-        const sub = subcategories.value.find(s => String(s._id) === String(prod.subcategory_id))
-        if (sub) {
-          selectedSubcategory.value = sub
-          categoryCharge.value = sub.charge || 3
+      const catId = String(prod.category_id || '')
+      const subCatId = String(prod.sub_category_id || prod.subcategory_id || '')
+      if (catId) {
+        const cat = categories.value.find(c => String(c._id) === catId)
+        selectedCategory.value = cat || {
+          _id: catId,
+          name_id: prod.category || 'Kategori',
+          name_en: prod.category || 'Category',
         }
-        await initSubcategoryForm(prod.subcategory_id)
+        await fetchSubcategories(catId)
+      }
+      if (subCatId) {
+        const sub = subcategories.value.find(s => String(s._id) === subCatId)
+        selectedSubcategory.value = sub || {
+          _id: subCatId,
+          category_id: catId,
+          name_id: prod.sub_category || 'Subkategori',
+          name_en: prod.sub_category || 'Subcategory',
+          charge: 3,
+        }
+        categoryCharge.value = selectedSubcategory.value.charge || 3
+        await initSubcategoryForm(subCatId)
       }
       if (prod.type_category_id && typeCategories.value.length > 0) {
         const tc = typeCategories.value.find(t => String(t._id) === String(prod.type_category_id))
@@ -999,28 +1057,7 @@ export function usePostSell(
         restoreDraft()
       }
       // Default to user address if available
-      if (!address.value) {
-        await addressComposable.fetchAddresses()
-        if (addressComposable.currentAddress.value) {
-          const a = addressComposable.currentAddress.value
-          address.value = {
-            id: a._id || a.id,
-            _id: a._id || a.id,
-            address_name: a.address_name || 'Rumah',
-            address: a.address || '',
-            city: a.city || '',
-            province: a.province || '',
-            postal: a.postal || a.postal_code || '',
-            subdistrict: a.subdistrict || '',
-            subdistrict_id: String(a.subdistrict_id || ''),
-            city_id: String(a.city_id || ''),
-            lon: Number(a.lon ?? a.lng ?? a.location?.coordinates?.[0] ?? 0),
-            lat: Number(a.lat ?? a.location?.coordinates?.[1] ?? 0),
-            contact_name: a.contact_name || authStore.user?.name || '',
-            contact_phone: a.contact_phone || authStore.user?.phone || '',
-          }
-        }
-      }
+      await applyDefaultAddress()
     }
   })
 
