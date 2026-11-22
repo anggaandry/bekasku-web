@@ -146,7 +146,14 @@ function handleCheckout() {
       </div>
 
       <!-- 4. EMPTY CART STATE -->
-      <div v-else-if="cartStore.listCart.length === 0" class="max-w-md mx-auto px-4 py-16 text-center">
+      <div v-else-if="cartStore.listCart.length === 0" class="max-w-md mx-auto px-4 py-14 text-center">
+        <img
+          src="/images/nocart.png"
+          alt="Keranjang belanja kosong"
+          width="176"
+          height="176"
+          class="w-40 h-40 sm:w-44 sm:h-44 object-contain mx-auto mb-5 select-none"
+        />
         <h2 class="text-lg sm:text-xl font-bold text-text font-outfit">
           Keranjang kamu masih kosong
         </h2>
