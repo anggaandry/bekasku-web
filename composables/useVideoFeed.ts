@@ -8,6 +8,7 @@ import {
   API_VIDEO_POST,
   API_PRODUCT_MYPOST,
   API_USER_FOLLOW,
+  API_USER_FOLLOW_LIST,
 } from '~/utils/constants'
 import type { VideoFeedItem, VideoCommentItem } from '~/types/video'
 import type { LiveSession } from '~/types/live'
@@ -23,8 +24,31 @@ export function useVideoFeed() {
   const page = ref(1)
   const hasNextPage = ref(true)
   const selectedTab = ref<number>(0) // 0: Semua, 1: Saya
+  const followedCreatorIds = ref<Set<string>>(new Set())
 
   let isFetching = false
+
+  async function syncFollowedCreators() {
+    if (!authStore.isLoggedIn || !authStore.userId) {
+      followedCreatorIds.value = new Set()
+      return
+    }
+    try {
+      const followRes = await api.post<{
+        result?: { docs?: Array<{ user_id?: string }> }
+      }>(API_USER_FOLLOW_LIST, {
+        type: 'following',
+        seller_id: authStore.userId,
+        page: 1,
+      })
+      const ids = (followRes?.result?.docs || [])
+        .map((d) => String(d.user_id || ''))
+        .filter(Boolean)
+      followedCreatorIds.value = new Set(ids)
+    } catch {
+      // ignore non-fatal follow list sync failure
+    }
+  }
 
   async function fetchVideos({ refresh = false } = {}) {
     if (isFetching && !refresh) return
@@ -40,8 +64,11 @@ export function useVideoFeed() {
     error.value = null
 
     try {
-      // Phase 1: If Page 1 & Tab 0 (Semua), fetch active Live Streams first
+      // Phase 1: If Page 1 & Tab 0 (Semua), fetch active Live Streams & followed creators first
       let activeLives: VideoFeedItem[] = []
+      if (page.value === 1) {
+        await syncFollowedCreators()
+      }
       if (page.value === 1 && selectedTab.value === 0) {
         try {
           const liveRes = await api.post<{ result?: LiveSession[] }>(API_LIVE_LIST, {})
@@ -103,6 +130,7 @@ export function useVideoFeed() {
         likes: v.total_like || 0,
         total_like: v.total_like || 0,
         is_liked: v.is_liked === true,
+        is_followed: v.is_followed === true || followedCreatorIds.value.has(String(v.user_id || '')),
         comments: v.total_comment || 0,
         total_comment: v.total_comment || 0,
         music: 'Original video sound',
@@ -185,7 +213,18 @@ export function useVideoFeed() {
     })
 
     try {
-      await api.post(API_USER_FOLLOW, { following_id: targetUserId })
+      const res = await api.post<{ result?: boolean }>(API_USER_FOLLOW, { following_id: targetUserId })
+      const confirmed = typeof res?.result === 'boolean' ? res.result : nextFollowed
+      if (confirmed) {
+        followedCreatorIds.value.add(targetUserId)
+      } else {
+        followedCreatorIds.value.delete(targetUserId)
+      }
+      videos.value.forEach((v) => {
+        if (String(v.user_id) === targetUserId) {
+          v.is_followed = confirmed
+        }
+      })
       return true
     } catch {
       videos.value.forEach((v) => {
