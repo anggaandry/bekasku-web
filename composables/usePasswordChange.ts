@@ -82,10 +82,14 @@ export function usePasswordChange() {
     isSubmittingNew.value = true
 
     try {
-      const res = await api.post<Record<string, unknown>>(API_CHANGE_PASSWORD, {
-        old_password: verifiedOldPassword.value,
-        new_password: trimmedNew,
-      })
+      const res = await api.post<Record<string, unknown>>(
+        API_CHANGE_PASSWORD,
+        {
+          old_password: verifiedOldPassword.value,
+          new_password: trimmedNew,
+        },
+        { useAuthToken: true }
+      )
 
       const isSuccess =
         res?.status === true ||
