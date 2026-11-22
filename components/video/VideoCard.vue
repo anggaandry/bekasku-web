@@ -208,13 +208,24 @@
           </span>
         </NuxtLink>
 
-        <!-- Creator Username -->
-        <NuxtLink
-          :to="`/seller/${item.user_id}`"
-          class="block font-outfit font-black text-sm sm:text-base text-white hover:underline drop-shadow-md truncate"
-        >
-          @{{ item.user_name }}
-        </NuxtLink>
+        <!-- Creator Username + Follow Button -->
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <NuxtLink
+            :to="`/seller/${item.user_id}`"
+            class="font-outfit font-black text-sm sm:text-base text-white hover:underline drop-shadow-md truncate"
+          >
+            @{{ item.user_name }}
+          </NuxtLink>
+          <button
+            v-if="!isOwner"
+            type="button"
+            class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-colors cursor-pointer shrink-0 border"
+            :class="item.is_followed ? 'bg-white/20 text-white border-white/40 hover:bg-white/30' : 'bg-primary text-white border-primary hover:bg-red-700'"
+            @click.stop="$emit('follow', item)"
+          >
+            {{ item.is_followed ? 'Mengikuti' : 'Ikuti' }}
+          </button>
+        </div>
 
         <!-- Caption -->
         <p class="text-xs sm:text-sm text-white/95 mt-1 font-normal line-clamp-2 drop-shadow-sm leading-relaxed">
@@ -257,6 +268,7 @@ const props = defineProps<{
 
 defineEmits<{
   like: [item: VideoFeedItem]
+  follow: [item: VideoFeedItem]
   comment: [item: VideoFeedItem]
   share: [item: VideoFeedItem]
   delete: [item: VideoFeedItem]

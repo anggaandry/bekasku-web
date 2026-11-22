@@ -12,6 +12,7 @@ export interface VideoFeedItem {
   likes?: number
   total_like?: number
   is_liked?: boolean
+  is_followed?: boolean
   comments?: number
   total_comment?: number
   music?: string

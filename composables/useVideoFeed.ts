@@ -7,6 +7,7 @@ import {
   API_VIDEO_COMMENT_POST,
   API_VIDEO_POST,
   API_PRODUCT_MYPOST,
+  API_USER_FOLLOW,
 } from '~/utils/constants'
 import type { VideoFeedItem, VideoCommentItem } from '~/types/video'
 import type { LiveSession } from '~/types/live'
@@ -170,6 +171,32 @@ export function useVideoFeed() {
     }
   }
 
+  async function toggleFollow(item: VideoFeedItem): Promise<boolean> {
+    if (!item.user_id) return false
+
+    const wasFollowed = item.is_followed === true
+    const nextFollowed = !wasFollowed
+    const targetUserId = String(item.user_id)
+
+    videos.value.forEach((v) => {
+      if (String(v.user_id) === targetUserId) {
+        v.is_followed = nextFollowed
+      }
+    })
+
+    try {
+      await api.post(API_USER_FOLLOW, { following_id: targetUserId })
+      return true
+    } catch {
+      videos.value.forEach((v) => {
+        if (String(v.user_id) === targetUserId) {
+          v.is_followed = wasFollowed
+        }
+      })
+      return false
+    }
+  }
+
   async function deleteVideo(item: VideoFeedItem): Promise<boolean> {
     const videoId = item._id || item.id
     if (!videoId) return false
@@ -274,6 +301,7 @@ export function useVideoFeed() {
     selectedTab,
     fetchVideos,
     toggleLike,
+    toggleFollow,
     deleteVideo,
     fetchComments,
     postComment,

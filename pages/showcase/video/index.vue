@@ -108,6 +108,7 @@
                   :item="item"
                   :is-active="currentActiveIndex === idx"
                   @like="handleLike"
+                  @follow="handleFollow"
                   @comment="handleOpenComments"
                   @share="handleShare"
                   @delete="handleDelete"
@@ -174,12 +175,23 @@
               </div>
             </div>
 
-            <NuxtLink
-              :to="`/seller/${currentVideo.user_id}`"
-              class="text-xs font-bold text-primary hover:text-red-700 bg-red-50/70 hover:bg-red-50 px-3 py-1.5 rounded-full transition-colors cursor-pointer shrink-0"
-            >
-              Kunjungi Toko
-            </NuxtLink>
+            <div class="flex items-center gap-2 shrink-0">
+              <button
+                v-if="!authStore.isLoggedIn || authStore.userId !== currentVideo.user_id"
+                type="button"
+                class="text-xs font-bold px-3 py-1.5 rounded-full transition-colors cursor-pointer shrink-0 border"
+                :class="currentVideo.is_followed ? 'bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200' : 'bg-primary text-white border-primary hover:bg-red-700'"
+                @click="handleFollow(currentVideo)"
+              >
+                {{ currentVideo.is_followed ? 'Mengikuti' : 'Ikuti' }}
+              </button>
+              <NuxtLink
+                :to="`/seller/${currentVideo.user_id}`"
+                class="text-xs font-bold text-primary hover:text-red-700 bg-red-50/70 hover:bg-red-50 px-3 py-1.5 rounded-full transition-colors cursor-pointer shrink-0"
+              >
+                Kunjungi Toko
+              </NuxtLink>
+            </div>
           </div>
 
           <!-- 2. Body: Caption + Pinned Product + Comments List (Scrollable) -->
@@ -425,6 +437,7 @@ const {
   hasNextPage,
   fetchVideos,
   toggleLike,
+  toggleFollow,
   deleteVideo,
   fetchComments,
   postComment,
@@ -630,6 +643,23 @@ async function handleLike(item: VideoFeedItem) {
     return
   }
   await toggleLike(item)
+}
+
+async function handleFollow(item: VideoFeedItem) {
+  if (!authStore.isLoggedIn) {
+    authModal.openLogin({
+      featureTitle: 'Mengikuti Kreator Video',
+      redirectPath: '/showcase/video',
+    })
+    return
+  }
+  const ok = await toggleFollow(item)
+  if (!ok) {
+    showNotification({
+      type: 'error',
+      message: 'Gagal memperbarui status mengikuti kreator',
+    })
+  }
 }
 
 function handleOpenComments(item: VideoFeedItem) {
