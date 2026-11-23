@@ -460,6 +460,10 @@ export function useCheckout() {
         })),
       }
 
+      if (!isMeet && address.value) {
+        base.address = address.value
+      }
+
       if (!isMeet && s.shipping) {
         base.shipping = {
           name: s.shipping.name,
