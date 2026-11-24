@@ -397,6 +397,10 @@ watch(
 
 function handleClose() {
   leaveRoom()
+  if (import.meta.client && window.history.length > 1) {
+    useRouter().back()
+    return
+  }
   navigateTo('/showcase/video')
 }
 
