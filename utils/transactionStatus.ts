@@ -28,16 +28,15 @@ function statusText(detail: TransactionDetail): string {
   return (info ? info.name : String(detail.status || '')).toLowerCase()
 }
 
-/** Transaksi dianggap selesai: sinkron dengan banner penjual di mobile V3 (bukan arrived). */
+/** Transaksi dianggap selesai: sinkron dengan banner penjual di mobile V3 (step 4 reguler adalah arrived, belum selesai). */
 export function isTransactionFinished(detail: TransactionDetail): boolean {
   const code = statusInfo(detail)?.code || ''
   const isMeet = detail.meet === true || detail.type === 2
   return (
-    detail.step === 4 ||
     detail.step >= 10 ||
     statusText(detail).includes('selesai') ||
     ['finished', 'done'].includes(code) ||
-    (isMeet && code === 'finishing') ||
+    (isMeet && (detail.step === 4 || code === 'finishing')) ||
     Boolean(detail.finish_date)
   )
 }

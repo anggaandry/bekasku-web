@@ -46,7 +46,7 @@ const isMeet = computed(() => {
 const isFinish = computed(() => {
   const code = statusCode.value
   const name = (typeof props.detail?.status === 'object' ? props.detail.status?.name : String(props.detail?.status || '')).toLowerCase()
-  return props.detail?.step === 4 || props.detail?.step === 10 || name.includes('selesai') || code === 'finished'
+  return props.detail?.step >= 10 || (isMeet.value && (props.detail?.step === 4 || code === 'finishing')) || name.includes('selesai') || code === 'finished' || code === 'done' || Boolean(props.detail?.finish_date)
 })
 
 const isArrived = computed(() => {
