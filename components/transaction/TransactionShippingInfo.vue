@@ -49,9 +49,13 @@ const waybillNumber = computed(() => {
 })
 
 const shippingStatusText = computed(() => {
+  const code = typeof props.detail.status === 'object' ? props.detail.status?.code : ''
   const s = props.detail.step
-  if (s >= 4 || props.detail.finish_date) {
+  if (s >= 4 || props.detail.finish_date || code === 'finished' || code === 'done') {
     return 'Paket telah berhasil dikirimkan dan pesanan selesai.'
+  }
+  if (code === 'arrived') {
+    return 'Paket telah tiba di alamat tujuan. Silakan cek pesanan Anda.'
   }
   if (s === 3) {
     return 'Paket sedang dalam perjalanan menuju alamat pengiriman.'

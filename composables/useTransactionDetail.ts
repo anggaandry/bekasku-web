@@ -71,7 +71,7 @@ export function useTransactionDetail(transactionId: MaybeRefOrGetter<string>) {
   })
 
   const canPrintLabel = computed(() => {
-    return isSeller.value && (detail.value?.step === 2 || detail.value?.step === 3) && !isMeet.value
+    return isSeller.value && (detail.value?.step === 2 || (detail.value?.step === 3 && statusCode.value !== 'arrived')) && !isMeet.value
   })
 
   const canFinish = computed(() => {
