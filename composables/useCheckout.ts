@@ -465,12 +465,17 @@ export function useCheckout() {
       }
 
       if (!isMeet && s.shipping) {
+        const courierCode = s.shipping.courier_code || s.shipping.code || ''
         base.shipping = {
           name: s.shipping.name,
           logo: s.shipping.logo,
-          code: s.shipping.courier_code || s.shipping.code,
+          code: courierCode,
+          courier_code: courierCode,
           shipping_code: s.shipping.shipping_code,
           service_name: s.shipping.service_name || s.shipping.name,
+          description: s.shipping.description || s.shipping.service_name || s.shipping.name,
+          pickup: s.shipping.pickup !== false,
+          partner: s.shipping.partner || 'biteship',
           price: s.shipping.price || 0,
           est: s.shipping.est || s.shipping.duration,
         }

@@ -52,7 +52,7 @@ const paymentName = computed(() => {
   const m = props.detail.payment_method?.name || ''
   if (m) return m
   if (props.detail.meet || props.detail.type === 2) return 'Bayar di Tempat (COD)'
-  return 'QRIS'
+  return 'Saldo BekasKu'
 })
 
 const paymentSubtitle = computed(() => {
