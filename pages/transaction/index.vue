@@ -372,14 +372,36 @@ async function handleDropoffConfirm() {
   }
 }
 
+async function triggerPdfDownload(url: string, filename: string) {
+  try {
+    const response = await fetch(url)
+    if (!response.ok) throw new Error('Download failed')
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
+  } catch {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+}
+
 async function handlePrintLabel() {
   try {
     const url = await fetchShippingLabel()
-    if (url) {
-      showLabelModal.value = true
+    if (!url) {
+      alert('Label pengiriman belum tersedia')
+      return
     }
+    showLabelModal.value = true
+    const inv = (detail.value?.invoice_no || 'resi').replace(/[^a-zA-Z0-9_-]/g, '_')
+    await triggerPdfDownload(url, `Resi-${inv}.pdf`)
   } catch (err: any) {
-    alert(err?.message || 'Gagal memuat label pengiriman')
+    alert(err?.data?.message || err?.message || 'Gagal memuat label pengiriman')
   }
 }
 
