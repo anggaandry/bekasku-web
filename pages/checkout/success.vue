@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckCircle2, ShoppingBag, ArrowRight } from 'lucide-vue-next'
+import { CheckCircle2, ReceiptText, ArrowRight } from 'lucide-vue-next'
 
 const route = useRoute()
 
@@ -38,11 +38,11 @@ const paymentId = computed(() => (route.query.payment_id as string) || '')
         <!-- Action Buttons -->
         <div class="w-full mt-6 space-y-3">
           <NuxtLink
-            to="/cart"
+            to="/transaction"
             class="w-full h-12 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-semibold font-outfit flex items-center justify-center gap-2 transition-colors shadow-xs"
           >
-            <ShoppingBag class="w-4 h-4" />
-            <span>Kembali ke Keranjang</span>
+            <ReceiptText class="w-4 h-4" />
+            <span>Lihat Transaksi Saya</span>
           </NuxtLink>
 
           <NuxtLink
