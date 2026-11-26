@@ -397,7 +397,6 @@ async function handlePrintLabel() {
       alert('Label pengiriman belum tersedia')
       return
     }
-    showLabelModal.value = true
     const inv = (detail.value?.invoice_no || 'resi').replace(/[^a-zA-Z0-9_-]/g, '_')
     await triggerPdfDownload(url, `Resi-${inv}.pdf`)
   } catch (err: any) {
