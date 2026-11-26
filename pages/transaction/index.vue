@@ -184,10 +184,14 @@ watch(
   () => authStore.isLoggedIn,
   async (loggedIn) => {
     if (loggedIn) {
-      await Promise.all([
+      const tasks: Promise<unknown>[] = [
         fetchData(),
         fetchTabCounts(),
-      ])
+      ]
+      if (selectedTransactionId.value && !isPaymentSelected.value) {
+        tasks.push(fetchDetail())
+      }
+      await Promise.all(tasks)
     }
   },
   { immediate: true }
@@ -221,10 +225,16 @@ onMounted(async () => {
   }
 })
 
-// When switching tabs, clear selected transaction on desktop
-watch(selectedStep, () => {
+// When switching tabs, clear selected transaction on desktop & mobile query id
+watch(selectedStep, (newStep, oldStep) => {
+  if (newStep === oldStep) return
   selectedTransactionId.value = ''
   isPaymentSelected.value = false
+  if (route.query.id) {
+    const q = { ...route.query }
+    delete q.id
+    router.replace({ query: q })
+  }
 })
 
 // Auto select first transaction after data loads on desktop if none selected
@@ -270,6 +280,9 @@ function handleCardClick(item: TransactionListItem) {
 
   if (import.meta.client && window.innerWidth < 1024) {
     showMobileDetail.value = true
+    if (String(route.query.id || '') !== item.id) {
+      router.replace({ query: { ...route.query, id: item.id } })
+    }
   }
 }
 
@@ -290,6 +303,9 @@ function handlePaymentDashboardToDetail() {
   showPaymentDashboardModal.value = false
   if (import.meta.client && window.innerWidth < 1024) {
     showMobileDetail.value = true
+    if (selectedTransactionId.value && String(route.query.id || '') !== selectedTransactionId.value) {
+      router.replace({ query: { ...route.query, id: selectedTransactionId.value } })
+    }
   }
 }
 
