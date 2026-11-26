@@ -42,21 +42,24 @@ export function useTransactionDetail(transactionId: MaybeRefOrGetter<string>) {
     return !shippingName && shippingPrice === 0
   })
 
-  // Action capabilities based on step & role (matching mobile transaction_detail_controller.dart)
+  const statusCode = computed(() => {
+    const s = detail.value?.status
+    return (typeof s === 'object' && s !== null ? s.code : '') || ''
+  })
+
+  // Action capabilities based on status & role (matching mobile transaction_detail_controller.dart / transaction_detail_view.dart)
   const canConfirm = computed(() => {
-    return isSeller.value && detail.value?.step === 1
+    return isSeller.value && (statusCode.value === 'confirm' || detail.value?.step === 1)
   })
 
   const canCancel = computed(() => {
     if (!detail.value) return false
-    const s = detail.value.step
-    if (isBuyer.value) {
-      // Buyer can cancel at step 1 (before packing starts)
-      return s === 1
-    } else {
-      // Seller can cancel at step 1 or 2 (before shipped)
-      return s === 1 || s === 2
+    const code = statusCode.value
+    if (code) {
+      if (isBuyer.value) return code === 'confirm' || code === 'payment'
+      return code === 'confirm'
     }
+    return detail.value.step === 1
   })
 
   const canRequestPickup = computed(() => {
@@ -72,7 +75,7 @@ export function useTransactionDetail(transactionId: MaybeRefOrGetter<string>) {
   })
 
   const canFinish = computed(() => {
-    return isBuyer.value && (detail.value?.step === 3 || detail.value?.step === 4)
+    return isBuyer.value && statusCode.value === 'arrived'
   })
 
   const canTrack = computed(() => {

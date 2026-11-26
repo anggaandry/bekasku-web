@@ -50,7 +50,7 @@ const isFinish = computed(() => {
 })
 
 const isArrived = computed(() => {
-  return statusCode.value === 'arrived' || props.canFinish
+  return statusCode.value === 'arrived'
 })
 
 const isReturnShipping = computed(() =>
@@ -98,18 +98,24 @@ const primaryActionLabel = computed(() => {
   }
 
   if (isFinish.value) {
+    if (props.isSeller) return ''
     return hasReviewed.value ? 'Lihat Ulasan' : 'Beri Ulasan'
+  }
+
+  if (['cancel', 'cancelled', 'reject', 'rejected'].includes(statusCode.value)) {
+    return ''
   }
 
   if (props.isSeller) {
     if (props.canConfirm) return 'Konfirmasi'
     if (props.canRequestPickup) return 'Ajukan Pickup'
     if (props.canPrintLabel) return 'Cetak Resi'
-    return 'Detail Pesanan'
+    return ''
   } else {
+    if (statusCode.value === 'payment' || props.detail?.step === 0) return 'Bayar Sekarang'
+    if (statusCode.value === 'confirm' || props.detail?.step === 1) return ''
     if (props.canTrack) return 'Lacak'
-    if (props.detail?.step === 0) return 'Bayar Sekarang'
-    return 'Lacak'
+    return ''
   }
 })
 
@@ -227,6 +233,7 @@ function handlePrimaryClick() {
 
     <!-- Right Primary Button -->
     <button
+      v-if="primaryActionLabel"
       type="button"
       :disabled="isActionLoading"
       class="flex-1 h-11 sm:h-12 rounded-xl bg-primary text-white font-outfit font-semibold text-xs sm:text-sm hover:bg-primary-dark active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:pointer-events-none shadow-xs text-center px-2"
