@@ -129,6 +129,7 @@ export function usePostSell(
   // Media
   const images = ref<UploadedImage[]>([])
   const video = ref<string>('')
+  const videoThumbnail = ref<string>('')
   const isImageProcessing = ref(false)
   const imageProcessProgress = ref({
     current: 0,
@@ -886,6 +887,7 @@ export function usePostSell(
         address_data: address.value,
         image_data: images.value.map(img => img.base64),
         video: video.value || undefined,
+        video_thumbnail: videoThumbnail.value || undefined,
         extra: !isNeeded && !isService ? dynamicAnswers.value : undefined,
         negotiation: false,
         step: 0,
@@ -1097,6 +1099,7 @@ export function usePostSell(
     address,
     images,
     video,
+    videoThumbnail,
     isImageProcessing,
     imageProcessProgress,
     dynamicForms,

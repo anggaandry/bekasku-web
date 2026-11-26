@@ -67,11 +67,16 @@ const emit = defineEmits<{
   (e: 'remove-image', index: number): void
   (e: 'set-cover', index: number): void
   (e: 'update:video', val: string): void
+  (e: 'update:video-thumbnail', val: string): void
 }>()
 
+const { uploadFileToStorage } = useFirebase()
+
 const fileInputRef = ref<HTMLInputElement | null>(null)
-const showVideoInput = ref(Boolean(props.video))
-const localVideoUrl = ref(props.video)
+const videoInputRef = ref<HTMLInputElement | null>(null)
+const isUploadingVideo = ref(false)
+const videoUploadPercent = ref(0)
+const videoError = ref('')
 const isDragging = ref(false)
 
 function triggerFileInput() {
@@ -97,8 +102,111 @@ function handleDrop(e: DragEvent) {
   }
 }
 
-function handleVideoBlur() {
-  emit('update:video', localVideoUrl.value.trim())
+function triggerVideoInput() {
+  if (isUploadingVideo.value) return
+  videoInputRef.value?.click()
+}
+
+function captureVideoThumbnail(file: File): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    try {
+      const videoEl = document.createElement('video')
+      const objUrl = URL.createObjectURL(file)
+      videoEl.preload = 'metadata'
+      videoEl.muted = true
+      videoEl.playsInline = true
+      videoEl.src = objUrl
+
+      const cleanup = () => URL.revokeObjectURL(objUrl)
+
+      videoEl.onloadeddata = () => {
+        videoEl.currentTime = Math.min(0.5, videoEl.duration ? videoEl.duration / 2 : 0)
+      }
+      videoEl.onseeked = () => {
+        try {
+          const canvas = document.createElement('canvas')
+          canvas.width = videoEl.videoWidth || 480
+          canvas.height = videoEl.videoHeight || 480
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            cleanup()
+            resolve(null)
+            return
+          }
+          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height)
+          canvas.toBlob(
+            (blob) => {
+              cleanup()
+              resolve(blob)
+            },
+            'image/jpeg',
+            0.75,
+          )
+        } catch {
+          cleanup()
+          resolve(null)
+        }
+      }
+      videoEl.onerror = () => {
+        cleanup()
+        resolve(null)
+      }
+    } catch {
+      resolve(null)
+    }
+  })
+}
+
+async function handleVideoFileChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  target.value = ''
+  if (!file) return
+
+  videoError.value = ''
+  if (!file.type.startsWith('video/')) {
+    videoError.value = 'Format file harus berupa video (MP4, MOV, WebM).'
+    return
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    videoError.value = 'Ukuran video maksimal 50 MB.'
+    return
+  }
+
+  isUploadingVideo.value = true
+  videoUploadPercent.value = 0
+
+  try {
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'mp4'
+    const ts = Date.now()
+    const videoPath = `videos/video_${ts}.${ext}`
+
+    const [videoUrl, thumbBlob] = await Promise.all([
+      uploadFileToStorage(videoPath, file, (fraction) => {
+        videoUploadPercent.value = Math.round(fraction * 100)
+      }),
+      captureVideoThumbnail(file),
+    ])
+
+    emit('update:video', videoUrl)
+
+    if (thumbBlob) {
+      const thumbUrl = await uploadFileToStorage(`thumbnail/thumb_${ts}.jpeg`, thumbBlob)
+      emit('update:video-thumbnail', thumbUrl)
+    } else {
+      emit('update:video-thumbnail', '')
+    }
+  } catch (err: any) {
+    videoError.value = err?.message || 'Gagal mengunggah video ke server. Silakan coba lagi.'
+  } finally {
+    isUploadingVideo.value = false
+  }
+}
+
+function removeVideo() {
+  emit('update:video', '')
+  emit('update:video-thumbnail', '')
+  videoError.value = ''
 }
 </script>
 
@@ -248,45 +356,105 @@ function handleVideoBlur() {
 
     <!-- ── 2. Video Barang Section ─────────────────────────────────────────── -->
     <div class="p-4 sm:p-5 rounded-2xl border border-border-light bg-white space-y-3">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-2">
         <div>
           <label class="block text-xs sm:text-sm font-bold text-text">
             {{ videoLabel }} <span class="text-text-muted font-normal text-xs">(Opsional)</span>
           </label>
           <p class="text-[11px] text-text-muted mt-0.5">
-            {{ sellMethod === SELL_METHOD_SERVICE ? 'Tautkan video portofolio atau penjelasan layanan Anda.' : sellMethod === SELL_METHOD_NEEDED ? 'Tautkan video referensi barang yang dibutuhkan.' : 'Tautkan video produk atau video review untuk meningkatkan kepercayaan calon pembeli.' }}
+            {{ sellMethod === SELL_METHOD_SERVICE ? 'Unggah video portofolio atau penjelasan layanan Anda (maks. 50 MB).' : sellMethod === SELL_METHOD_NEEDED ? 'Unggah video referensi barang yang dibutuhkan (maks. 50 MB).' : 'Unggah video produk atau video review untuk meningkatkan kepercayaan calon pembeli (maks. 50 MB).' }}
           </p>
         </div>
         <button
-          v-if="!showVideoInput"
+          v-if="!video && !isUploadingVideo"
           type="button"
-          class="text-xs font-semibold text-primary hover:text-primary-hover transition-colors cursor-pointer"
-          @click="showVideoInput = true"
+          class="text-xs font-semibold text-primary hover:text-primary-hover transition-colors cursor-pointer shrink-0"
+          @click="triggerVideoInput"
         >
-          + Tambah Video
+          + Pilih Video
         </button>
       </div>
 
-      <div v-if="showVideoInput" class="flex items-center gap-2">
-        <div class="w-10 h-10 rounded-xl bg-surface-2 border border-border-light text-text-subtle flex items-center justify-center shrink-0">
-          <Video class="w-5 h-5" aria-hidden="true" />
+      <input
+        ref="videoInputRef"
+        type="file"
+        accept="video/mp4,video/quicktime,video/webm,video/*"
+        class="hidden"
+        @change="handleVideoFileChange"
+      />
+
+      <!-- Upload Progress -->
+      <div v-if="isUploadingVideo" class="p-3.5 rounded-xl bg-surface-2 border border-border-light space-y-2">
+        <div class="flex items-center justify-between text-xs font-medium text-text">
+          <span class="flex items-center gap-2">
+            <Loader2 class="w-4 h-4 text-primary animate-spin" aria-hidden="true" />
+            Mengunggah video...
+          </span>
+          <span class="text-primary font-semibold">{{ videoUploadPercent }}%</span>
         </div>
-        <input
-          v-model="localVideoUrl"
-          type="url"
-          placeholder="Masukkan tautan video YouTube / video produk..."
-          class="flex-1 px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border-light text-xs text-text placeholder:text-text-subtle focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-          @blur="handleVideoBlur"
-        />
-        <button
-          type="button"
-          class="p-2 text-text-muted hover:text-danger rounded-xl hover:bg-surface-2 transition-colors cursor-pointer"
-          title="Hapus Video"
-          @click="localVideoUrl = ''; emit('update:video', ''); showVideoInput = false"
-        >
-          <Trash2 class="w-4 h-4" aria-hidden="true" />
-        </button>
+        <div class="w-full h-1.5 rounded-full bg-border-light overflow-hidden">
+          <div
+            class="h-full bg-primary transition-all duration-150"
+            :style="{ width: `${videoUploadPercent}%` }"
+          ></div>
+        </div>
       </div>
+
+      <!-- Video Preview when uploaded -->
+      <div v-else-if="video" class="space-y-2">
+        <div class="relative rounded-xl overflow-hidden bg-black border border-border-light">
+          <video
+            :src="video"
+            controls
+            playsinline
+            preload="metadata"
+            class="w-full max-h-56 object-contain"
+          ></video>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] text-emerald-700 font-medium">
+            Video berhasil diunggah
+          </span>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="text-xs font-semibold text-primary hover:underline cursor-pointer"
+              @click="triggerVideoInput"
+            >
+              Ganti Video
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 text-xs font-semibold text-danger hover:underline cursor-pointer"
+              @click="removeVideo"
+            >
+              <Trash2 class="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Hapus</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty Upload Box -->
+      <button
+        v-else
+        type="button"
+        class="w-full py-5 px-4 rounded-xl border-2 border-dashed border-border hover:border-primary bg-surface-2/50 hover:bg-primary/5 flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer group"
+        @click="triggerVideoInput"
+      >
+        <Video class="w-6 h-6 text-text-subtle group-hover:text-primary transition-colors" aria-hidden="true" />
+        <span class="text-xs font-semibold text-text group-hover:text-primary">
+          Pilih File Video dari Perangkat
+        </span>
+        <span class="text-[11px] text-text-muted">
+          MP4, MOV, WebM (Maks. 50 MB)
+        </span>
+      </button>
+
+      <p v-if="videoError" class="text-xs text-danger font-medium flex items-center gap-1">
+        <AlertCircle class="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+        <span>{{ videoError }}</span>
+      </p>
     </div>
   </div>
 </template>

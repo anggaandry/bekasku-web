@@ -85,6 +85,7 @@
               @remove-image="removeImage"
               @set-cover="setCoverImage"
               @update:video="video = $event"
+              @update:video-thumbnail="videoThumbnail = $event"
             />
           </div>
 
@@ -349,6 +350,7 @@ const {
   address,
   images,
   video,
+  videoThumbnail,
   isImageProcessing,
   imageProcessProgress,
   dynamicForms,

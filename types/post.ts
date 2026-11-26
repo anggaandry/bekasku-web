@@ -138,6 +138,7 @@ export interface PostSellSubmitPayload {
   address_data: PostAddressData
   image_data: string[]
   video?: string
+  video_thumbnail?: string
   extra?: DynamicFormAnswer[]
   lang: string
   negotiation?: boolean
