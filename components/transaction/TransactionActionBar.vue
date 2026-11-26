@@ -46,7 +46,7 @@ const isMeet = computed(() => {
 const isFinish = computed(() => {
   const code = statusCode.value
   const name = (typeof props.detail?.status === 'object' ? props.detail.status?.name : String(props.detail?.status || '')).toLowerCase()
-  return props.detail?.step === 4 || props.detail?.step === 3 || name.includes('selesai') || code === 'finished'
+  return props.detail?.step === 4 || props.detail?.step === 10 || name.includes('selesai') || code === 'finished'
 })
 
 const isArrived = computed(() => {

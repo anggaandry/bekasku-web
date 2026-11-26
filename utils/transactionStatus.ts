@@ -32,7 +32,6 @@ function statusText(detail: TransactionDetail): string {
 export function isTransactionFinished(detail: TransactionDetail): boolean {
   const code = statusInfo(detail)?.code || ''
   return (
-    detail.step === 3 ||
     detail.step === 4 ||
     detail.step === 10 ||
     statusText(detail).includes('selesai') ||
