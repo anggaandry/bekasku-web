@@ -42,7 +42,7 @@ const paymentId = computed(() => (route.query.payment_id as string) || '')
             class="w-full h-12 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-semibold font-outfit flex items-center justify-center gap-2 transition-colors shadow-xs"
           >
             <ReceiptText class="w-4 h-4" />
-            <span>Lihat Transaksi Saya</span>
+            <span>Lihat Semua Transaksi</span>
           </NuxtLink>
 
           <NuxtLink
