@@ -83,6 +83,11 @@ const activeStepperIndex = computed(() => {
   }
 })
 
+const safeEstDelivery = computed(() => {
+  const val = String(props.tracking?.est_delivery || '').trim()
+  return !val || /invalid/i.test(val) ? '' : val
+})
+
 const isInstantCourier = computed(() => {
   if (!props.tracking) return false
   const cName = (props.tracking.courier_name || '').toLowerCase()
@@ -171,10 +176,10 @@ function copyWaybill() {
       <div class="bg-white rounded-xl border border-border/80 p-4 sm:p-5">
         <!-- Estimasi diterima -->
         <div
-          v-if="tracking.est_delivery && !tracking.is_meet"
+          v-if="safeEstDelivery && !tracking.is_meet"
           class="font-poppins font-semibold text-sm text-primary mb-4"
         >
-          Estimasi diterima {{ tracking.est_delivery }}
+          Estimasi diterima {{ safeEstDelivery }}
         </div>
 
         <div class="flex items-center justify-between">

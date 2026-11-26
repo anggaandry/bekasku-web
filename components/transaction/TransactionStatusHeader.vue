@@ -124,7 +124,8 @@ const cardScheduleSub = computed(() => {
   if (isFinish.value) {
     return props.detail.finish_date ? formatDate(props.detail.finish_date) : (props.detail.buy_date ? formatDate(props.detail.buy_date) : '-')
   }
-  return props.detail.est_delivery || 'Sedang dalam pengiriman'
+  const est = String(props.detail.est_delivery || '').trim()
+  return est && !/invalid/i.test(est) ? est : 'Sedang dalam pengiriman'
 })
 
 function copyInvoice() {
