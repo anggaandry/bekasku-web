@@ -221,48 +221,55 @@ const {
 } = useProducts()
 
 // SSR Data Fetching (Strategi SSR Section 6 Flow 00)
-// 1. Prioritas SSR
-const { data: banners, pending: bannerPending } = await useAsyncData(
-  'home-banners',
-  () => fetchBanners(),
-  { default: () => [] }
-)
+// Lewati seluruh fetch marketplace bila sedang mode coming_soon agar tidak membebani API/SSR.
+const shouldFetchHome = !appStore.isComingSoon
 
-const { data: categories, pending: categoryPending } = await useAsyncData(
-  'home-categories',
-  () => fetchCategories(),
-  { default: () => [] }
-)
+// 1. Prioritas SSR (paralel agar tidak waterfall)
+const [
+  { data: banners, pending: bannerPending },
+  { data: categories, pending: categoryPending },
+] = await Promise.all([
+  useAsyncData(
+    'home-banners',
+    () => (shouldFetchHome ? fetchBanners() : Promise.resolve([])),
+    { default: () => [], immediate: shouldFetchHome }
+  ),
+  useAsyncData(
+    'home-categories',
+    () => (shouldFetchHome ? fetchCategories() : Promise.resolve([])),
+    { default: () => [], immediate: shouldFetchHome }
+  ),
+])
 
+// 2. Data Lazy Client (server: false agar SSR HTML langsung terkirim tanpa menunggu query berat)
 const { data: bekaskuPlusSellers, pending: sellerPending } = useAsyncData(
   'home-bekasku-plus',
-  () => fetchBekaskuPlus(),
-  { default: () => [], lazy: true }
+  () => (shouldFetchHome ? fetchBekaskuPlus() : Promise.resolve([])),
+  { default: () => [], lazy: true, server: false, immediate: shouldFetchHome }
 )
 
 const { data: newest, pending: newestPending } = useAsyncData(
   'home-newest',
-  () => fetchNewest(),
-  { default: () => [], lazy: true }
+  () => (shouldFetchHome ? fetchNewest() : Promise.resolve([])),
+  { default: () => [], lazy: true, server: false, immediate: shouldFetchHome }
 )
 
 const { data: initialRecResponse, pending: initialRecPending } = useAsyncData(
   'home-recom-page-1',
-  () => fetchRecommendations({ page: 1, limit: 30 }),
-  { default: () => ({ docs: [] }), lazy: true }
+  () => (shouldFetchHome ? fetchRecommendations({ page: 1, limit: 30 }) : Promise.resolve({ docs: [] })),
+  { default: () => ({ docs: [] }), lazy: true, server: false, immediate: shouldFetchHome }
 )
 
-// 2. Data Lazy Client
 const { data: liveSessions, pending: livePending } = useAsyncData(
   'home-live',
-  () => fetchLiveSessions(),
-  { default: () => [], lazy: true }
+  () => (shouldFetchHome ? fetchLiveSessions() : Promise.resolve([])),
+  { default: () => [], lazy: true, server: false, immediate: shouldFetchHome }
 )
 
 const { data: bestDeals, pending: bestDealPending } = useAsyncData(
   'home-bestdeal',
-  () => fetchBestDeal(),
-  { default: () => [], lazy: true }
+  () => (shouldFetchHome ? fetchBestDeal() : Promise.resolve([])),
+  { default: () => [], lazy: true, server: false, immediate: shouldFetchHome }
 )
 
 const promoHasActive = useState<boolean>('promo_has_active', () => false)
@@ -276,14 +283,14 @@ watch(
 
 const { data: services, pending: servicesPending } = useAsyncData(
   'home-services',
-  () => fetchServices(),
-  { default: () => [], lazy: true }
+  () => (shouldFetchHome ? fetchServices() : Promise.resolve([])),
+  { default: () => [], lazy: true, server: false, immediate: shouldFetchHome }
 )
 
 const { data: needed, pending: neededPending } = useAsyncData(
   'home-needed',
-  () => fetchNeeded(),
-  { default: () => [], lazy: true }
+  () => (shouldFetchHome ? fetchNeeded() : Promise.resolve([])),
+  { default: () => [], lazy: true, server: false, immediate: shouldFetchHome }
 )
 
 // Paginasi Rekomendasi (30 produk per batch)

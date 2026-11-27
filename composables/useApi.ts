@@ -79,6 +79,7 @@ export function useApi() {
         {
           method: 'POST',
           body: {},
+          timeout: import.meta.server ? 8000 : 20000,
           headers: {
             'Content-Type': 'application/json',
             'x-auth-token': `Bearer ${TOKEN_REQ}`,
@@ -170,6 +171,7 @@ export function useApi() {
         method,
         body: resolvedBody,
         params: options.params,
+        timeout: import.meta.server ? 8000 : 30000,
         headers: buildHeaders(token),
       })
       return res
@@ -189,6 +191,7 @@ export function useApi() {
         errMsg.includes('key access')
 
       if (isTokenError) {
+        if (import.meta.server) ssrGuestToken = null
         handleSessionExpired()
       }
 
@@ -199,6 +202,7 @@ export function useApi() {
             method,
             body: resolvedBody,
             params: options.params,
+            timeout: import.meta.server ? 8000 : 30000,
             headers: buildHeaders(token),
           })
         }
