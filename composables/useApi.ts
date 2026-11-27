@@ -24,6 +24,11 @@ interface ApiOptions {
   usePaymentToken?: boolean
 }
 
+// Cache token tamu di memori proses Node (hanya SSR) agar setiap render halaman
+// tidak memanggil /auth/t0k3n lagi. Token tamu sama untuk semua pengunjung anonim.
+let ssrGuestToken: string | null = null
+let ssrGuestTokenPending: Promise<string | null> | null = null
+
 export function useApi() {
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase || DEFAULT_API_BASE
@@ -41,6 +46,33 @@ export function useApi() {
    * Request / Refresh Guest JWT Token dari backend
    */
   async function fetchGuestToken(): Promise<string | null> {
+    if (import.meta.server) {
+      if (ssrGuestToken && !isJwtExpired(ssrGuestToken, 300)) {
+        tokenState.value = ssrGuestToken
+        tokenCookie.value = ssrGuestToken
+        return ssrGuestToken
+      }
+      if (!ssrGuestTokenPending) {
+        ssrGuestTokenPending = requestGuestToken()
+          .then((t) => {
+            ssrGuestToken = t
+            return t
+          })
+          .finally(() => {
+            ssrGuestTokenPending = null
+          })
+      }
+      const shared = await ssrGuestTokenPending
+      if (shared) {
+        tokenState.value = shared
+        tokenCookie.value = shared
+      }
+      return shared
+    }
+    return requestGuestToken()
+  }
+
+  async function requestGuestToken(): Promise<string | null> {
     try {
       const response = await $fetch<{ token?: string; message?: string }>(
         `${apiBase}${API_REQUEST_TOKEN}`,
